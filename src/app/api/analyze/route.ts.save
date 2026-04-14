@@ -1,0 +1,104 @@
+import { NextRequest, NextResponse } from "next/server";
+
+const FREE_PROMPT = `너는 연애 경험 많고 눈치 빠른 친한 언니야. 이름은 "AI언니". 사용자가 보내준 정보(텍스트 설명 또는 카톡 캡쳐)를 보고 상대방의 호감도를 솔직하게 진단해줘.
+
+말투 규칙:
+- 20대 여성 친구한테 말하듯이 편하게
+- "~거든?", "~인 거 같아", "~인데?", "솔직히", "근데" 같은 표현 자연스럽게 사용
+- 핵심을 콕 찍어서 말해줘. 사용자가 "헐 어떻게 알았지?" 할 만큼 구체적으로
+
+분석 항목:
+1. 호감도 점수 (0-100%)
+2. 감정 온도 (차가움/미지근/따뜻/뜨거움)
+3. 관계 단계 ("관심없음"/"예의"/"호감"/"썸"/"연애직전" 중 하나)
+4. 한줄 요약 (15자 이내, 찌르는 한마디)
+5. 현재 상태 진단 (3문장. 콕 찍어서.)
+
+반드시 아래 JSON만 응답해:
+{"score":72,"temperature":"따뜻","stage":"썸","summary":"한줄 요약","diagnosis":"진단 3문장"}`;
+
+const PAID_PROMPT = `너는 연애 경험 많고 눈치 빠른 친한 언니 "AI언니"야. 심층 분석해줘.
+
+말투: 20대 여성 친구한테 편하게 반말. "~거든?", "솔직히", "근데" 자연스럽게. 애매하게 말하지 말고 솔직하게.
+
+분석 항목:
+1. 호감도 점수 (0-100%)
+2. 감정 온도 - 차가움/미지근/따뜻/뜨거움
+3. 관계 단계 - "관심없음"/"예의"/"호감"/"썸"/"연애직전"
+4. 한줄 요약 (15자 이내)
+5. 현재 상태 진단 (3문장)
+6. 호감 근거 3개 (각 1~2문장)
+7. 주의 포인트 2개 (솔직하게. 없으면 빈 배열)
+8. 상대방 심리 해석 (2~3문장)
+9. 행동 전략 3가지 (반드시 구체적 예시 포함. "가벼운 활동 제안해봐" 수준이 아니라 "같이 팝업스토어 가보자고 해봐, 요즘 성수에 XX 팝업 있거든" 수준. "호감 표현해" 가 아니라 "걔가 뭔가 했을 때 '오 진짜? 그거 너무 잘 어울린다ㅋㅋ' 이런 식으로" 수준. 실제로 카톡에 칠 수 있는 말, 실제로 할 수 있는 행동을 예시로 줘야 해)
+
+JSON만 응답해:
+{"score":72,"temperature":"따뜻","stage":"썸","summary":"요약","diagnosis":"진단","reasons":["1","2","3"],"warnings":["1","2"],"psychology":"심리","actions":["1","2","3"]}`;
+
+export async function POST(req: NextRequest) {
+  try {
+    const { text, images, tier } = await req.json();
+    const isFree = tier === "free";
+
+    // Build message content
+    const content: any[] = [];
+
+    // Images (free: max 1, paid: all)
+    const imgs = isFree ? (images || []).slice(0, 1) : (images || []);
+    for (const img of imgs) {
+      content.push({
+        type: "image",
+        source: {
+          type: "base64",
+          media_type: img.mediaType || "image/jpeg",
+          data: img.data,
+        },
+      });
+    }
+
+    // Prompt
+    let prompt = isFree ? FREE_PROMPT : PAID_PROMPT;
+    if (text?.trim()) {
+      prompt += `\n\n[사용자가 설명한 상황]\n${text.trim()}`;
+    }
+    if (imgs.length > 0) {
+      prompt += "\n\n위 이미지는 카톡 캡쳐야. 텍스트랑 이미지 둘 다 참고해서 분석해줘.";
+    }
+    content.push({ type: "text", text: prompt });
+
+    // Call Claude API
+    const model = isFree ? "claude-haiku-4-5-20251001" : "claude-sonnet-4-20250514";
+    const maxTokens = isFree ? 500 : 1200;
+
+    const response = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-api-key": process.env.ANTHROPIC_API_KEY || "",
+        "anthropic-version": "2023-06-01",
+      },
+      body: JSON.stringify({
+        model,
+        max_tokens: maxTokens,
+        temperature: 0.2,
+        messages: [{ role: "user", content }],
+      }),
+    });
+
+    const data = await response.json();
+    const console.log("CLAUDE RAW:", JSON.stringify(data    const rawText = data?.content?.[0]?.text || "";
+    console.log("CLAUDE RAW:", JSON.stringify(data));ㅏrawText = data?.content?.[0]?.text || "";
+
+    // Parse JSON from response
+    const match = rawText.match(/\{[\s\S]*\}/);
+    if (!match) {
+      return NextResponse.json({ error: "분석 결과 파싱 실패" }, { status: 500 });
+    }
+
+    const result = JSON.parse(match[0]);
+    return NextResponse.json({ result, tier });
+  } catch (error) {
+    console.error("Analyze error:", error);
+    return NextResponse.json({ error: "분석 중 오류가 발생했어요" }, { status: 500 });
+  }
+}
