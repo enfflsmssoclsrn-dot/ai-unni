@@ -383,6 +383,103 @@ function AxesList({ axes }: { axes: Record<string, number> }) {
   );
 }
 
+// ─── 애착 유형 4분면 차트 (Bartholomew-Horowitz) ───
+// X축: 불안(anxiety) 낮음(왼쪽) → 높음(오른쪽)
+// Y축: 회피(avoidance) 낮음(아래) → 높음(위)
+// 4사분면:
+//   좌상: 회피형 (회피高 불안低) / 우상: 혼합형 (회피高 불안高)
+//   좌하: 안정형 (회피低 불안低) / 우하: 불안형 (회피低 불안高)
+function AttachmentChart({
+  avoidance,
+  anxiety,
+  type,
+}: {
+  avoidance: number;
+  anxiety: number;
+  type: string;
+}) {
+  const size = 280;
+  const pad = 36;
+  const plotSize = size - pad * 2;
+  const cx = pad + plotSize / 2;
+  const cy = pad + plotSize / 2;
+
+  // 값 → 좌표 (0~100 → pad ~ pad+plotSize)
+  // 불안(X): 0=왼쪽, 100=오른쪽
+  // 회피(Y): 0=아래, 100=위 (SVG Y는 반대)
+  const clamp = (v: number) => Math.max(0, Math.min(100, v));
+  const pointX = pad + (clamp(anxiety) / 100) * plotSize;
+  const pointY = pad + (1 - clamp(avoidance) / 100) * plotSize;
+
+  const quadrantLabels = [
+    { label: "회피형", x: pad + plotSize * 0.25, y: pad + plotSize * 0.28 },
+    { label: "혼합형", x: pad + plotSize * 0.75, y: pad + plotSize * 0.28 },
+    { label: "안정형", x: pad + plotSize * 0.25, y: pad + plotSize * 0.78 },
+    { label: "불안형", x: pad + plotSize * 0.75, y: pad + plotSize * 0.78 },
+  ];
+
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox={`0 0 ${size} ${size}`}
+      className="block mx-auto"
+    >
+      <defs>
+        <radialGradient id="attachDot" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stopColor="#FF8FA3" />
+          <stop offset="100%" stopColor="#E8456A" />
+        </radialGradient>
+      </defs>
+
+      {/* 사분면 배경 */}
+      <rect x={pad} y={pad} width={plotSize} height={plotSize}
+        fill="#FFF8FA" stroke="#FFE8EC" strokeWidth="1" rx="8" />
+
+      {/* 사분면 구분선 (십자) */}
+      <line x1={cx} y1={pad} x2={cx} y2={pad + plotSize}
+        stroke="#D4D0E0" strokeWidth="1.4" />
+      <line x1={pad} y1={cy} x2={pad + plotSize} y2={cy}
+        stroke="#D4D0E0" strokeWidth="1.4" />
+
+      {/* 사분면 라벨 */}
+      {quadrantLabels.map((q) => {
+        const active = q.label === type;
+        return (
+          <text
+            key={q.label}
+            x={q.x}
+            y={q.y}
+            textAnchor="middle"
+            dominantBaseline="middle"
+            fontSize={active ? "14" : "12"}
+            fontWeight={active ? "800" : "600"}
+            fill={active ? "#E8456A" : "#8E8A9D"}
+          >
+            {q.label}
+          </text>
+        );
+      })}
+
+      {/* 축 라벨 — 회피(위), 불안(오른쪽) */}
+      <text x={cx} y={pad - 12} textAnchor="middle" fontSize="12"
+        fontWeight="700" fill="#7B9FC4">
+        회피 ↑
+      </text>
+      <text x={pad + plotSize + 8} y={cy} textAnchor="start" dominantBaseline="middle"
+        fontSize="12" fontWeight="700" fill="#E8456A">
+        → 불안
+      </text>
+
+      {/* 데이터 점 */}
+      <circle cx={pointX} cy={pointY} r="12"
+        fill="url(#attachDot)" stroke="#fff" strokeWidth="2" opacity="0.35" />
+      <circle cx={pointX} cy={pointY} r="7"
+        fill="url(#attachDot)" stroke="#fff" strokeWidth="2" />
+    </svg>
+  );
+}
+
 // ─── 프리미엄 분석 예고 카드 (무료 유저용) ───
 function PremiumPreview({ onUnlock, unlocking, redirecting }: { onUnlock: () => void; unlocking: boolean; redirecting?: boolean }) {
   const items = [
@@ -511,8 +608,29 @@ function ResultCard({ result, isPaid, onReset, onResetPaid, onUnlock, unlocking,
         </div>
       </div>
 
-      {/* 레이더 차트 (6축 호감도 시각화) */}
-      {result.axes && (
+      {/* 무료: 애착 유형 4분면 / 유료: 6축 레이더 */}
+      {!isPaid && result.attachment && typeof result.attachment.avoidance === "number" && typeof result.attachment.anxiety === "number" && (
+        <SectionCard title="걔 애착 유형은?" icon="🧭">
+          <AttachmentChart
+            avoidance={result.attachment.avoidance}
+            anxiety={result.attachment.anxiety}
+            type={result.attachment.type || ""}
+          />
+          <div className="mt-3 px-3 py-2.5 rounded-[12px]"
+            style={{ background: "#FFF0F3", border: "1px solid #FFD6E0" }}>
+            <div className="text-[11px] font-bold mb-1" style={{ color: "#E8456A" }}>
+              {result.attachment.type}
+            </div>
+            <div className="text-[13px] leading-[1.6] text-[#2D2B3D]">
+              {result.attachment.comment}
+            </div>
+          </div>
+          <div className="mt-2 text-[10.5px] text-[#8E8A9D] leading-[1.5] px-1">
+            * Bartholomew-Horowitz 애착이론 기반. 회피(감정 거리두기) × 불안(관계 불안) 두 축으로 유형 진단.
+          </div>
+        </SectionCard>
+      )}
+      {isPaid && result.axes && (
         <SectionCard title="호감도 레이더" icon="📊">
           <RadarChart axes={result.axes} />
           <AxesList axes={result.axes} />
@@ -1869,7 +1987,7 @@ function SiteFooter() {
       <div className="text-[10.5px] text-[#8E8A9D] leading-[1.75]">
         <div>상호: 주니랩스튜디오 | 대표자: 김경은</div>
         <div>사업자등록번호: 875-56-01088 | 통신판매업신고번호: [제0000-지역-0000호]</div>
-        <div>주소: 서울특별시 서초구 바우뫼로7길 29, 105동 204호(우면동, 동고아파트)</div>
+        <div>주소: 서울특별시 서초구 바우뫼로7길 29</div>
         <div>고객센터: junilabstudio@gmail.com (평일 10:00~18:00)</div>
         <div className="mt-1.5 text-[#A09CB0]">
           © {new Date().getFullYear()} AI언니. All rights reserved.
