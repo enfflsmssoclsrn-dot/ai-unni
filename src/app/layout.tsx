@@ -3,12 +3,42 @@ import "./globals.css";
 import { ScrollToTop } from "./scroll-to-top";
 
 export const metadata: Metadata = {
-  title: "AI언니 - 걔한테 너는 지금 몇 점일까",
-  description: "썸·연애·재회·부부관계까지 대신 봐주는 연애 AI 💌 카톡·DM 캡처만 올리면 가트만 관계심리학 기반으로 호감도를 분석해줘",
+  title: "AI 연애 상담 · 카톡 호감도 분석 | AI언니",
+  description:
+    "카톡 캡처만 올리면 AI가 호감도를 분석해줘. 썸남 호감 신호, 읽씹 심리, 애착 유형까지 가트만 관계심리학 기반 무료 연애 상담. 썸·연애·재회·부부관계 AI 분석.",
+  keywords: [
+    "AI 연애 상담",
+    "카톡 호감도 분석",
+    "썸남 호감 신호",
+    "카톡 읽씹 심리",
+    "애착 유형 테스트",
+    "연애 상담 AI",
+    "호감도 테스트",
+    "카톡 분석",
+    "연애 초기 매력",
+    "AI언니",
+  ],
+  metadataBase: new URL("https://ai-unni.vercel.app"),
+  alternates: { canonical: "/" },
   openGraph: {
-    title: "AI언니 - 걔한테 너는 지금 몇 점일까",
-    description: "썸·연애·재회·부부관계까지 대신 봐주는 연애 AI 💌 가트만 관계심리학 · 애착이론 기반",
+    title: "AI 연애 상담 · 카톡 호감도 분석 | AI언니",
+    description:
+      "카톡 캡처만 올리면 AI가 호감도를 분석해줘. 가트만 관계심리학 · 애착이론 기반 무료 연애 상담.",
     type: "website",
+    url: "https://ai-unni.vercel.app",
+    siteName: "AI언니",
+    locale: "ko_KR",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "AI 연애 상담 · 카톡 호감도 분석 | AI언니",
+    description:
+      "카톡 캡처만 올리면 AI가 호감도를 분석해줘. 무료 연애 상담 AI.",
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: { index: true, follow: true },
   },
 };
 
