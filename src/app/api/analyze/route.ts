@@ -286,57 +286,82 @@ export async function POST(request: Request) {
     // 1) 각 축 점수를 5의 배수로 스냅 — 모델이 77, 83 같은 애매한 숫자를 찍어도 흡수
     // 2) 스냅된 축 점수 평균으로 score 강제 재계산 — 모델이 score 공식 어겨도 보정
     // 3) 최종 score 도 5의 배수로 스냅 — 유저 체감 안정성 확보
-    // (axes가 없거나 6개 키가 아닌 경우엔 원래 score만 스냅)
+    // ※ 관대 처리: 축 값이 invalid/out-of-range 여도 폴백 후 진행 → score ≠ 축평균 불일치 원천 차단
     const AXIS_KEYS = ["관심도", "적극성", "반응성", "친밀감", "일관성", "미래지향"] as const;
     const snapTo5 = (v: number) => {
       const snapped = Math.round(v / 5) * 5;
       return Math.max(0, Math.min(100, snapped));
     };
+    const clamp01 = (v: number) => Math.max(0, Math.min(100, v));
+
     const axes = result?.axes;
     if (axes && typeof axes === "object") {
-      // 1) 축 점수 스냅
+      // 1) 축 점수 스냅 (invalid 면 폴백: score 또는 50)
+      const fallback = Number.isFinite(Number(result?.score))
+        ? clamp01(Number(result.score))
+        : 50;
       const vals: number[] = [];
-      let allValid = true;
       for (const k of AXIS_KEYS) {
-        const v = Number(axes[k]);
-        if (!Number.isFinite(v) || v < 0 || v > 100) {
-          allValid = false;
-          break;
-        }
+        let v = Number(axes[k]);
+        if (!Number.isFinite(v)) v = fallback;
+        v = clamp01(v);
         const snapped = snapTo5(v);
         axes[k] = snapped;
         vals.push(snapped);
       }
-      // 2) 스냅된 축 평균으로 score 재계산
-      if (allValid && vals.length === AXIS_KEYS.length) {
-        const avg = vals.reduce((a, b) => a + b, 0) / vals.length;
-        result.score = snapTo5(avg);
-      } else if (Number.isFinite(Number(result?.score))) {
-        result.score = snapTo5(Number(result.score));
-      }
+      // 2) 스냅된 6축 평균으로 score 무조건 재계산 → 화면의 육각형과 호감도 점수 100% 일치 보장
+      const avg = vals.reduce((a, b) => a + b, 0) / vals.length;
+      result.score = snapTo5(avg);
     } else if (Number.isFinite(Number(result?.score))) {
-      // axes 없으면 score 만 스냅
-      result.score = snapTo5(Number(result.score));
+      // axes 없으면(=무료 분석) score 만 스냅
+      result.score = snapTo5(clamp01(Number(result.score)));
     }
 
-    // ─── attachment 4분면 보정 ───
-    // avoidance/anxiety 를 5 단위로 스냅하고, type 은 축 값 기준으로 서버에서 재판정
-    // (모델이 type 을 틀리게 뽑아도 축 값이 진실)
-    const attachment = result?.attachment;
-    if (attachment && typeof attachment === "object") {
-      const av = Number(attachment.avoidance);
-      const ax = Number(attachment.anxiety);
-      if (Number.isFinite(av) && Number.isFinite(ax) && av >= 0 && av <= 100 && ax >= 0 && ax <= 100) {
-        const avSnap = snapTo5(av);
-        const axSnap = snapTo5(ax);
-        attachment.avoidance = avSnap;
-        attachment.anxiety = axSnap;
-        // type 자동 판정 (50 기준)
-        if (avSnap < 50 && axSnap < 50) attachment.type = "안정형";
-        else if (avSnap < 50 && axSnap >= 50) attachment.type = "불안형";
-        else if (avSnap >= 50 && axSnap < 50) attachment.type = "회피형";
-        else attachment.type = "혼합형";
-      }
+    // ─── attachment 4분면 보정 & 누락 시 축에서 도출 ───
+    // 원칙: 유료든 무료든 4분면 차트가 반드시 그려지도록 server-side 에서 보장.
+    // (모델이 attachment 를 누락하거나 형식 틀리게 뽑아도 axes 로부터 heuristic 도출)
+    const deriveType = (av: number, ax: number) => {
+      if (av < 50 && ax < 50) return "안정형";
+      if (av < 50 && ax >= 50) return "불안형";
+      if (av >= 50 && ax < 50) return "회피형";
+      return "혼합형";
+    };
+
+    let attachment = result?.attachment;
+    const avRaw = Number(attachment?.avoidance);
+    const axRaw = Number(attachment?.anxiety);
+    const hasValidPair =
+      attachment && typeof attachment === "object" &&
+      Number.isFinite(avRaw) && Number.isFinite(axRaw) &&
+      avRaw >= 0 && avRaw <= 100 && axRaw >= 0 && axRaw <= 100;
+
+    if (hasValidPair) {
+      const avSnap = snapTo5(avRaw);
+      const axSnap = snapTo5(axRaw);
+      attachment.avoidance = avSnap;
+      attachment.anxiety = axSnap;
+      attachment.type = deriveType(avSnap, axSnap);
+    } else if (axes && typeof axes === "object") {
+      // 유료 모드에서 attachment 누락 시 → 6축 값으로부터 heuristic 도출
+      // 회피: 친밀감·미래지향 낮을수록 높음 (감정·미래 공유 회피)
+      // 불안: 일관성·반응성 낮을수록 높음 (흔들림·불규칙)
+      const 친 = Number(axes["친밀감"]) || 50;
+      const 미 = Number(axes["미래지향"]) || 50;
+      const 일 = Number(axes["일관성"]) || 50;
+      const 반 = Number(axes["반응성"]) || 50;
+      const avCalc = clamp01(100 - (친 * 0.6 + 미 * 0.4));
+      const axCalc = clamp01(100 - (일 * 0.7 + 반 * 0.3));
+      const avSnap = snapTo5(avCalc);
+      const axSnap = snapTo5(axCalc);
+      const derivedType = deriveType(avSnap, axSnap);
+      result.attachment = {
+        avoidance: avSnap,
+        anxiety: axSnap,
+        type: derivedType,
+        comment:
+          attachment?.comment ||
+          `${derivedType} 패턴이야. 감정 거리두기 ${avSnap}, 관계 불안 ${axSnap} 수준으로 보여.`,
+      };
     }
 
     return Response.json({ result, tier });

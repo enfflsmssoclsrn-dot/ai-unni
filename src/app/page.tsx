@@ -398,13 +398,13 @@ function AttachmentChart({
   anxiety: number;
   type: string;
 }) {
-  // 뷰박스: 좌우·상단 충분히 여유 두고, 축 라벨 다 들어가게
-  const W = 240;
-  const H = 220;
-  const padL = 26;
-  const padR = 26;
-  const padT = 28;
-  const padB = 26;
+  // 뷰박스 — 여백 넉넉히
+  const W = 260;
+  const H = 240;
+  const padL = 38;
+  const padR = 38;
+  const padT = 34;
+  const padB = 34;
   const plotW = W - padL - padR;
   const plotH = H - padT - padB;
   const cx = padL + plotW / 2;
@@ -414,21 +414,28 @@ function AttachmentChart({
   const pointX = padL + (clamp(anxiety) / 100) * plotW;
   const pointY = padT + (1 - clamp(avoidance) / 100) * plotH;
 
-  // 각 사분면의 메타 (배경색, 라벨 위치)
+  // 사분면 메타 — 각 유형별 시그니처 컬러 + 이모지
+  // 좌표계: 왼쪽=불안 낮음, 오른쪽=불안 높음 / 위=회피 높음, 아래=회피 낮음
   const quadrants = [
-    { label: "회피형",  bg: "#EAF2FA", x: padL + plotW * 0.25, y: padT + plotH * 0.30, color: "#6A8CAF" }, // 좌상
-    { label: "혼합형",  bg: "#F3ECF7", x: padL + plotW * 0.75, y: padT + plotH * 0.30, color: "#8A6AAF" }, // 우상
-    { label: "안정형",  bg: "#EAF6EF", x: padL + plotW * 0.25, y: padT + plotH * 0.72, color: "#4C9A6E" }, // 좌하
-    { label: "불안형",  bg: "#FCEAEE", x: padL + plotW * 0.75, y: padT + plotH * 0.72, color: "#D85378" }, // 우하
-  ];
+    { label: "회피형", emoji: "🌫️", light: "#E6EFF8", deep: "#4A7FB8", textOn: "#3B6490", pos: "tl" },
+    { label: "혼합형", emoji: "🌪️", light: "#F0E8F5", deep: "#7B55A6", textOn: "#5D3F80", pos: "tr" },
+    { label: "안정형", emoji: "🌿", light: "#E4F1E9", deep: "#3E8C66", textOn: "#2D6B4D", pos: "bl" },
+    { label: "불안형", emoji: "💓", light: "#FDE3EA", deep: "#D64B74", textOn: "#A83557", pos: "br" },
+  ] as const;
 
-  // 사분면별 영역 좌표
-  const quadRects = [
-    { q: "회피형", x: padL,             y: padT,             w: plotW / 2, h: plotH / 2 },
-    { q: "혼합형", x: padL + plotW / 2, y: padT,             w: plotW / 2, h: plotH / 2 },
-    { q: "안정형", x: padL,             y: padT + plotH / 2, w: plotW / 2, h: plotH / 2 },
-    { q: "불안형", x: padL + plotW / 2, y: padT + plotH / 2, w: plotW / 2, h: plotH / 2 },
-  ];
+  // 사분면 영역 좌표
+  const quadRect = (pos: string) => {
+    const half = { w: plotW / 2, h: plotH / 2 };
+    if (pos === "tl") return { x: padL, y: padT, ...half };
+    if (pos === "tr") return { x: padL + half.w, y: padT, ...half };
+    if (pos === "bl") return { x: padL, y: padT + half.h, ...half };
+    return { x: padL + half.w, y: padT + half.h, ...half };
+  };
+  // 사분면 라벨 좌표 (중앙)
+  const quadCenter = (pos: string) => {
+    const r = quadRect(pos);
+    return { x: r.x + r.w / 2, y: r.y + r.h / 2 };
+  };
 
   return (
     <svg
@@ -437,18 +444,34 @@ function AttachmentChart({
       viewBox={`0 0 ${W} ${H}`}
       preserveAspectRatio="xMidYMid meet"
       className="block mx-auto"
-      style={{ maxWidth: 280 }}
+      style={{ maxWidth: 300 }}
     >
       <defs>
-        <radialGradient id="attachDotGrad" cx="50%" cy="50%" r="50%">
-          <stop offset="0%" stopColor="#FF8FA3" />
+        <radialGradient id="attachDotGrad" cx="35%" cy="35%" r="65%">
+          <stop offset="0%" stopColor="#FFB0C2" />
+          <stop offset="60%" stopColor="#FF6B8A" />
           <stop offset="100%" stopColor="#E8456A" />
         </radialGradient>
-        <filter id="attachDotShadow" x="-50%" y="-50%" width="200%" height="200%">
-          <feGaussianBlur in="SourceAlpha" stdDeviation="2" />
-          <feOffset dx="0" dy="1.5" result="shadow" />
+        <radialGradient id="attachHalo" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stopColor="#FF6B8A" stopOpacity="0.45" />
+          <stop offset="100%" stopColor="#FF6B8A" stopOpacity="0" />
+        </radialGradient>
+        <filter id="attachDotShadow" x="-60%" y="-60%" width="220%" height="220%">
+          <feGaussianBlur in="SourceAlpha" stdDeviation="2.2" />
+          <feOffset dx="0" dy="2" result="shadow" />
           <feComponentTransfer>
-            <feFuncA type="linear" slope="0.35" />
+            <feFuncA type="linear" slope="0.4" />
+          </feComponentTransfer>
+          <feMerge>
+            <feMergeNode />
+            <feMergeNode in="SourceGraphic" />
+          </feMerge>
+        </filter>
+        <filter id="plotShadow" x="-10%" y="-10%" width="120%" height="120%">
+          <feGaussianBlur in="SourceAlpha" stdDeviation="3" />
+          <feOffset dx="0" dy="2" result="shadow" />
+          <feComponentTransfer>
+            <feFuncA type="linear" slope="0.1" />
           </feComponentTransfer>
           <feMerge>
             <feMergeNode />
@@ -456,72 +479,99 @@ function AttachmentChart({
           </feMerge>
         </filter>
         <clipPath id="plotClip">
-          <rect x={padL} y={padT} width={plotW} height={plotH} rx="10" />
+          <rect x={padL} y={padT} width={plotW} height={plotH} rx="14" />
         </clipPath>
       </defs>
 
-      {/* 사분면 배경 (각 영역 연한 파스텔) */}
+      {/* 플롯 전체 그림자 박스 */}
+      <rect x={padL - 2} y={padT - 2} width={plotW + 4} height={plotH + 4}
+        fill="#fff" rx="16" filter="url(#plotShadow)" />
+
+      {/* 사분면 배경 */}
       <g clipPath="url(#plotClip)">
-        {quadRects.map((r) => {
-          const meta = quadrants.find((qq) => qq.label === r.q)!;
-          const active = r.q === type;
+        {quadrants.map((q) => {
+          const r = quadRect(q.pos);
+          const active = q.label === type;
           return (
-            <rect key={r.q} x={r.x} y={r.y} width={r.w} height={r.h}
-              fill={meta.bg}
-              opacity={active ? 1 : 0.55} />
+            <rect key={q.label} x={r.x} y={r.y} width={r.w} height={r.h}
+              fill={q.light}
+              opacity={active ? 1 : 0.5} />
           );
         })}
       </g>
 
-      {/* 외곽 + 십자 구분선 */}
-      <rect x={padL} y={padT} width={plotW} height={plotH}
-        fill="none" stroke="#E8E4F0" strokeWidth="1" rx="10" />
-      <line x1={cx} y1={padT} x2={cx} y2={padT + plotH}
-        stroke="#D4D0E0" strokeWidth="1" strokeDasharray="2 3" />
-      <line x1={padL} y1={cy} x2={padL + plotW} y2={cy}
-        stroke="#D4D0E0" strokeWidth="1" strokeDasharray="2 3" />
-
-      {/* 사분면 라벨 */}
-      {quadrants.map((q) => {
-        const active = q.label === type;
+      {/* 활성 사분면 하이라이트 테두리 */}
+      {quadrants.filter((q) => q.label === type).map((q) => {
+        const r = quadRect(q.pos);
         return (
-          <text
-            key={q.label}
-            x={q.x}
-            y={q.y}
-            textAnchor="middle"
-            dominantBaseline="middle"
-            fontSize={active ? "12.5" : "11"}
-            fontWeight={active ? "800" : "600"}
-            fill={active ? q.color : "#9994A8"}
-            letterSpacing="0.2"
-          >
-            {q.label}
-          </text>
+          <rect key={"active-" + q.label}
+            x={r.x + 1.5} y={r.y + 1.5} width={r.w - 3} height={r.h - 3}
+            fill="none" stroke={q.deep} strokeWidth="1.5" strokeOpacity="0.5"
+            rx="8" />
         );
       })}
 
-      {/* 축 라벨 — 여백 내부에 배치해서 잘리지 않음 */}
-      <text x={cx} y={padT - 10} textAnchor="middle"
-        fontSize="10.5" fontWeight="700" fill="#7B9FC4" letterSpacing="1">
-        ↑ 회피
+      {/* 외곽 */}
+      <rect x={padL} y={padT} width={plotW} height={plotH}
+        fill="none" stroke="#EAE5F2" strokeWidth="1.2" rx="14" />
+      {/* 십자 점선 */}
+      <line x1={cx} y1={padT + 4} x2={cx} y2={padT + plotH - 4}
+        stroke="#C9C2D6" strokeWidth="0.9" strokeDasharray="2 3" />
+      <line x1={padL + 4} y1={cy} x2={padL + plotW - 4} y2={cy}
+        stroke="#C9C2D6" strokeWidth="0.9" strokeDasharray="2 3" />
+
+      {/* 사분면 라벨 + 이모지 */}
+      {quadrants.map((q) => {
+        const c = quadCenter(q.pos);
+        const active = q.label === type;
+        return (
+          <g key={q.label}>
+            <text x={c.x} y={c.y - 6} textAnchor="middle" dominantBaseline="middle"
+              fontSize="14" opacity={active ? 1 : 0.55}>
+              {q.emoji}
+            </text>
+            <text x={c.x} y={c.y + 11} textAnchor="middle" dominantBaseline="middle"
+              fontSize={active ? "11.5" : "10.5"}
+              fontWeight={active ? "800" : "600"}
+              fill={active ? q.textOn : "#A8A3B8"}
+              letterSpacing="0.3">
+              {q.label}
+            </text>
+          </g>
+        );
+      })}
+
+      {/* 축 라벨 — 여백에 안정적으로 배치 */}
+      {/* Y축(회피) 위쪽 */}
+      <text x={cx} y={padT - 14} textAnchor="middle"
+        fontSize="10" fontWeight="700" fill="#7B9FC4" letterSpacing="1.2">
+        회피 ↑
       </text>
-      <text x={padL + plotW + padR / 2} y={cy} textAnchor="middle" dominantBaseline="middle"
-        fontSize="10.5" fontWeight="700" fill="#E8456A" letterSpacing="1">
+      <text x={cx} y={H - padB + 18} textAnchor="middle"
+        fontSize="9" fontWeight="600" fill="#B8B0C8" letterSpacing="1">
+        감정 거리두기
+      </text>
+      {/* X축(불안) 오른쪽 */}
+      <text x={padL + plotW + 4} y={cy - 5} textAnchor="start"
+        fontSize="10" fontWeight="700" fill="#D64B74" letterSpacing="1.2">
         불안
       </text>
-      <text x={padL + plotW + padR / 2} y={cy + 12} textAnchor="middle" dominantBaseline="middle"
-        fontSize="9" fontWeight="600" fill="#C09AA8">
+      <text x={padL + plotW + 4} y={cy + 8} textAnchor="start"
+        fontSize="12" fontWeight="700" fill="#D64B74">
         →
       </text>
+      {/* X축(불안) 왼쪽 설명 */}
+      <text x={padL - 4} y={cy - 5} textAnchor="end"
+        fontSize="9" fontWeight="600" fill="#B8B0C8" letterSpacing="0.5">
+        안정
+      </text>
 
-      {/* 데이터 점 (부드러운 halo + 본체) */}
-      <circle cx={pointX} cy={pointY} r="13"
-        fill="url(#attachDotGrad)" opacity="0.22" />
-      <circle cx={pointX} cy={pointY} r="8"
-        fill="url(#attachDotGrad)" opacity="0.4" />
-      <circle cx={pointX} cy={pointY} r="5"
-        fill="url(#attachDotGrad)" stroke="#fff" strokeWidth="1.8"
+      {/* 데이터 점 — 큰 halo 그라디언트 + body */}
+      <circle cx={pointX} cy={pointY} r="18" fill="url(#attachHalo)" />
+      <circle cx={pointX} cy={pointY} r="9"
+        fill="url(#attachDotGrad)" opacity="0.55" />
+      <circle cx={pointX} cy={pointY} r="5.5"
+        fill="url(#attachDotGrad)" stroke="#fff" strokeWidth="2"
         filter="url(#attachDotShadow)" />
     </svg>
   );
