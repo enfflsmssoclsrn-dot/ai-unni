@@ -1,12 +1,147 @@
 "use client";
 import { useState, useRef, useCallback, useEffect } from "react";
 
+// ─── Free Usage Limit (1/day, localStorage) ───
+const FREE_LIMIT_KEY = "ai-unni-free-used";
+const PAID_KEY = "ai-unni-paid";
+
+function getTodayStr() {
+  return new Date().toISOString().slice(0, 10); // "2026-04-15"
+}
+
+function hasFreeUsedToday(): boolean {
+  try {
+    if (localStorage.getItem(PAID_KEY) === "true") return false; // 유료 사용자는 제한 없음
+    return localStorage.getItem(FREE_LIMIT_KEY) === getTodayStr();
+  } catch {
+    return false;
+  }
+}
+
+function markFreeUsed() {
+  try {
+    localStorage.setItem(FREE_LIMIT_KEY, getTodayStr());
+  } catch {}
+}
+
+function markPaid() {
+  try {
+    localStorage.setItem(PAID_KEY, "true");
+  } catch {}
+}
+
+function isPaidUser(): boolean {
+  try {
+    return localStorage.getItem(PAID_KEY) === "true";
+  } catch {
+    return false;
+  }
+}
+
+// ─── 유료 결과 저장/복원 ───
+const PAID_RESULT_KEY = "ai-unni-paid-result";
+// 결제 후 merge 용 무료 결과 임시 저장 키
+const FREE_RESULT_KEY = "ai-unni-free-result-pending";
+
+function savePaidResult(result: any) {
+  try {
+    localStorage.setItem(PAID_RESULT_KEY, JSON.stringify(result));
+  } catch {}
+}
+
+function loadPaidResult(): any | null {
+  try {
+    const raw = localStorage.getItem(PAID_RESULT_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
+}
+
+function clearPaidResult() {
+  try {
+    localStorage.removeItem(PAID_RESULT_KEY);
+  } catch {}
+}
+
+function saveFreeResultPending(result: any) {
+  try {
+    localStorage.setItem(FREE_RESULT_KEY, JSON.stringify(result));
+  } catch {}
+}
+
+// ─── 대화 시뮬레이터 (parent orderId + 세션 캐시) ───
+const PAID_ORDER_ID_KEY = "ai-unni-paid-order-id";            // 부모 분석 주문 ID (세션 시작용)
+const SIM_SESSION_ID_KEY = "ai-unni-sim-session-id";          // 현재 세션 ID
+const SIM_UNLOCK_PENDING_KEY = "ai-unni-sim-unlock-done";     // 언락 결제 완료 플래그
+
+type ChatRole = "user" | "partner";
+type ChatMessage = {
+  role: ChatRole;
+  content: string;
+  turn_index: number;
+  created_at?: string;
+};
+type SimPersona = {
+  name_ref?: string;
+  speech_style?: {
+    tone?: string;
+    sentence_length?: string;
+    emoji_usage?: string;
+    honorific?: string;
+    punctuation_style?: string;
+  };
+  vocabulary_samples?: string[];
+  attachment_style?: string;
+  response_pattern?: {
+    reply_speed?: string;
+    initiation?: string;
+    emotional_expression?: string;
+  };
+  do_not?: string[];
+  current_feeling_toward_user?: string;
+  context_summary?: string;
+};
+
+function loadPaidOrderId(): string | null {
+  try {
+    return localStorage.getItem(PAID_ORDER_ID_KEY);
+  } catch {
+    return null;
+  }
+}
+
+function loadSimSessionId(): string | null {
+  try {
+    return localStorage.getItem(SIM_SESSION_ID_KEY);
+  } catch {
+    return null;
+  }
+}
+
+function saveSimSessionId(id: string) {
+  try {
+    localStorage.setItem(SIM_SESSION_ID_KEY, id);
+  } catch {}
+}
+
+function clearSimAndOrder() {
+  try {
+    localStorage.removeItem(PAID_ORDER_ID_KEY);
+    localStorage.removeItem(SIM_SESSION_ID_KEY);
+    localStorage.removeItem(SIM_UNLOCK_PENDING_KEY);
+    // 과거 구조(시뮬 히스토리) 정리
+    localStorage.removeItem("ai-unni-sim-history");
+  } catch {}
+}
+
 // ─── Situation Chips ───
 const CHIPS = [
-  { emoji: "💘", label: "썸 타는 중", prompt: "지금 썸 타는 사람이 있는데, " },
-  { emoji: "💑", label: "사귀는 중인데 불안해", prompt: "사귀고 있는데 요즘 좀 불안해. " },
-  { emoji: "💔", label: "재회하고 싶어", prompt: "헤어진 사람이 있는데 다시 만나고 싶어. " },
-  { emoji: "🤔", label: "이게 호감인지 모르겠어", prompt: "이 사람이 나한테 호감인 건지 잘 모르겠어. " },
+  { emoji: "💘", label: "썸인데 나만 진심인 것 같아", prompt: "썸 타는 중인데 나만 진심인 것 같아. " },
+  { emoji: "💑", label: "사귀는 중인데 자꾸 불안해", prompt: "사귀고 있는데 자꾸 불안해. " },
+  { emoji: "💔", label: "헤어졌는데 다시 가능성 있는지 모르겠어", prompt: "헤어졌는데 다시 가능성이 있는지 모르겠어. " },
+  { emoji: "🤔", label: "이 사람이 날 좋아하는지 모르겠어", prompt: "이 사람이 날 좋아하는지 모르겠어. " },
+  { emoji: "💍", label: "부부 사이가 너무 멀어진 느낌이야", prompt: "부부 사이인데 너무 멀어진 느낌이야. " },
 ];
 
 // ─── API call helper ───
@@ -52,33 +187,45 @@ function ScoreGauge({ score }: { score: number }) {
     return () => cancelAnimationFrame(f);
   }, [score]);
   return (
-    <svg width="140" height="140" viewBox="0 0 140 140">
-      <defs>
-        <linearGradient id="scoreGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#FF6B8A" />
-          <stop offset="100%" stopColor="#FF8FA3" />
-        </linearGradient>
-      </defs>
-      <circle cx="70" cy="70" r={r} fill="none" stroke="#FFD6E0" strokeWidth="10" />
-      <circle cx="70" cy="70" r={r} fill="none" stroke="url(#scoreGrad)" strokeWidth="10"
-        strokeLinecap="round" strokeDasharray={c} strokeDashoffset={c - p}
-        transform="rotate(-90 70 70)" style={{ transition: "stroke-dashoffset 1.5s cubic-bezier(.4,0,.2,1)" }} />
-      <text x="70" y="64" textAnchor="middle" fill="#2D2B3D"
-        style={{ fontSize: 32, fontWeight: 800 }}>{n}</text>
-      <text x="70" y="86" textAnchor="middle" fill="#8E8A9D"
-        style={{ fontSize: 11, fontWeight: 500, letterSpacing: 1 }}>호감도</text>
-    </svg>
+    <div className="flex flex-col items-center">
+      <svg width="140" height="140" viewBox="0 0 140 140">
+        <defs>
+          <linearGradient id="scoreGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#FF6B8A" />
+            <stop offset="100%" stopColor="#FF8FA3" />
+          </linearGradient>
+        </defs>
+        <circle cx="70" cy="70" r={r} fill="none" stroke="#FFD6E0" strokeWidth="10" />
+        <circle cx="70" cy="70" r={r} fill="none" stroke="url(#scoreGrad)" strokeWidth="10"
+          strokeLinecap="round" strokeDasharray={c} strokeDashoffset={c - p}
+          transform="rotate(-90 70 70)" style={{ transition: "stroke-dashoffset 1.5s cubic-bezier(.4,0,.2,1)" }} />
+        <text x="70" y="68" textAnchor="middle" dominantBaseline="central" fill="#2D2B3D"
+          style={{ fontSize: 32, fontWeight: 800 }}>{n}</text>
+      </svg>
+      <p className="text-[12px] font-semibold tracking-wide" style={{ color: "#8E8A9D", marginTop: -8 }}>
+        호감도 점수
+      </p>
+    </div>
   );
 }
 
 // ─── Badges ───
 function StageBadge({ stage }: { stage: string }) {
   const m: Record<string, { e: string; bg: string; c: string }> = {
+    // 썸/연애/재회 모드
     "관심없음": { e: "😐", bg: "#F0F0F0", c: "#8E8A9D" },
     "예의": { e: "🙂", bg: "#EEF0FF", c: "#7B7FC4" },
     "호감": { e: "✨", bg: "#FFF4E6", c: "#E8956A" },
     "썸": { e: "💕", bg: "#FFF0F3", c: "#FF6B8A" },
     "연애직전": { e: "🔥", bg: "#FFE8EC", c: "#E8456A" },
+    "안정기": { e: "🌿", bg: "#E8F5E9", c: "#5B8A72" },
+    "권태 직전": { e: "🌫️", bg: "#F0F0F5", c: "#8E8A9D" },
+    // 부부 모드
+    "권태기": { e: "🌫️", bg: "#F0F0F5", c: "#8E8A9D" },
+    "냉랭": { e: "🧊", bg: "#EEF2F7", c: "#6B7A8F" },
+    "회복기": { e: "🌱", bg: "#E8F5E9", c: "#5B8A72" },
+    "안정": { e: "🏡", bg: "#FFF4E6", c: "#E8956A" },
+    "애정기": { e: "💞", bg: "#FFE8EC", c: "#E8456A" },
   };
   const v = m[stage] || m["호감"];
   return (
@@ -99,7 +246,7 @@ function TempBadge({ temperature }: { temperature: string }) {
 function SectionCard({ title, icon, accent, children }: { title: string; icon: string; accent?: string; children: React.ReactNode }) {
   return (
     <div className="bg-white rounded-[20px] border border-[rgba(255,143,171,0.15)] shadow-[0_2px_20px_rgba(255,143,171,0.08)] p-5 mb-3">
-      <div className="text-xs font-bold mb-3 tracking-wide" style={{ color: accent || "#8E8A9D" }}>{icon} {title}</div>
+      <div className="text-sm font-bold mb-3" style={{ color: accent || "#2D2B3D" }}>{icon} {title}</div>
       {children}
     </div>
   );
@@ -114,43 +261,266 @@ function BulletItem({ text, color }: { text: string; color?: string }) {
   );
 }
 
-function BlurredSection({ title, icon, children }: { title: string; icon: string; children: React.ReactNode }) {
+// ─── 레이더 차트 (6각형, 호감도 6개 축) ───
+const AXIS_META: { key: string; label: string; desc: string }[] = [
+  { key: "관심도", label: "관심도", desc: "너한테 얼마나 호기심 있는지" },
+  { key: "적극성", label: "적극성", desc: "먼저 다가오는 정도" },
+  { key: "반응성", label: "반응성", desc: "답장·리액션 퀄리티" },
+  { key: "친밀감", label: "친밀감", desc: "속마음 공유하는 정도" },
+  { key: "일관성", label: "일관성", desc: "행동이 안정적인지" },
+  { key: "미래지향", label: "미래지향", desc: "같이 뭐 하자는 의사" },
+];
+
+function RadarChart({ axes }: { axes: Record<string, number> }) {
+  const size = 280;
+  const cx = size / 2;
+  const cy = size / 2;
+  const R = 95; // 최대 반경
+  // 12시 방향부터 시계방향 6각
+  const angles = AXIS_META.map((_, i) => (-90 + i * 60) * (Math.PI / 180));
+
+  // 값(0~100) → 점 좌표
+  const point = (val: number, i: number, scale = 1) => {
+    const r = (R * (val / 100)) * scale;
+    return [cx + r * Math.cos(angles[i]), cy + r * Math.sin(angles[i])];
+  };
+
+  // 데이터 폴리곤
+  const dataPts = AXIS_META.map((m, i) => {
+    const v = Math.max(0, Math.min(100, axes?.[m.key] ?? 0));
+    return point(v, i);
+  });
+  const dataPath = dataPts.map(([x, y]) => `${x.toFixed(1)},${y.toFixed(1)}`).join(" ");
+
+  // 격자 (25, 50, 75, 100%)
+  const gridLevels = [25, 50, 75, 100];
+
+  // 라벨 좌표 (최대 반경 바깥)
+  const labelPt = (i: number) => {
+    const r = R + 22;
+    return [cx + r * Math.cos(angles[i]), cy + r * Math.sin(angles[i])];
+  };
+
   return (
-    <div className="bg-white rounded-[20px] border border-[rgba(255,143,171,0.15)] shadow-[0_2px_20px_rgba(255,143,171,0.08)] p-5 mb-3 overflow-hidden">
-      <div className="flex justify-between items-center mb-3">
-        <div className="text-xs font-bold tracking-wide text-[#8E8A9D]">{icon} {title}</div>
-      </div>
-      <div className="relative">
-        <div className="blur-[5px] pointer-events-none select-none">{children}</div>
-        <div className="absolute inset-0 flex items-center justify-center bg-[rgba(255,245,247,0.4)]">
-          <div className="px-5 py-2 rounded-full bg-gradient-to-r from-[#FF6B8A] to-[#E8456A] text-white text-xs font-bold shadow-[0_4px_16px_rgba(255,107,138,0.2)]">
-            🔓 잠금 해제
+    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className="block mx-auto">
+      <defs>
+        <linearGradient id="radarFill" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stopColor="#FF8FA3" stopOpacity="0.55" />
+          <stop offset="100%" stopColor="#E8456A" stopOpacity="0.55" />
+        </linearGradient>
+      </defs>
+
+      {/* 격자 (동심 6각형) */}
+      {gridLevels.map((lv) => {
+        const pts = AXIS_META.map((_, i) => point(lv, i)).map(([x, y]) => `${x.toFixed(1)},${y.toFixed(1)}`).join(" ");
+        return (
+          <polygon key={lv} points={pts}
+            fill="none"
+            stroke="#FFD6E0"
+            strokeWidth={lv === 100 ? 1.2 : 0.8}
+            strokeDasharray={lv === 100 ? "0" : "3 3"} />
+        );
+      })}
+
+      {/* 축선 */}
+      {AXIS_META.map((_, i) => {
+        const [x, y] = point(100, i);
+        return <line key={i} x1={cx} y1={cy} x2={x} y2={y} stroke="#FFD6E0" strokeWidth={0.8} />;
+      })}
+
+      {/* 데이터 폴리곤 */}
+      <polygon points={dataPath} fill="url(#radarFill)" stroke="#E8456A" strokeWidth={1.8} strokeLinejoin="round" />
+
+      {/* 데이터 점 */}
+      {dataPts.map(([x, y], i) => (
+        <circle key={i} cx={x} cy={y} r={3} fill="#fff" stroke="#E8456A" strokeWidth={1.5} />
+      ))}
+
+      {/* 라벨 */}
+      {AXIS_META.map((m, i) => {
+        const [x, y] = labelPt(i);
+        return (
+          <text key={m.key} x={x} y={y}
+            textAnchor="middle"
+            dominantBaseline="middle"
+            fontSize="11"
+            fontWeight="700"
+            fill="#2D2B3D">
+            {m.label}
+          </text>
+        );
+      })}
+    </svg>
+  );
+}
+
+// ─── 축별 설명 + 점수 바 ───
+function AxesList({ axes }: { axes: Record<string, number> }) {
+  return (
+    <div className="mt-2">
+      {AXIS_META.map((m) => {
+        const v = Math.max(0, Math.min(100, axes?.[m.key] ?? 0));
+        return (
+          <div key={m.key} className="mb-2.5 last:mb-0">
+            <div className="flex items-baseline justify-between mb-1">
+              <div className="text-[13px] font-bold text-[#2D2B3D]">
+                {m.label} <span className="text-[11px] font-medium text-[#8E8A9D] ml-1">{m.desc}</span>
+              </div>
+              <div className="text-[12px] font-bold tabular-nums" style={{ color: "#E8456A" }}>{v}</div>
+            </div>
+            <div className="h-[5px] rounded-full overflow-hidden" style={{ background: "#FFE8EC" }}>
+              <div className="h-full rounded-full"
+                style={{
+                  width: `${v}%`,
+                  background: "linear-gradient(90deg, #FF8FA3, #E8456A)",
+                  transition: "width 0.8s cubic-bezier(.4,0,.2,1)",
+                }} />
+            </div>
           </div>
+        );
+      })}
+    </div>
+  );
+}
+
+// ─── 프리미엄 분석 예고 카드 (무료 유저용) ───
+function PremiumPreview({ onUnlock, unlocking, redirecting }: { onUnlock: () => void; unlocking: boolean; redirecting?: boolean }) {
+  const items = [
+    { icon: "💡", title: "이 점수가 나온 구체적 이유", desc: "걔 행동 하나하나가 어떤 신호인지" },
+    { icon: "⚠️", title: "솔직히 걸리는 부분", desc: "놓치면 안 되는 경고 신호" },
+    { icon: "🧠", title: "걔 속마음 해석", desc: "지금 걔가 진짜로 생각하는 것" },
+    { icon: "🎯", title: "언니의 맞춤 행동 전략", desc: "실제 카톡에 칠 수 있는 멘트 + 현실 진단" },
+    { icon: "💬", title: "걔랑 실시간 대화 시뮬레이션 NEW", desc: "걔 말투 그대로 답장이 와 · 2턴 무료" },
+  ];
+
+  return (
+    <div className="rounded-[20px] p-5 mb-3 border"
+      style={{
+        background: "linear-gradient(135deg, #FFF0F3 0%, #FFE8EC 100%)",
+        borderColor: "#FFD6E0",
+      }}>
+      <div className="text-sm font-bold mb-0.5 text-[#2D2B3D]">
+        🔒 상세 프리미엄 분석
+      </div>
+      <p className="text-[11px] text-[#8E8A9D] mb-3 leading-[1.5]">
+        애매한 관계일수록 객관적인 해석이 필요해
+      </p>
+      <div className="mb-3.5">
+        {items.map((it, i) => (
+          <div key={i} className="flex items-start gap-2.5 py-2 border-b last:border-b-0"
+            style={{ borderColor: "rgba(255,214,224,0.6)" }}>
+            <div className="text-[16px] leading-none mt-0.5">{it.icon}</div>
+            <div className="flex-1">
+              <div className="text-[13px] font-bold text-[#2D2B3D] leading-[1.4]">{it.title}</div>
+              <div className="text-[11.5px] text-[#8E8A9D] leading-[1.45] mt-0.5">{it.desc}</div>
+            </div>
+            <div className="text-[11px] font-bold text-[#FF6B8A] shrink-0 mt-0.5">🔒</div>
+          </div>
+        ))}
+      </div>
+
+      <button onClick={onUnlock}
+        disabled={redirecting || unlocking}
+        className="w-full py-4 rounded-[16px] border-none text-white text-base font-bold transition-all"
+        style={{
+          background: (redirecting || unlocking)
+            ? "#D0CDE0"
+            : "linear-gradient(135deg, #FF6B8A, #E8456A)",
+          boxShadow: (redirecting || unlocking) ? "none" : "0 4px 20px rgba(255,107,138,0.2)",
+          cursor: (redirecting || unlocking) ? "not-allowed" : "pointer",
+        }}>
+        {redirecting ? "결제창으로 이동 중..." : "🔓 프리미엄 분석 보기 · ₩2,900"}
+      </button>
+      {!redirecting && !unlocking && (
+        <p className="text-center text-[11px] text-[#C4C0D0] mt-2">⚡ 30초면 나와요</p>
+      )}
+    </div>
+  );
+}
+
+// ─── Unlocking Progress ───
+function UnlockingProgress() {
+  const steps = [
+    { msg: "심층 분석 시작... 🔓", pct: 20 },
+    { msg: "숨은 심리 패턴 읽는 중... 🧠", pct: 45 },
+    { msg: "행동 전략 짜는 중... 🎯", pct: 70 },
+    { msg: "리포트 완성 중... ✍️", pct: 92 },
+  ];
+  const [i, setI] = useState(0);
+  const [smoothPct, setSmoothPct] = useState(0);
+
+  useEffect(() => {
+    const iv = setInterval(() => setI(p => Math.min(p + 1, steps.length - 1)), 2500);
+    return () => clearInterval(iv);
+  }, []);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setSmoothPct(steps[i].pct), 100);
+    return () => clearTimeout(timer);
+  }, [i]);
+
+  return (
+    <div className="py-5 px-4 rounded-[20px] mb-3 text-center"
+      style={{ background: "linear-gradient(135deg, #FFF0F3, #FFF5F7)", border: "1px solid #FFD6E0" }}>
+      <div className="w-[36px] h-[36px] mx-auto mb-3 rounded-full animate-spin"
+        style={{ border: "3px solid #FFD6E0", borderTopColor: "#FF6B8A" }} />
+      <p className="text-[14px] text-[#2D2B3D] font-semibold mb-3">{steps[i].msg}</p>
+      <div className="w-full max-w-[220px] mx-auto">
+        <div className="h-[5px] rounded-full overflow-hidden" style={{ background: "#FFE8EC" }}>
+          <div className="h-full rounded-full" style={{
+            width: `${smoothPct}%`,
+            background: "linear-gradient(90deg, #FF8FA3, #FF6B8A)",
+            transition: "width 1.8s cubic-bezier(.4,0,.2,1)",
+          }} />
         </div>
+        <p className="mt-1.5 text-[11px] font-semibold" style={{ color: "#FF6B8A" }}>
+          {smoothPct}%
+        </p>
       </div>
     </div>
   );
 }
 
 // ─── Result Card ───
-function ResultCard({ result, isPaid, onReset, onUnlock, unlocking }: any) {
+function ResultCard({ result, isPaid, onReset, onResetPaid, onUnlock, unlocking, redirecting, freeUsed }: any) {
   return (
-    <div className="w-full max-w-[400px] mx-auto animate-fadeUp">
+    <div id="result-card" className="w-full max-w-[400px] mx-auto animate-fadeUp">
       {/* Score Header */}
       <div className="text-center mb-5 py-7 px-5 rounded-[24px] border border-[rgba(255,143,171,0.15)] shadow-[0_2px_20px_rgba(255,143,171,0.08)]"
         style={{ background: "linear-gradient(180deg, #FFF0F3 0%, #fff 100%)" }}>
+        <p className="mb-3" style={{ fontSize: 11, color: "#A09CB0", letterSpacing: 0.3, fontWeight: 600 }}>
+          가트만 관계 심리학 · 애착이론 기반 분석
+        </p>
         <ScoreGauge score={result.score} />
         <div className="mt-2.5 flex justify-center gap-2 flex-wrap">
           {result.stage && <StageBadge stage={result.stage} />}
           <TempBadge temperature={result.temperature} />
         </div>
-        <div className="mt-3.5 text-[15px] text-[#2D2B3D] font-bold leading-relaxed">
-          &quot;{result.summary}&quot;
+        {/* 촌철살인 한마디 — AI언니의 팩폭 */}
+        <div className="mt-5 mb-1 px-3">
+          <div className="text-[10px] font-bold mb-1.5" style={{ color: "#E8456A", letterSpacing: 1.2 }}>
+            💬 AI언니 한마디
+          </div>
+          <div className="text-[19px] font-extrabold leading-[1.4]"
+            style={{
+              color: "#2D2B3D",
+              textShadow: "0 1px 0 rgba(255,255,255,0.5)",
+            }}>
+            &ldquo;{result.summary}&rdquo;
+          </div>
         </div>
       </div>
 
-      {/* 진단 */}
-      <SectionCard title="지금 너네 관계는" icon="🔍">
+      {/* 레이더 차트 (6축 호감도 시각화) */}
+      {result.axes && (
+        <SectionCard title="호감도 레이더" icon="📊">
+          <RadarChart axes={result.axes} />
+          <AxesList axes={result.axes} />
+        </SectionCard>
+      )}
+
+      {/* AI언니 총평 */}
+      <SectionCard title="AI언니 총평" icon="🔍">
         <div className="text-sm text-[#2D2B3D] leading-[1.8]">{result.diagnosis}</div>
       </SectionCard>
 
@@ -172,56 +542,36 @@ function ResultCard({ result, isPaid, onReset, onUnlock, unlocking }: any) {
 
           <div className="p-5 rounded-[20px] mb-4 border border-[#FFD6E0]"
             style={{ background: "linear-gradient(135deg, #FFF0F3, #FFF5F7)" }}>
-            <div className="text-xs font-bold mb-3.5 text-[#FF6B8A]">🎯 언니 말 들어, 이렇게 해봐</div>
-            {result.actions?.map((a: string, i: number) => (
-              <div key={i} className="flex gap-2.5 mb-2.5 items-start">
-                <div className="w-[22px] h-[22px] rounded-full shrink-0 bg-[#FF6B8A] flex items-center justify-center text-[11px] font-bold text-white">
-                  {i + 1}
+            <div className="text-sm font-bold mb-3 text-[#FF6B8A]">🎯 언니 말 들어, 이렇게 해봐</div>
+            {result.actions?.slice(0, 3).map((a: string, i: number) => {
+              const labels = ["📋 현실 진단", "💪 그래도 해보고 싶다면", "💬 이렇게 말해봐"];
+              const colors = ["#8E8A9D", "#FF6B8A", "#7B7FC4"];
+              return (
+                <div key={i} className="mb-3">
+                  <div className="text-[11px] font-bold mb-1" style={{ color: colors[i] }}>{labels[i]}</div>
+                  <div className="flex gap-2.5 items-start">
+                    <div className="w-[22px] h-[22px] rounded-full shrink-0 flex items-center justify-center text-[11px] font-bold text-white"
+                      style={{ background: colors[i] }}>
+                      {i + 1}
+                    </div>
+                    <div className="text-sm text-[#2D2B3D] leading-[1.7]">{a}</div>
+                  </div>
                 </div>
-                <div className="text-sm text-[#2D2B3D] leading-[1.7]">{a}</div>
+              );
+            })}
+            {result.actions?.[3] && (
+              <div className="mt-3 pt-3" style={{ borderTop: "1px dashed #FFD6E0" }}>
+                <div className="text-[11px] font-bold mb-1" style={{ color: "#E8956A" }}>🤗 언니가 해주고 싶은 말</div>
+                <div className="text-sm leading-[1.8] p-3 rounded-[14px]"
+                  style={{ background: "rgba(255,255,255,0.7)", color: "#2D2B3D" }}>
+                  {result.actions[3]}
+                </div>
               </div>
-            ))}
+            )}
           </div>
         </>
       ) : (
-        <>
-          <BlurredSection title="이 점수가 나온 이유" icon="💡">
-            {["걔가 너한테 먼저 연락하는 날이 있다는 건 확실히 신경 쓰는 거거든?", "이모티콘을 이 정도로 쓴다는 건 대화가 편하다는 신호야", "네 일상에 관심 갖는 질문을 한다는 게 꽤 중요한 포인트야"].map((t, i) =>
-              <BulletItem key={i} text={t} color="#FF6B8A" />)}
-          </BlurredSection>
-
-          <BlurredSection title="솔직히 좀 걸리는 부분" icon="⚠️">
-            {["근데 만나자는 얘기를 네가 항상 먼저 한다는 게 좀 걸려...", "답장은 빠른데 대화를 길게 이어가려는 노력은 별로 없는 거 같아"].map((t, i) =>
-              <BulletItem key={i} text={t} color="#FFB347" />)}
-          </BlurredSection>
-
-          <BlurredSection title="걔는 지금 이런 마음이야" icon="🧠">
-            <div className="text-sm text-[#2D2B3D] leading-[1.8]">
-              솔직히 걔는 너한테 호감은 있는데 아직 확신이 없는 상태인 거 같아. 부담스럽지 않은 선에서 탐색하고 있는 건데...
-            </div>
-          </BlurredSection>
-
-          <BlurredSection title="언니 말 들어, 이렇게 해봐" icon="🎯">
-            {["한 이틀 정도 먼저 연락하지 말고 기다려봐", "다음에 만날 때 가볍게 취향 맞는 장소를 제안해봐", "너무 밀당하지 말고, 네 관심을 자연스럽게 보여줘"].map((t, i) =>
-              <div key={i} className="flex gap-2.5 mb-2.5 items-start">
-                <div className="w-[22px] h-[22px] rounded-full shrink-0 bg-[#FF6B8A] flex items-center justify-center text-[11px] font-bold text-white">{i + 1}</div>
-                <div className="text-sm text-[#2D2B3D] leading-[1.7]">{t}</div>
-              </div>
-            )}
-          </BlurredSection>
-
-          <button onClick={onUnlock} disabled={unlocking}
-            className="w-full py-4 rounded-[20px] border-none text-white text-base font-bold mb-2 transition-all"
-            style={{
-              background: "linear-gradient(135deg, #FF6B8A, #E8456A)",
-              boxShadow: "0 4px 20px rgba(255,107,138,0.2)",
-              opacity: unlocking ? 0.7 : 1,
-              cursor: unlocking ? "wait" : "pointer",
-            }}>
-            {unlocking ? "분석하는 중... 💭" : "걔 속마음 & 행동 전략 보기 · ₩3,900"}
-          </button>
-          <p className="text-center text-[11px] text-[#C4C0D0] mb-2">⚡ 30초면 나와요</p>
-        </>
+        <PremiumPreview onUnlock={onUnlock} unlocking={unlocking} redirecting={redirecting} />
       )}
 
       {/* Watermark */}
@@ -231,93 +581,849 @@ function ResultCard({ result, isPaid, onReset, onUnlock, unlocking }: any) {
 
       {/* Buttons */}
       <div className="flex gap-2.5">
-        <button onClick={onReset}
-          className="flex-1 py-3.5 rounded-[16px] text-sm font-semibold cursor-pointer transition-all"
-          style={{ background: "#FFF0F3", border: "1px solid #FFD6E0", color: "#FF6B8A" }}>
-          다시 분석하기
-        </button>
+        {isPaid ? (
+          <button onClick={onReset}
+            className="flex-1 py-3.5 rounded-[16px] text-sm font-semibold cursor-pointer transition-all"
+            style={{ background: "#FFF0F3", border: "1px solid #FFD6E0", color: "#FF6B8A" }}>
+            다시 분석하기
+          </button>
+        ) : freeUsed ? (
+          <button onClick={onResetPaid}
+            className="flex-1 py-3.5 rounded-[16px] text-sm font-semibold cursor-pointer transition-all"
+            style={{ background: "#FFF0F3", border: "1px solid #FFD6E0", color: "#FF6B8A" }}>
+            🔄 새로 분석하기 (유료)
+          </button>
+        ) : (
+          <button onClick={onReset}
+            className="flex-1 py-3.5 rounded-[16px] text-sm font-semibold cursor-pointer transition-all"
+            style={{ background: "#FFF0F3", border: "1px solid #FFD6E0", color: "#FF6B8A" }}>
+            다시 분석하기
+          </button>
+        )}
       </div>
 
-      {/* Email Capture */}
-      <EmailCapture />
+      {/* Save as Image — 유료 분석에서만 노출 (무료는 뿌옇게 흐려져서 저장 품질 낮음) */}
+      {isPaid && <SaveImageButton targetId="result-card" />}
     </div>
   );
 }
 
-// ─── Email Capture ───
-function EmailCapture() {
-  const [email, setEmail] = useState("");
-  const [sent, setSent] = useState(false);
+// ─── Save as Image ───
+function SaveImageButton({ targetId }: { targetId: string }) {
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
 
-  const handleSend = () => {
-    if (!email.includes("@")) return;
-    setSent(true);
+  const handleSave = async () => {
+    setSaving(true);
+    try {
+      const el = document.getElementById(targetId);
+      if (!el) return;
+
+      // html-to-image: Tailwind v4의 oklch() 색공간 완벽 지원
+      const { toPng } = await import("html-to-image");
+
+      // 저장 버튼 숨기기
+      const saveBtn = el.querySelector("[data-save-btn]") as HTMLElement;
+      if (saveBtn) saveBtn.style.display = "none";
+
+      const dataUrl = await toPng(el, {
+        backgroundColor: "#FFF5F7",
+        pixelRatio: 2,
+        cacheBust: true,
+      });
+
+      // 저장 버튼 복원
+      if (saveBtn) saveBtn.style.display = "";
+
+      // iOS/모바일: Web Share API 또는 새 탭에서 이미지 열기
+      const isMobile = /iPhone|iPad|Android/i.test(navigator.userAgent);
+
+      if (isMobile && navigator.share) {
+        // Web Share API (모바일 공유 시트)
+        try {
+          const blob = await (await fetch(dataUrl)).blob();
+          const file = new File([blob], `AI언니-분석리포트.png`, { type: "image/png" });
+          await navigator.share({ files: [file], title: "AI언니 분석 리포트" });
+        } catch {
+          // 공유 취소 또는 미지원 → 새 탭으로 열기
+          const w = window.open();
+          if (w) {
+            w.document.write(`<img src="${dataUrl}" style="width:100%;"/><p style="text-align:center;color:#888;font-size:14px;">이미지를 길게 눌러서 저장해줘!</p>`);
+          }
+        }
+      } else if (isMobile) {
+        // Share API 없는 모바일 → 새 탭
+        const w = window.open();
+        if (w) {
+          w.document.write(`<img src="${dataUrl}" style="width:100%;"/><p style="text-align:center;color:#888;font-size:14px;">이미지를 길게 눌러서 저장해줘!</p>`);
+        }
+      } else {
+        // 데스크톱: 일반 다운로드
+        const link = document.createElement("a");
+        link.download = `AI언니-분석리포트-${new Date().toISOString().slice(0, 10)}.png`;
+        link.href = dataUrl;
+        link.click();
+      }
+
+      setSaved(true);
+      setTimeout(() => setSaved(false), 3000);
+    } catch (err) {
+      console.error("Save image error:", err);
+    } finally {
+      setSaving(false);
+    }
   };
 
-  if (sent) {
+  return (
+    <div className="mt-4" data-save-btn>
+      <button onClick={handleSave} disabled={saving}
+        className="w-full py-3.5 rounded-[16px] text-sm font-semibold transition-all"
+        style={{
+          background: saved ? "#E8F5E9" : "#FFF0F3",
+          border: saved ? "1px solid #A5D6A7" : "1px solid #FFD6E0",
+          color: saved ? "#2E7D32" : "#FF6B8A",
+          cursor: saving ? "wait" : "pointer",
+          opacity: saving ? 0.7 : 1,
+        }}>
+        {saving ? "이미지 생성 중..." : saved ? "✅ 저장 완료!" : "📸 리포트 이미지로 저장"}
+      </button>
+    </div>
+  );
+}
+
+// ─── 채팅 시뮬레이터 (유료 분석 이후 노출, 실시간 대화형) ───
+// 무료 2턴 → +15턴 ₩990 언락 반복
+const UNLOCK_PRICE = 990;
+
+function ChatBubble({ role, content }: { role: ChatRole; content: string }) {
+  const isUser = role === "user";
+  return (
+    <div className={`flex mb-2 ${isUser ? "justify-end" : "justify-start"}`}>
+      <div
+        className={`max-w-[78%] px-3.5 py-2.5 text-[13.5px] leading-[1.6] whitespace-pre-wrap ${
+          isUser ? "rounded-[18px] rounded-br-[6px]" : "rounded-[18px] rounded-bl-[6px]"
+        }`}
+        style={{
+          background: isUser
+            ? "linear-gradient(135deg, #FF8FA3, #FF6B8A)"
+            : "#F4F4FA",
+          color: isUser ? "#fff" : "#2D2B3D",
+          border: isUser ? "none" : "1px solid #EAEAF0",
+          boxShadow: isUser ? "0 2px 10px rgba(255,107,138,0.18)" : "none",
+        }}>
+        {content}
+      </div>
+    </div>
+  );
+}
+
+function ChatSimulator({ parentOrderId }: { parentOrderId: string }) {
+  const [sessionId, setSessionId] = useState<string | null>(null);
+  const [persona, setPersona] = useState<SimPersona | null>(null);
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [turnsAllowed, setTurnsAllowed] = useState(2);
+  const [turnsUsed, setTurnsUsed] = useState(0);
+  const [draft, setDraft] = useState("");
+  const [initializing, setInitializing] = useState(true);
+  const [sending, setSending] = useState(false);
+  const [needUnlock, setNeedUnlock] = useState(false);
+  const [unlockRedirecting, setUnlockRedirecting] = useState(false);
+  const [resetting, setResetting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [needImages, setNeedImages] = useState(false); // 캡처 없이 분석한 경우
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  const getClientToken = () => {
+    try {
+      const KEY = "ai-unni-client-token";
+      let t = localStorage.getItem(KEY);
+      if (!t) {
+        t = crypto.randomUUID();
+        localStorage.setItem(KEY, t);
+      }
+      return t;
+    } catch {
+      return "anon-" + Date.now();
+    }
+  };
+
+  // 세션 초기화: 기존 세션이 있으면 GET으로 복원, 없으면 start
+  useEffect(() => {
+    (async () => {
+      setInitializing(true);
+      setError(null);
+      try {
+        const existing = loadSimSessionId();
+        if (existing) {
+          const res = await fetch(`/api/sim/session/${existing}`);
+          const json = await res.json();
+          if (res.ok && json.session_id) {
+            setSessionId(json.session_id);
+            setPersona(json.persona || null);
+            setMessages(json.messages || []);
+            setTurnsAllowed(json.turns_allowed ?? 2);
+            setTurnsUsed(json.turns_used ?? 0);
+            setNeedUnlock((json.turns_used ?? 0) >= (json.turns_allowed ?? 2));
+            try {
+              localStorage.removeItem(SIM_UNLOCK_PENDING_KEY);
+            } catch {}
+            setInitializing(false);
+            return;
+          }
+          // 없거나 만료되면 새로 생성 (fall-through)
+        }
+        const res = await fetch("/api/sim/session/start", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            parent_order_id: parentOrderId,
+            clientToken: getClientToken(),
+          }),
+        });
+        const json = await res.json();
+        // 캡처 없으면 시뮬 불가 — 별도 안내 화면으로
+        if (json?.error === "NEED_IMAGES") {
+          setNeedImages(true);
+          setInitializing(false);
+          return;
+        }
+        if (!res.ok || !json.session_id) {
+          throw new Error(json?.error || "세션 생성 실패");
+        }
+        saveSimSessionId(json.session_id);
+        setSessionId(json.session_id);
+        setPersona(json.persona || null);
+        setMessages(json.messages || []);
+        setTurnsAllowed(json.turns_allowed ?? 2);
+        setTurnsUsed(json.turns_used ?? 0);
+        setNeedUnlock(false);
+      } catch (e: any) {
+        setError(e?.message || "시뮬레이션 준비 중 오류가 났어");
+      } finally {
+        setInitializing(false);
+      }
+    })();
+  }, [parentOrderId]);
+
+  // 새 메시지 들어올 때 스크롤 하단 고정
+  useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    }
+  }, [messages.length, sending]);
+
+  const handleSend = async () => {
+    if (!sessionId || !draft.trim() || sending) return;
+    if (draft.length > 500) {
+      setError("한 번에 500자 이하로 써줘");
+      return;
+    }
+    const toSend = draft.trim();
+    setSending(true);
+    setError(null);
+    try {
+      const res = await fetch("/api/sim/message", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          session_id: sessionId,
+          content: toSend,
+          clientToken: getClientToken(),
+        }),
+      });
+      const json = await res.json();
+
+      // 턴 카운트는 need_unlock 여부와 무관하게 가장 먼저 갱신
+      if (typeof json.turns_used === "number") setTurnsUsed(json.turns_used);
+      if (typeof json.turns_allowed === "number") setTurnsAllowed(json.turns_allowed);
+
+      // 서버가 "턴 초과 거부" 로 응답한 경우 — 로컬 메시지 append 안 함
+      if (json.need_unlock && !json.partner_message) {
+        setNeedUnlock(true);
+        return;
+      }
+      if (!res.ok) {
+        throw new Error(json?.error || "메시지 전송 실패");
+      }
+
+      // 서버가 저장 완료한 user + partner 메시지를 로컬 state에 append
+      if (typeof json.user_turn_index === "number" && typeof json.partner_message === "string") {
+        setMessages(prev => [
+          ...prev,
+          { role: "user", content: toSend, turn_index: json.user_turn_index },
+          {
+            role: "partner",
+            content: json.partner_message,
+            turn_index: json.partner_turn_index,
+          },
+        ]);
+      }
+
+      // 턴 소진 여부는 서버의 권위 있는 need_unlock 플래그를 그대로 사용
+      if (json.need_unlock) setNeedUnlock(true);
+
+      setDraft("");
+    } catch (e: any) {
+      setError(e?.message || "전송 중 오류가 났어");
+    } finally {
+      setSending(false);
+    }
+  };
+
+  const handleUnlock = async () => {
+    if (!sessionId || unlockRedirecting) return;
+    setUnlockRedirecting(true);
+    setError(null);
+    try {
+      const res = await fetch("/api/sim/unlock/request", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          session_id: sessionId,
+          clientToken: getClientToken(),
+        }),
+      });
+      const json = await res.json();
+      if (!res.ok || !json.unlock_order_id) {
+        throw new Error(json?.error || "언락 주문 생성 실패");
+      }
+      window.location.href = `/checkout?orderId=${encodeURIComponent(
+        json.unlock_order_id
+      )}&type=sim-unlock`;
+    } catch (e: any) {
+      setError(e?.message || "결제 페이지 이동 실패");
+      setUnlockRedirecting(false);
+    }
+  };
+
+  const handleReset = async () => {
+    if (!sessionId || resetting) return;
+    if (!confirm("대화 내용을 모두 지울게. 남은 턴 수는 유지돼. 계속할까?")) return;
+    setResetting(true);
+    setError(null);
+    try {
+      const res = await fetch("/api/sim/reset", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          session_id: sessionId,
+          clientToken: getClientToken(),
+        }),
+      });
+      const json = await res.json();
+      if (!res.ok) {
+        throw new Error(json?.error || "리셋 실패");
+      }
+      setMessages([]);
+    } catch (e: any) {
+      setError(e?.message || "리셋 중 오류가 났어");
+    } finally {
+      setResetting(false);
+    }
+  };
+
+  const turnsRemaining = Math.max(0, turnsAllowed - turnsUsed);
+  const isFreePhase = turnsAllowed <= 2;
+  // 개인정보 이슈로 UI에는 상대방 실명/닉네임을 노출하지 않음. 항상 "걔"로 표시.
+  // (persona.name_ref 는 Claude 컨텍스트 내부에서만 사용)
+
+  if (initializing) {
     return (
-      <div className="mt-4 py-4 px-5 rounded-[20px] text-center"
-        style={{ background: "#FFF0F3", border: "1px solid #FFD6E0" }}>
-        <p className="text-sm text-[#2D2B3D] font-semibold">✅ 전송 완료! 메일함을 확인해봐</p>
+      <div className="mt-6 mb-2 py-8 px-5 text-center animate-fadeUp rounded-[18px] bg-white border border-[#FFD6E0]">
+        <div
+          className="w-[32px] h-[32px] mx-auto mb-3 rounded-full animate-spin"
+          style={{ border: "3px solid #FFD6E0", borderTopColor: "#FF6B8A" }}
+        />
+        <div className="text-[13px] font-bold text-[#2D2B3D] mb-1">
+          걔 말투 학습 중...
+        </div>
+        <div className="text-[11px] text-[#8E8A9D]">
+          캡처한 대화 기반으로 진짜처럼 대답하게 만들고 있어
+        </div>
+      </div>
+    );
+  }
+
+  // 캡처 없이 분석한 경우 — 시뮬 불가 안내
+  if (needImages) {
+    return (
+      <div className="mt-6 mb-2 animate-fadeUp">
+        <div className="text-center mb-3">
+          <div className="text-[18px] font-extrabold text-[#2D2B3D] mb-1">
+            💬 실시간 대화 시뮬레이션
+          </div>
+        </div>
+        <div
+          className="rounded-[18px] p-5 text-center"
+          style={{
+            background: "linear-gradient(135deg, #FFF0F3, #FFF5F7)",
+            border: "1px dashed #FFADC4",
+          }}>
+          <div className="text-[32px] mb-2">📱</div>
+          <div className="text-[14px] font-extrabold text-[#2D2B3D] mb-1.5">
+            대화 캡처가 있어야 시뮬레이션이 가능해
+          </div>
+          <p className="text-[12px] text-[#6E6A80] leading-[1.6] mb-4">
+            걔 말투 그대로 답장을 만들려면 실제 대화 캡처가 필요해.
+            <br />
+            카톡·DM 캡처를 올려서 다시 분석하면 시뮬레이션까지 바로 열려.
+          </p>
+          <button
+            onClick={() => {
+              clearSimAndOrder();
+              clearPaidResult();
+              try {
+                localStorage.removeItem(PAID_KEY);
+              } catch {}
+              if (typeof window !== "undefined") window.scrollTo({ top: 0 });
+              window.location.href = "/";
+            }}
+            className="px-5 py-3 rounded-[14px] text-white text-[13px] font-bold"
+            style={{
+              background: "linear-gradient(135deg, #FF6B8A, #E8456A)",
+              border: "none",
+              cursor: "pointer",
+              boxShadow: "0 4px 14px rgba(255,107,138,0.2)",
+            }}>
+            📎 캡처 올려서 다시 분석
+          </button>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="mt-4 p-5 rounded-[20px] bg-white border border-[rgba(255,143,171,0.15)] shadow-[0_2px_20px_rgba(255,143,171,0.08)]">
-      <p className="text-[13px] text-[#8E8A9D] font-semibold mb-2.5">📩 리포트를 이메일로도 받아볼래?</p>
-      <div className="flex gap-2">
-        <input type="email" value={email} onChange={e => setEmail(e.target.value)}
-          placeholder="이메일 주소 입력"
-          className="flex-1 py-2.5 px-3.5 rounded-[14px] text-sm outline-none transition-colors"
-          style={{ border: "1.5px solid #FFD6E0", color: "#2D2B3D" }} />
-        <button onClick={handleSend} disabled={!email.includes("@")}
-          className="py-2.5 px-4.5 rounded-[14px] border-none text-white text-[13px] font-bold transition-all whitespace-nowrap"
-          style={{
-            background: email.includes("@") ? "#FF6B8A" : "#FFD6E0",
-            cursor: email.includes("@") ? "pointer" : "default",
-          }}>보내기</button>
+    <div className="mt-6 mb-2 animate-fadeUp">
+      {/* 섹션 헤더 */}
+      <div className="text-center mb-3">
+        <div className="text-[18px] font-extrabold text-[#2D2B3D] mb-1">
+          💬 걔랑 대화 한번 해봐
+        </div>
+        <div className="text-[12px] text-[#6E6A80] leading-[1.55] px-3">
+          걔 말투 그대로 답장이 와. 보내기 전에 어떤 반응일지 미리 돌려봐.
+        </div>
       </div>
+
+      {/* 턴 상태 바 */}
+      <div className="flex items-center justify-between mb-2 px-1">
+        <div className="text-[11px] font-bold" style={{ color: "#7B7FC4" }}>
+          🎫 남은 턴:{" "}
+          <span style={{ color: "#E8456A" }}>{turnsRemaining}</span> / {turnsAllowed}
+          <span className="ml-1 text-[10px] text-[#A09CB0] font-semibold">
+            {isFreePhase ? "(무료)" : "(결제됨)"}
+          </span>
+        </div>
+        {messages.length > 0 && (
+          <button
+            onClick={handleReset}
+            disabled={resetting}
+            className="text-[11px] font-bold px-2.5 py-1 rounded-full"
+            style={{
+              background: "#FFF0F3",
+              border: "1px solid #FFD6E0",
+              color: "#FF6B8A",
+              cursor: resetting ? "wait" : "pointer",
+            }}>
+            🔄 대화 리셋
+          </button>
+        )}
+      </div>
+
+      {/* 채팅창 */}
+      <div
+        ref={scrollRef}
+        className="rounded-[18px] bg-white p-3.5 mb-2.5"
+        style={{
+          border: "1px solid #FFD6E0",
+          boxShadow: "0 2px 14px rgba(255,107,138,0.08)",
+          minHeight: 260,
+          maxHeight: 420,
+          overflowY: "auto",
+        }}>
+        {messages.length === 0 ? (
+          <div className="py-10 text-center">
+            <div className="text-[28px] mb-2">💭</div>
+            <div className="text-[12px] text-[#8E8A9D] leading-[1.6]">
+              아래에 먼저 보낼 말 써봐.
+              <br />
+              걔 말투 그대로 답장이 올 거야.
+            </div>
+          </div>
+        ) : (
+          messages.map((m, i) => (
+            <ChatBubble key={i} role={m.role} content={m.content} />
+          ))
+        )}
+        {sending && (
+          <div className="flex justify-start mb-2">
+            <div
+              className="px-3.5 py-2.5 rounded-[18px] rounded-bl-[6px] text-[13px]"
+              style={{ background: "#F4F4FA", border: "1px solid #EAEAF0", color: "#8E8A9D" }}>
+              <span className="inline-flex items-center gap-1">
+                <span
+                  className="w-1.5 h-1.5 rounded-full animate-bounce"
+                  style={{ background: "#FF6B8A" }}
+                />
+                <span
+                  className="w-1.5 h-1.5 rounded-full animate-bounce"
+                  style={{ background: "#FF8FA3", animationDelay: "0.15s" }}
+                />
+                <span
+                  className="w-1.5 h-1.5 rounded-full animate-bounce"
+                  style={{ background: "#FFB3C1", animationDelay: "0.3s" }}
+                />
+              </span>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {error && (
+        <div className="bg-white rounded-[14px] p-3 mb-2.5 border border-[#FFB3B3] text-[12px] text-[#D14343]">
+          {error}
+        </div>
+      )}
+
+      {/* 입력창 or 언락 CTA */}
+      {needUnlock ? (
+        <div
+          className="rounded-[18px] p-4 border"
+          style={{
+            background: "linear-gradient(135deg, #FFF0F3, #FFE8EC)",
+            borderColor: "#FFADC4",
+          }}>
+          <div className="text-[14px] font-extrabold text-[#2D2B3D] mb-1">
+            🎫 턴 {turnsAllowed}개 전부 썼어
+          </div>
+          <div className="text-[11.5px] text-[#6E6A80] mb-3 leading-[1.5]">
+            +15턴 추가하면 같은 맥락 그대로 더 돌려볼 수 있어.
+          </div>
+          <button
+            onClick={handleUnlock}
+            disabled={unlockRedirecting}
+            className="w-full py-3.5 rounded-[14px] text-white text-[14px] font-bold"
+            style={{
+              background: unlockRedirecting
+                ? "#D0CDE0"
+                : "linear-gradient(135deg, #FF6B8A, #E8456A)",
+              boxShadow: unlockRedirecting
+                ? "none"
+                : "0 4px 18px rgba(255,107,138,0.25)",
+              border: "none",
+              cursor: unlockRedirecting ? "not-allowed" : "pointer",
+            }}>
+            {unlockRedirecting
+              ? "결제창으로 이동 중..."
+              : `🔓 +15턴 추가 · ₩${UNLOCK_PRICE.toLocaleString()}`}
+          </button>
+          <p className="text-center text-[10.5px] text-[#A09CB0] mt-2 leading-[1.5]">
+            같은 맥락 유지 · 리셋해도 남은 턴 수는 그대로
+          </p>
+        </div>
+      ) : (
+        <div
+          className="rounded-[18px] p-2.5 bg-white flex gap-2 items-end"
+          style={{
+            border: "1px solid #FFD6E0",
+            boxShadow: "0 2px 14px rgba(255,107,138,0.08)",
+          }}>
+          <textarea
+            value={draft}
+            onChange={(e) => setDraft(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
+                handleSend();
+              }
+            }}
+            maxLength={500}
+            placeholder={`걔한테 보낼 말 써봐...`}
+            rows={2}
+            className="flex-1 resize-none text-[13.5px] leading-[1.55] text-[#2D2B3D] outline-none rounded-[12px] p-2.5"
+            style={{
+              background: "#FFF8FA",
+              border: "1px solid #FFE8EC",
+              fontFamily: "inherit",
+              minHeight: 46,
+              maxHeight: 120,
+            }}
+          />
+          <button
+            onClick={handleSend}
+            disabled={!draft.trim() || sending}
+            className="shrink-0 px-4 rounded-[12px] text-white text-[13px] font-bold"
+            style={{
+              background:
+                draft.trim() && !sending
+                  ? "linear-gradient(135deg, #FF6B8A, #E8456A)"
+                  : "#D0CDE0",
+              border: "none",
+              cursor: draft.trim() && !sending ? "pointer" : "not-allowed",
+              height: 46,
+            }}>
+            전송
+          </button>
+        </div>
+      )}
+
+      <p className="text-center mt-2 text-[10.5px] text-[#A09CB0] leading-[1.5]">
+        실제 답장 예측 · 무료 2턴 이후 +15턴 ₩{UNLOCK_PRICE.toLocaleString()}
+      </p>
+    </div>
+  );
+}
+
+// ─── Sample Preview (결과 예시) ───
+// 실제 ResultCard 구조 그대로 축소 재현 (샘플 데이터)
+const SAMPLE_RESULT = {
+  score: 58,
+  temperature: "미지근",
+  stage: "호감",
+  summary: "걔 발만 살짝 걸쳐놨어",
+  axes: {
+    관심도: 68,
+    적극성: 42,
+    반응성: 72,
+    친밀감: 48,
+    일관성: 55,
+    미래지향: 35,
+  } as Record<string, number>,
+  diagnosis:
+    "이 사람, 아예 마음이 없는 건 아니야. 답장은 꾸준하고 너 얘기에 반응도 해주거든. 근데 자기 얘길 먼저 꺼내거나 다음 약속을 짚는 건 피해 — 관계를 책임지고 진전시킬 준비는 덜 된 상태야. 네가 불안해질수록 상대는 더 애매해지는 흐름이라, 지금 결정타는 너의 감정 싸움이 아니라 '속도 조절'이야.",
+  reasons: [
+    "답장은 꾸준한데 관계 진전 얘기는 피하고 있어",
+    "호감 표현보다 상황 설명이 더 많아",
+    "네가 불안해질수록 더 애매하게 반응하는 흐름이 보여",
+  ],
+  advice: "지금은 답을 재촉하기보다 조금 텀을 두고 상대 반응을 보는 게 더 유리해.",
+};
+
+function SamplePreview() {
+  const s = SAMPLE_RESULT;
+  return (
+    <div className="mb-1">
+      <p className="text-[14px] text-[#2D2B3D] font-bold mb-0.5">
+        👀 결과가 어떻게 나오냐면
+      </p>
+      <p className="text-[11px] text-[#8E8A9D] mb-3">그 사람 말보다 태도를 읽어줄게</p>
+
+      {/* 실제 결과 카드와 동일한 구조로 축소 렌더링 */}
+      <div
+        className="rounded-[22px] p-3 relative overflow-hidden"
+        style={{
+          background: "#FFF5F7",
+          border: "1px solid #FFD6E0",
+          boxShadow: "0 2px 16px rgba(255,107,138,0.08)",
+        }}>
+        {/* SAMPLE 배지 */}
+        <div className="absolute top-3 right-3 z-10 px-2 py-[3px] rounded-full text-[9px] font-extrabold tracking-[1.5px]"
+          style={{ background: "#2D2B3D", color: "#fff" }}>
+          SAMPLE
+        </div>
+
+        {/* 1) Score Header 축소 버전 */}
+        <div className="text-center py-4 px-3 rounded-[18px] mb-2.5"
+          style={{
+            background: "linear-gradient(180deg, #FFF0F3 0%, #fff 100%)",
+            border: "1px solid rgba(255,143,171,0.2)",
+          }}>
+          <p className="mb-2 text-[9px] font-semibold tracking-[0.3px]" style={{ color: "#A09CB0" }}>
+            가트만 관계 심리학 · 애착이론 기반 분석
+          </p>
+          {/* Mini score gauge */}
+          <div className="flex justify-center">
+            <svg width="86" height="86" viewBox="0 0 140 140">
+              <defs>
+                <linearGradient id="sampleScoreGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stopColor="#FF6B8A" />
+                  <stop offset="100%" stopColor="#FF8FA3" />
+                </linearGradient>
+              </defs>
+              <circle cx="70" cy="70" r="50" fill="none" stroke="#FFD6E0" strokeWidth="10" />
+              <circle cx="70" cy="70" r="50" fill="none" stroke="url(#sampleScoreGrad)" strokeWidth="10"
+                strokeLinecap="round"
+                strokeDasharray={2 * Math.PI * 50}
+                strokeDashoffset={2 * Math.PI * 50 * (1 - s.score / 100)}
+                transform="rotate(-90 70 70)" />
+              <text x="70" y="70" textAnchor="middle" dominantBaseline="central" fill="#2D2B3D"
+                style={{ fontSize: 36, fontWeight: 800 }}>{s.score}</text>
+            </svg>
+          </div>
+          <p className="text-[10px] font-semibold mt-[-4px]" style={{ color: "#8E8A9D" }}>호감도 점수</p>
+          <div className="mt-2 flex justify-center gap-1.5 flex-wrap">
+            <span className="inline-flex items-center gap-1 px-2.5 py-[4px] rounded-full text-[11px] font-semibold"
+              style={{ background: "#FFF4E6", color: "#E8956A" }}>✨ {s.stage}</span>
+            <span className="inline-flex items-center gap-1 px-2.5 py-[4px] rounded-full text-[11px] font-semibold"
+              style={{ background: "#FFF0F3", color: "#2D2B3D" }}>🌤 {s.temperature}</span>
+          </div>
+          {/* 촌철살인 한마디 */}
+          <div className="mt-3 px-2">
+            <div className="text-[9px] font-bold mb-1" style={{ color: "#E8456A", letterSpacing: 1 }}>
+              💬 AI언니 한마디
+            </div>
+            <div className="text-[14px] font-extrabold leading-[1.35] text-[#2D2B3D]">
+              &ldquo;{s.summary}&rdquo;
+            </div>
+          </div>
+        </div>
+
+        {/* 2) 호감도 레이더 (축소 버전) */}
+        <div className="bg-white rounded-[16px] p-3 mb-2" style={{ border: "1px solid rgba(255,143,171,0.15)" }}>
+          <div className="text-[12px] font-bold mb-1.5 text-[#2D2B3D]">📊 호감도 레이더</div>
+          <div className="flex gap-2 items-center">
+            <div className="shrink-0" style={{ width: 150 }}>
+              <div style={{ transform: "scale(0.54)", transformOrigin: "top left", width: 280, height: 151 }}>
+                <RadarChart axes={s.axes} />
+              </div>
+            </div>
+            <div className="flex-1 min-w-0">
+              {Object.entries(s.axes).map(([k, v]) => (
+                <div key={k} className="flex items-center gap-1.5 mb-1 last:mb-0">
+                  <span className="text-[10px] font-semibold text-[#2D2B3D] shrink-0" style={{ width: 44 }}>{k}</span>
+                  <div className="flex-1 h-[4px] rounded-full overflow-hidden" style={{ background: "#FFE8EC" }}>
+                    <div className="h-full rounded-full" style={{ width: `${v}%`, background: "linear-gradient(90deg, #FF8FA3, #E8456A)" }} />
+                  </div>
+                  <span className="text-[9px] font-bold tabular-nums shrink-0" style={{ color: "#FF6B8A", width: 18 }}>{v}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* 3) AI언니 총평 */}
+        <div className="bg-white rounded-[16px] p-3 mb-2" style={{ border: "1px solid rgba(255,143,171,0.15)" }}>
+          <div className="text-[12px] font-bold mb-1.5 text-[#2D2B3D]">🔍 AI언니 총평</div>
+          <p className="text-[11.5px] text-[#2D2B3D] leading-[1.7]">{s.diagnosis}</p>
+        </div>
+
+        {/* 4) 유료에서 더 보여주는 파트 (잠금 티저) */}
+        <div className="rounded-[16px] p-3 relative overflow-hidden"
+          style={{
+            background: "linear-gradient(135deg, #FFF0F3 0%, #FFE8EC 100%)",
+            border: "1px dashed #FFADC4",
+          }}>
+          <div className="text-[12px] font-bold mb-2" style={{ color: "#E8456A" }}>🔒 프리미엄에선 여기까지 나와</div>
+          <div className="mb-2">
+            <div className="text-[10px] font-bold mb-1 text-[#FF6B8A]">💡 이 점수가 나온 이유</div>
+            <ul className="space-y-1">
+              {s.reasons.map((r, i) => (
+                <li key={i} className="flex items-start gap-1.5 text-[11px] text-[#2D2B3D] leading-[1.5]">
+                  <span className="w-1 h-1 rounded-full mt-[6px] shrink-0" style={{ background: "#FF6B8A" }} />
+                  <span>{r}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+          <div className="pt-2" style={{ borderTop: "1px dashed #FFADC4" }}>
+            <div className="text-[10px] font-bold mb-1" style={{ color: "#7B7FC4" }}>🎯 언니 말 들어, 이렇게 해봐</div>
+            <div className="text-[11px] text-[#2D2B3D] leading-[1.55] italic p-2 rounded-[10px]"
+              style={{ background: "rgba(255,255,255,0.75)" }}>
+              {s.advice}
+            </div>
+          </div>
+          <div className="mt-2 flex items-center justify-center gap-1 text-[10px] font-semibold" style={{ color: "#A09CB0" }}>
+            <span>🧠 걔 속마음 · ⚠️ 걸리는 부분 · 💬 멘트 예시</span>
+          </div>
+          {/* 채팅 시뮬 NEW 한 줄 (어필 4/5) */}
+          <div
+            className="mt-2 px-2.5 py-[6px] rounded-[10px] text-center"
+            style={{ background: "rgba(45,43,61,0.85)" }}>
+            <span
+              className="text-[9px] font-extrabold tracking-[1.5px] mr-1 px-1.5 py-[1px] rounded-full"
+              style={{ background: "#FF6B8A", color: "#fff" }}>
+              NEW
+            </span>
+            <span className="text-[10.5px] font-bold text-white">
+              💬 분석 후 걔랑 실시간 대화 시뮬레이션까지
+            </span>
+          </div>
+        </div>
+      </div>
+      <p className="text-[10px] text-[#A09CB0] text-center mt-1.5">
+        실제 결과는 네 상황에 맞게 달라져
+      </p>
     </div>
   );
 }
 
 // ─── Upload Zone ───
+const MAX_IMAGES = 3;
+
 function UploadZone({ images, onAdd, onRemove }: any) {
   const ref = useRef<HTMLInputElement>(null);
+  const atLimit = images.length >= MAX_IMAGES;
   return (
     <div>
-      <p className="text-[13px] text-[#8E8A9D] font-semibold mb-2">
-        📱 카톡 캡쳐 <span className="font-normal text-[#C4C0D0]">(선택이야 · 있으면 더 정확해!)</span>
+      <p className="text-[14px] text-[#2D2B3D] font-bold mb-1">
+        📱 카톡·DM 대화 캡처 최대 3장
       </p>
-      <div onClick={() => ref.current?.click()}
-        className="rounded-[16px] text-center cursor-pointer transition-all hover:border-[#FF6B8A]"
+      <p className="text-[12px] text-[#6E6A80] leading-[1.55] mb-1.5">
+        길게 설명 안 해도 괜찮아. 카톡·인스타 DM·문자 어디서든 대화 캡처를 올려주면
+        말투, 텀, 애매한 표현, 거리감까지 보고 지금 이 관계가 어떤 상태인지 읽어줄게.
+        캡처가 많을수록 말투 분석도 정확해져.
+      </p>
+      <p className="text-[11px] font-semibold text-[#FF6B8A] leading-[1.5] mb-1.5">
+        💬 분석 후 대화 시뮬레이션을 하려면 캡처가 꼭 필요해.
+      </p>
+      <div
+        onClick={() => !atLimit && ref.current?.click()}
+        className="rounded-[16px] text-center transition-all"
         style={{
           padding: images.length > 0 ? "14px" : "28px 20px",
           border: "1.5px dashed #FFADC4",
           background: "#FFF0F3",
+          cursor: atLimit ? "not-allowed" : "pointer",
+          opacity: atLimit ? 0.85 : 1,
         }}>
-        <input ref={ref} type="file" accept="image/*" multiple className="hidden"
-          onChange={e => { onAdd(Array.from(e.target.files || [])); e.target.value = ""; }} />
+        <input
+          ref={ref}
+          type="file"
+          accept="image/*"
+          multiple
+          className="hidden"
+          onChange={(e) => {
+            const files = Array.from(e.target.files || []);
+            const slots = MAX_IMAGES - images.length;
+            onAdd(files.slice(0, Math.max(0, slots)));
+            e.target.value = "";
+          }}
+        />
         {images.length === 0 ? (
           <>
             <div className="text-[28px] mb-1.5">📎</div>
-            <div className="text-[13px] text-[#8E8A9D]">여기 눌러서 캡쳐 추가</div>
+            <div className="text-[13px] text-[#8E8A9D]">
+              여기 눌러서 카톡·DM 캡처 추가{" "}
+              <span className="text-[#9994A8]">(선택 · 최대 3장)</span>
+            </div>
           </>
         ) : (
           <>
-            <div className="grid gap-2 mb-2" style={{ gridTemplateColumns: `repeat(${Math.min(images.length, 3)}, 1fr)` }}>
+            <div
+              className="grid gap-2 mb-2"
+              style={{ gridTemplateColumns: `repeat(${Math.min(images.length, 3)}, 1fr)` }}>
               {images.map((img: any, i: number) => (
                 <div key={i} className="relative rounded-[10px] overflow-hidden">
-                  <img src={img.preview} alt="" className="w-full h-[100px] object-cover block" />
-                  <button onClick={e => { e.stopPropagation(); onRemove(i); }}
+                  <img
+                    src={img.preview}
+                    alt=""
+                    className="w-full h-[100px] object-cover block"
+                  />
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onRemove(i);
+                    }}
                     className="absolute top-1 right-1 w-5 h-5 rounded-full bg-black/50 border-none text-white text-xs cursor-pointer flex items-center justify-center">
                     ×
                   </button>
                 </div>
               ))}
             </div>
-            <div className="text-xs text-[#C4C0D0]">+ 더 추가하기 ({images.length}장)</div>
+            <div className="text-xs text-[#C4C0D0]">
+              {atLimit
+                ? `📌 최대 ${MAX_IMAGES}장 (${images.length}/${MAX_IMAGES})`
+                : `+ 더 추가하기 (${images.length}/${MAX_IMAGES})`}
+            </div>
           </>
         )}
       </div>
@@ -327,23 +1433,44 @@ function UploadZone({ images, onAdd, onRemove }: any) {
 
 // ─── Text Input ───
 function TextInput({ value, onChange }: { value: string; onChange: (v: string) => void }) {
+  // 단일 선택: 새 칩을 누르면 다른 활성 칩의 프롬프트는 전부 제거 후 새 프롬프트만 prepend
   const handleChip = (prompt: string) => {
-    if (!value.includes(prompt)) onChange(prompt + value);
+    if (value.includes(prompt)) return; // 이미 같은 칩 활성 — 무시
+    let next = value;
+    for (const c of CHIPS) {
+      if (c.prompt !== prompt && next.includes(c.prompt)) {
+        next = next.replace(c.prompt, "");
+      }
+    }
+    onChange(prompt + next);
   };
 
   return (
     <div>
-      <p className="text-[13px] text-[#8E8A9D] font-semibold mb-2.5">✏️ 너의 상황을 알려줘</p>
+      <p className="text-[14px] text-[#2D2B3D] font-bold mb-1">✏️ 지금 네 고민, 어디에 제일 가까워?</p>
+      <p className="text-[11px] text-[#8E8A9D] mb-2.5">괜히 예민한 건지, 진짜 이상한 건지 구분해줄게</p>
       <div className="flex flex-wrap gap-2 mb-3">
         {CHIPS.map((chip, i) => {
           const isActive = value.includes(chip.prompt);
           return (
-            <button key={i} onClick={() => handleChip(chip.prompt)}
-              className="inline-flex items-center gap-1 px-3.5 py-[7px] rounded-full border-none text-[13px] font-semibold cursor-pointer transition-all"
+            <button
+              key={i}
+              onClick={() => {
+                if (isActive) return;        // 이미 추가된 칩은 중복 클릭 차단
+                handleChip(chip.prompt);
+              }}
+              disabled={isActive}
+              aria-pressed={isActive}
+              className="inline-flex items-center gap-1 px-3.5 py-[8px] rounded-full text-[13px] font-semibold transition-all active:scale-[0.97]"
               style={{
-                background: isActive ? "#FF6B8A" : "#FFF0F3",
+                background: isActive ? "#FF6B8A" : "#fff",
                 color: isActive ? "#fff" : "#2D2B3D",
-                boxShadow: isActive ? "0 2px 12px rgba(255,107,138,0.2)" : "none",
+                border: isActive ? "1.5px solid #FF6B8A" : "1.5px solid #FFD6E0",
+                boxShadow: isActive
+                  ? "0 4px 14px rgba(255,107,138,0.32)"
+                  : "0 2px 8px rgba(255,143,171,0.15)",
+                cursor: isActive ? "default" : "pointer",
+                opacity: isActive ? 0.95 : 1,
               }}>
               {chip.emoji} {chip.label}
             </button>
@@ -363,16 +1490,63 @@ function TextInput({ value, onChange }: { value: string; onChange: (v: string) =
   );
 }
 
-// ─── Loading ───
+// ─── Loading (무료 분석: 이론 기반 진행 문구) ───
 function LoadingState() {
-  const m = ["카톡을 읽고 있어... 👀", "걔 심리를 파악하는 중... 🧠", "호감 시그널 찾는 중... 💕", "리포트 쓰는 중... ✍️"];
+  const steps = [
+    { msg: "카톡·상황 읽는 중", detail: "Conversation Decoding", pct: 22 },
+    { msg: "긍정:부정 상호작용 비율 계산", detail: "The Gottman Ratio · 5:1 균형", pct: 48 },
+    { msg: "애착 유형 판별 중", detail: "Attachment Theory · Bowlby", pct: 72 },
+    { msg: "6축 호감 레이더 산출 중", detail: "관심도 · 적극성 · 반응성 · 친밀감 · 일관성 · 미래지향", pct: 92 },
+  ];
   const [i, setI] = useState(0);
-  useEffect(() => { const iv = setInterval(() => setI(p => (p + 1) % m.length), 2200); return () => clearInterval(iv); }, []);
+  const [smoothPct, setSmoothPct] = useState(0);
+
+  useEffect(() => {
+    const iv = setInterval(() => setI(p => Math.min(p + 1, steps.length - 1)), 2300);
+    return () => clearInterval(iv);
+  }, []);
+
+  useEffect(() => {
+    const target = steps[i].pct;
+    const timer = setTimeout(() => setSmoothPct(target), 100);
+    return () => clearTimeout(timer);
+  }, [i]);
+
   return (
-    <div className="text-center py-[60px] px-5 animate-fadeUp">
-      <div className="w-[52px] h-[52px] mx-auto mb-5 rounded-full animate-spin"
+    <div className="text-center py-[50px] px-5 animate-fadeUp">
+      <div className="w-[48px] h-[48px] mx-auto mb-4 rounded-full animate-spin"
         style={{ border: "3px solid #FFD6E0", borderTopColor: "#FF6B8A" }} />
-      <p className="text-[15px] text-[#2D2B3D] font-semibold">{m[i]}</p>
+
+      <div className="text-[10px] font-bold mb-2" style={{ color: "#E8456A", letterSpacing: 1.2 }}>
+        🔬 AI언니 분석 중
+      </div>
+      <p className="text-[15px] text-[#2D2B3D] font-bold mb-1 leading-[1.4]">
+        {steps[i].msg}...
+      </p>
+      <p className="text-[11px] text-[#8E8A9D] italic mb-5 px-2 leading-[1.5]">
+        {steps[i].detail}
+      </p>
+
+      {/* Progress Bar */}
+      <div className="w-full max-w-[260px] mx-auto">
+        <div className="h-[6px] rounded-full overflow-hidden" style={{ background: "#FFE8EC" }}>
+          <div className="h-full rounded-full" style={{
+            width: `${smoothPct}%`,
+            background: "linear-gradient(90deg, #FF8FA3, #FF6B8A, #E8456A)",
+            transition: "width 1.8s cubic-bezier(.4,0,.2,1)",
+          }} />
+        </div>
+        <p className="mt-2 text-[11px] font-bold tabular-nums" style={{ color: "#FF6B8A" }}>
+          {smoothPct}%
+        </p>
+      </div>
+
+      <p className="mt-4 text-[11px] font-bold leading-[1.5]" style={{ color: "#E8456A" }}>
+        기분 말고 흐름으로 볼게
+      </p>
+      <p className="mt-0.5 text-[10px] text-[#A09CB0] leading-[1.5]">
+        가트만 관계심리학 + 애착이론 기반
+      </p>
     </div>
   );
 }
@@ -383,10 +1557,35 @@ export default function Home() {
   const [images, setImages] = useState<{ file: File; preview: string }[]>([]);
   const [loading, setLoading] = useState(false);
   const [unlocking, setUnlocking] = useState(false);
+  const [redirecting, setRedirecting] = useState(false); // 결제창으로 이동 중
   const [freeResult, setFreeResult] = useState<any>(null);
   const [paidResult, setPaidResult] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
+  const [freeUsed, setFreeUsed] = useState(false);
+  const [forcePaid, setForcePaid] = useState(false); // "새로 분석하기(유료)" 눌렀을 때 유료 모드 강제
+  const [paidOrderId, setPaidOrderId] = useState<string | null>(null);   // 채팅 시뮬 부모 주문 ID
+  const [simSessionId, setSimSessionId] = useState<string | null>(null);  // 채팅 시뮬 세션 ID (holder)
   const inputRef = useRef({ text: "", imageData: [] as any[] });
+
+  // Check free usage + restore paid result on mount
+  // ?reset=1 붙이면 전체 초기화 (테스트용)
+  useEffect(() => {
+    if (typeof window !== "undefined" && window.location.search.includes("reset=1")) {
+      localStorage.removeItem(FREE_LIMIT_KEY);
+      localStorage.removeItem(PAID_KEY);
+      localStorage.removeItem(PAID_RESULT_KEY);
+      clearSimAndOrder();
+      window.location.href = window.location.pathname;
+      return;
+    }
+    setFreeUsed(hasFreeUsedToday());
+    const saved = loadPaidResult();
+    if (saved && isPaidUser()) {
+      setPaidResult(saved);
+      setPaidOrderId(loadPaidOrderId());
+      setSimSessionId(loadSimSessionId());
+    }
+  }, []);
 
   const hasInput = text.trim().length > 0 || images.length > 0;
   const result = paidResult || freeResult;
@@ -405,18 +1604,21 @@ export default function Home() {
 
   const analyze = async () => {
     if (!hasInput) return;
+    if (freeUsed) return;
     setLoading(true);
     setError(null);
 
     try {
-      // Convert images to base64
+      // Convert images to base64 (최대 3장)
       const imageData = await Promise.all(
-        images.slice(0, 1).map(img => fileToBase64(img.file))
+        images.slice(0, MAX_IMAGES).map(img => fileToBase64(img.file))
       );
       inputRef.current = { text, imageData };
 
       const result = await analyzeAPI(text, imageData, "free");
       setFreeResult(result);
+      markFreeUsed();
+      setFreeUsed(true);
     } catch (err: any) {
       setError("앗, 오류가 났어! 다시 한번 해볼래? 🥲");
     } finally {
@@ -424,30 +1626,83 @@ export default function Home() {
     }
   };
 
-  const handleUnlock = async () => {
-    setUnlocking(true);
-    setError(null);
+  // 브라우저 고유 토큰 (결제 주문 조회용)
+  const getClientToken = () => {
     try {
-      // Re-convert all images for paid tier
-      const allImageData = await Promise.all(
-        images.map(img => fileToBase64(img.file))
-      );
-      const result = await analyzeAPI(inputRef.current.text, allImageData, "paid");
-      setPaidResult({ ...freeResult, ...result });
-    } catch (err: any) {
-      setError("앗, 오류가 났어. 다시 시도해봐! 🥲");
-    } finally {
-      setUnlocking(false);
+      const KEY = "ai-unni-client-token";
+      let t = localStorage.getItem(KEY);
+      if (!t) {
+        t = crypto.randomUUID();
+        localStorage.setItem(KEY, t);
+      }
+      return t;
+    } catch {
+      return "anon-" + Date.now();
     }
   };
 
-  const reset = () => {
+  // 결제 페이지로 이동 (입력값을 서버에 저장 후 /checkout 으로 리디렉션)
+  const goToCheckout = async (payload: { text: string; imageData: any[] }) => {
+    setRedirecting(true);
+    setError(null);
+    try {
+      const res = await fetch("/api/payment/request", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          text: payload.text,
+          images: payload.imageData,
+          clientToken: getClientToken(),
+        }),
+      });
+      const json = await res.json();
+      if (!res.ok || !json.orderId) {
+        throw new Error(json?.error || "주문 생성 실패");
+      }
+      window.location.href = `/checkout?orderId=${encodeURIComponent(json.orderId)}`;
+    } catch (err: any) {
+      setError("결제 페이지로 이동하지 못했어. 다시 시도해줘 🥲");
+      setRedirecting(false);
+    }
+  };
+
+  // 무료 다 썼을 때 홈에서 바로 유료(결제) 진행
+  const analyzePaidDirect = async () => {
+    if (!hasInput) return;
+    const allImageData = await Promise.all(images.map(img => fileToBase64(img.file)));
+    inputRef.current = { text, imageData: allImageData };
+    // 무료 결과 없음 → merge 대상 없으므로 pending 삭제
+    try { localStorage.removeItem(FREE_RESULT_KEY); } catch {}
+    await goToCheckout({ text, imageData: allImageData });
+  };
+
+  // 무료 결과 화면에서 "프리미엄 분석 보기" 클릭 시 결제 진행
+  const handleUnlock = async () => {
+    // 무료 결과를 localStorage에 저장 → 결제 후 merge 용
+    if (freeResult) saveFreeResultPending(freeResult);
+    const allImageData = await Promise.all(images.map(img => fileToBase64(img.file)));
+    await goToCheckout({ text: inputRef.current.text, imageData: allImageData });
+  };
+
+  const reset = (opts?: { forcePaidMode?: boolean }) => {
     images.forEach(img => URL.revokeObjectURL(img.preview));
     setImages([]);
     setText("");
     setFreeResult(null);
     setPaidResult(null);
     setError(null);
+    clearPaidResult();
+    clearSimAndOrder();
+    setPaidOrderId(null);
+    setSimSessionId(null);
+    setFreeUsed(hasFreeUsedToday());
+    setForcePaid(!!opts?.forcePaidMode);
+    // 첫 화면으로 돌아갈 때 스크롤 최상단으로
+    if (typeof window !== "undefined") {
+      requestAnimationFrame(() => {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      });
+    }
   };
 
   return (
@@ -455,19 +1710,33 @@ export default function Home() {
       style={{ background: "linear-gradient(180deg, #FFF0F3 0%, #FFF5F7 30%, #FFFFFF 100%)" }}>
       <div className="max-w-[420px] mx-auto">
         {!result && (
-          <div className="text-center mb-7 pt-4 animate-fadeUp">
+          <div className="text-center mb-6 pt-4 animate-fadeUp">
+            {/* 가트만 · 애착이론 배지 — AI언니 위 테두리 박스 */}
+            <div className="inline-block mb-3 px-3 py-1.5 rounded-full border border-[#FF6B8A]/40 bg-white/70 backdrop-blur-sm shadow-sm">
+              <span className="text-[11px] text-[#7B7FC4] font-bold tracking-wide">
+                🔬 Gottman 관계심리학 · 애착이론 기반 분석
+              </span>
+            </div>
             <div className="text-[40px] mb-2 animate-float">👩‍❤️‍👨</div>
             <h1 className="text-[32px] font-extrabold text-[#2D2B3D] tracking-tight mb-1.5">
               AI<span className="text-[#FF6B8A]">언니</span>
             </h1>
-            <p className="text-[13px] text-[#8E8A9D] font-medium leading-relaxed">
-              썸, 연애, 재회까지 대신 봐주는 연애 조언 AI 💌
+            <p className="text-[13px] text-[#2D2B3D] font-bold leading-relaxed">
+              대화 캡쳐 한 장이면 걔 속마음이 보여
             </p>
           </div>
         )}
 
         {result ? (
-          <ResultCard result={result} isPaid={isPaid} onReset={reset} onUnlock={handleUnlock} unlocking={unlocking} />
+          <>
+            <ResultCard result={result} isPaid={isPaid} onReset={reset} onResetPaid={() => reset({ forcePaidMode: true })} onUnlock={handleUnlock} unlocking={unlocking} redirecting={redirecting} freeUsed={freeUsed} />
+            {isPaid && paidOrderId && (
+              <ChatSimulator
+                key={simSessionId ?? paidOrderId}
+                parentOrderId={paidOrderId}
+              />
+            )}
+          </>
         ) : loading ? (
           <LoadingState />
         ) : (
@@ -482,25 +1751,110 @@ export default function Home() {
               </div>
             )}
 
-            <button onClick={analyze} disabled={!hasInput}
-              className="w-full py-4 rounded-[20px] border-none text-base font-bold transition-all active:scale-[0.97]"
-              style={{
-                background: hasInput ? "linear-gradient(135deg, #FF6B8A, #E8456A)" : "#FFF0F3",
-                color: hasInput ? "#fff" : "#C4C0D0",
-                cursor: hasInput ? "pointer" : "default",
-                boxShadow: hasInput ? "0 4px 20px rgba(255,107,138,0.2)" : "none",
-              }}>
-              {hasInput ? "무료로 분석해보기 →" : "먼저 상황을 알려줘! 💬"}
-            </button>
+            {(freeUsed || forcePaid) ? (
+              <>
+                <div className="py-4 px-5 rounded-[20px] text-center"
+                  style={{ background: "#FFF0F3", border: "1px solid #FFD6E0" }}>
+                  <p className="text-[15px] text-[#2D2B3D] font-bold mb-1">
+                    {freeUsed ? "오늘 무료 분석 완료 · 내일 다시 와줘 💕" : "🔓 심층 유료 분석 모드"}
+                  </p>
+                  <p className="text-[12px] text-[#8E8A9D] mb-2">지금 바로 보고 싶다면 ↓</p>
+                  {/* 채팅 시뮬 번들 어필 (어필 5/5) */}
+                  <div className="inline-flex items-center gap-1.5 px-2.5 py-[5px] rounded-full"
+                    style={{ background: "#2D2B3D" }}>
+                    <span className="text-[9px] font-extrabold tracking-[1.5px]"
+                      style={{ color: "#FFB3C1" }}>
+                      BONUS
+                    </span>
+                    <span className="text-[10.5px] font-bold text-white">
+                      💬 결제하면 걔랑 대화 시뮬레이션까지 2턴 무료
+                    </span>
+                  </div>
+                </div>
+                <button onClick={analyzePaidDirect} disabled={!hasInput || redirecting || unlocking}
+                  className="w-full py-4 rounded-[20px] border-none text-base font-bold transition-all active:scale-[0.97]"
+                  style={{
+                    background: hasInput ? "linear-gradient(135deg, #FF6B8A, #E8456A)" : "#FFF0F3",
+                    color: hasInput ? "#fff" : "#C4C0D0",
+                    cursor: hasInput ? "pointer" : "default",
+                    boxShadow: hasInput ? "0 4px 20px rgba(255,107,138,0.2)" : "none",
+                    opacity: (redirecting || unlocking) ? 0.7 : 1,
+                  }}>
+                  {redirecting ? "결제창으로 이동 중..." : hasInput ? "🔓 바로 심층 분석 보기 · ₩2,900" : "먼저 상황을 알려줘! 💬"}
+                </button>
+              </>
+            ) : (
+              <button onClick={analyze} disabled={!hasInput}
+                className="w-full py-4 rounded-[20px] border-none text-base font-bold transition-all active:scale-[0.97]"
+                style={{
+                  background: hasInput ? "linear-gradient(135deg, #FF6B8A, #E8456A)" : "#FFF0F3",
+                  color: hasInput ? "#fff" : "#C4C0D0",
+                  cursor: hasInput ? "pointer" : "default",
+                  boxShadow: hasInput ? "0 4px 20px rgba(255,107,138,0.2)" : "none",
+                }}>
+                {hasInput ? "무료로 분석해보기 →" : "먼저 상황을 알려줘! 💬"}
+              </button>
+            )}
 
-            <div className="flex justify-center gap-3.5 text-[11px] text-[#C4C0D0] font-medium">
-              <span>🔒 캡쳐 저장 안 함</span>
-              <span>⚡ 10초면 끝</span>
-              <span>💗 AI 분석</span>
+            {/* 채팅 시뮬 티저 카드 (단가 없음 · 단순) */}
+            <div
+              className="rounded-[18px] px-4 py-3 border flex items-start gap-2.5"
+              style={{
+                background: "linear-gradient(135deg, #2D2B3D 0%, #3B3A52 100%)",
+                borderColor: "#FF6B8A",
+              }}>
+              <div className="text-[20px] leading-none mt-[2px]">💬</div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-1.5">
+                  <span
+                    className="text-[9px] font-extrabold tracking-[1.5px] px-1.5 py-[2px] rounded-full shrink-0"
+                    style={{ background: "#FF6B8A", color: "#fff" }}>
+                    NEW
+                  </span>
+                  <span className="text-[12.5px] font-extrabold text-white">
+                    분석 후, 실시간 대화 시뮬레이션 가능
+                  </span>
+                </div>
+                <div className="text-[10.5px] text-[#FFD6E0] mt-[3px] leading-[1.4]">
+                  ※ 대화 시뮬레이션은 카톡·DM 캡처가 있어야 열려
+                </div>
+              </div>
             </div>
+
+            <SamplePreview />
           </div>
         )}
+
+        {/* 푸터 — 사업자 정보 + 법적 페이지 링크 (토스 심사 필수) */}
+        <SiteFooter />
       </div>
     </main>
+  );
+}
+
+// ─── Site Footer (사업자 정보 + 법적 페이지) ───
+// ※ [대괄호] 플레이스홀더는 사업자등록 완료 후 실제 값으로 교체할 것.
+function SiteFooter() {
+  return (
+    <footer
+      className="mt-10 pt-5 pb-2 text-[11px] leading-[1.7] text-[#6E6A80]"
+      style={{ borderTop: "1px solid #FFD6E0" }}>
+      <div className="flex flex-wrap gap-x-3 gap-y-1 mb-2.5">
+        <a href="/terms" className="font-semibold text-[#2D2B3D] hover:underline">이용약관</a>
+        <span className="text-[#D8D4E0]">·</span>
+        <a href="/privacy" className="font-semibold text-[#2D2B3D] hover:underline">개인정보처리방침</a>
+        <span className="text-[#D8D4E0]">·</span>
+        <a href="/refund" className="font-semibold text-[#2D2B3D] hover:underline">환불정책</a>
+      </div>
+      <div className="text-[10.5px] text-[#8E8A9D] leading-[1.75]">
+        <div>상호: 주니랩스튜디오 | 대표자: 김경은</div>
+        <div>사업자등록번호: 875-56-01088 | 통신판매업신고번호: [제0000-지역-0000호]</div>
+        <div>주소: 서울특별시 서초구 바우뫼로7길 29, 105동 204호(우면동, 동고아파트)</div>
+        <div>고객센터: intactmirror@gmail.com (평일 10:00~18:00)</div>
+        <div className="mt-1.5 text-[#A09CB0]">
+          © {new Date().getFullYear()} AI언니. All rights reserved.
+        </div>
+      </div>
+    </footer>
   );
 }
