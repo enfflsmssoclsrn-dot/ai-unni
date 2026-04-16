@@ -398,13 +398,15 @@ function AttachmentChart({
   anxiety: number;
   type: string;
 }) {
-  // 뷰박스 — 여백 넉넉히
-  const W = 260;
-  const H = 240;
-  const padL = 38;
-  const padR = 38;
-  const padT = 34;
-  const padB = 34;
+  // ── 레이아웃 원칙: 사분면 라벨은 모두 플롯 "바깥"에 배치.
+  //    상단(회피형/혼합형) · 하단(안정형/불안형) 순서로 외부에 띄워두면,
+  //    데이터 점이 사분면 어디에 떨어져도 라벨이 가려지지 않음.
+  const W = 280;
+  const H = 270;
+  const padL = 28;
+  const padR = 42;   // 우측: "불안 →" 라벨 공간
+  const padT = 48;   // 상단: "회피 ↑" 축 라벨 + 사분면 라벨 2줄
+  const padB = 34;   // 하단: 사분면 라벨
   const plotW = W - padL - padR;
   const plotH = H - padT - padB;
   const cx = padL + plotW / 2;
@@ -414,13 +416,12 @@ function AttachmentChart({
   const pointX = padL + (clamp(anxiety) / 100) * plotW;
   const pointY = padT + (1 - clamp(avoidance) / 100) * plotH;
 
-  // 사분면 메타 — 각 유형별 시그니처 컬러 + 이모지
-  // 좌표계: 왼쪽=불안 낮음, 오른쪽=불안 높음 / 위=회피 높음, 아래=회피 낮음
+  // 사분면 메타 (이모지 없음, 색만)
   const quadrants = [
-    { label: "회피형", emoji: "🌫️", light: "#E6EFF8", deep: "#4A7FB8", textOn: "#3B6490", pos: "tl" },
-    { label: "혼합형", emoji: "🌪️", light: "#F0E8F5", deep: "#7B55A6", textOn: "#5D3F80", pos: "tr" },
-    { label: "안정형", emoji: "🌿", light: "#E4F1E9", deep: "#3E8C66", textOn: "#2D6B4D", pos: "bl" },
-    { label: "불안형", emoji: "💓", light: "#FDE3EA", deep: "#D64B74", textOn: "#A83557", pos: "br" },
+    { label: "회피형", light: "#E6EFF8", textOn: "#3B6490", deep: "#4A7FB8", pos: "tl" },
+    { label: "혼합형", light: "#F0E8F5", textOn: "#5D3F80", deep: "#7B55A6", pos: "tr" },
+    { label: "안정형", light: "#E4F1E9", textOn: "#2D6B4D", deep: "#3E8C66", pos: "bl" },
+    { label: "불안형", light: "#FDE3EA", textOn: "#A83557", deep: "#D64B74", pos: "br" },
   ] as const;
 
   // 사분면 영역 좌표
@@ -431,10 +432,15 @@ function AttachmentChart({
     if (pos === "bl") return { x: padL, y: padT + half.h, ...half };
     return { x: padL + half.w, y: padT + half.h, ...half };
   };
-  // 사분면 라벨 좌표 (중앙)
-  const quadCenter = (pos: string) => {
-    const r = quadRect(pos);
-    return { x: r.x + r.w / 2, y: r.y + r.h / 2 };
+
+  // 사분면 라벨 좌표 — 플롯 "바깥"
+  //   tl/tr: 플롯 위쪽 (y = padT - 8), 각 사분면 가로 중앙
+  //   bl/br: 플롯 아래쪽 (y = padT + plotH + 20), 각 사분면 가로 중앙
+  const labelPos = (pos: string) => {
+    if (pos === "tl") return { x: padL + plotW * 0.25, y: padT - 12 };
+    if (pos === "tr") return { x: padL + plotW * 0.75, y: padT - 12 };
+    if (pos === "bl") return { x: padL + plotW * 0.25, y: padT + plotH + 20 };
+    return { x: padL + plotW * 0.75, y: padT + plotH + 20 };
   };
 
   return (
@@ -444,7 +450,7 @@ function AttachmentChart({
       viewBox={`0 0 ${W} ${H}`}
       preserveAspectRatio="xMidYMid meet"
       className="block mx-auto"
-      style={{ maxWidth: 300 }}
+      style={{ maxWidth: 320 }}
     >
       <defs>
         <radialGradient id="attachDotGrad" cx="35%" cy="35%" r="65%">
@@ -453,7 +459,7 @@ function AttachmentChart({
           <stop offset="100%" stopColor="#E8456A" />
         </radialGradient>
         <radialGradient id="attachHalo" cx="50%" cy="50%" r="50%">
-          <stop offset="0%" stopColor="#FF6B8A" stopOpacity="0.45" />
+          <stop offset="0%" stopColor="#FF6B8A" stopOpacity="0.4" />
           <stop offset="100%" stopColor="#FF6B8A" stopOpacity="0" />
         </radialGradient>
         <filter id="attachDotShadow" x="-60%" y="-60%" width="220%" height="220%">
@@ -483,11 +489,11 @@ function AttachmentChart({
         </clipPath>
       </defs>
 
-      {/* 플롯 전체 그림자 박스 */}
+      {/* 플롯 드롭 섀도우 */}
       <rect x={padL - 2} y={padT - 2} width={plotW + 4} height={plotH + 4}
         fill="#fff" rx="16" filter="url(#plotShadow)" />
 
-      {/* 사분면 배경 */}
+      {/* 사분면 배경 (라벨은 플롯 밖이므로 내부는 순수 배경만) */}
       <g clipPath="url(#plotClip)">
         {quadrants.map((q) => {
           const r = quadRect(q.pos);
@@ -500,18 +506,18 @@ function AttachmentChart({
         })}
       </g>
 
-      {/* 활성 사분면 하이라이트 테두리 */}
+      {/* 활성 사분면 테두리 하이라이트 */}
       {quadrants.filter((q) => q.label === type).map((q) => {
         const r = quadRect(q.pos);
         return (
           <rect key={"active-" + q.label}
             x={r.x + 1.5} y={r.y + 1.5} width={r.w - 3} height={r.h - 3}
-            fill="none" stroke={q.deep} strokeWidth="1.5" strokeOpacity="0.5"
+            fill="none" stroke={q.deep} strokeWidth="1.5" strokeOpacity="0.55"
             rx="8" />
         );
       })}
 
-      {/* 외곽 */}
+      {/* 플롯 외곽 */}
       <rect x={padL} y={padT} width={plotW} height={plotH}
         fill="none" stroke="#EAE5F2" strokeWidth="1.2" rx="14" />
       {/* 십자 점선 */}
@@ -520,53 +526,46 @@ function AttachmentChart({
       <line x1={padL + 4} y1={cy} x2={padL + plotW - 4} y2={cy}
         stroke="#C9C2D6" strokeWidth="0.9" strokeDasharray="2 3" />
 
-      {/* 사분면 라벨 + 이모지 */}
+      {/* 사분면 라벨 — 플롯 "바깥"에 배치 (데이터 점이 절대 가리지 않음) */}
       {quadrants.map((q) => {
-        const c = quadCenter(q.pos);
+        const p = labelPos(q.pos);
         const active = q.label === type;
         return (
-          <g key={q.label}>
-            <text x={c.x} y={c.y - 6} textAnchor="middle" dominantBaseline="middle"
-              fontSize="14" opacity={active ? 1 : 0.55}>
-              {q.emoji}
-            </text>
-            <text x={c.x} y={c.y + 11} textAnchor="middle" dominantBaseline="middle"
-              fontSize={active ? "11.5" : "10.5"}
-              fontWeight={active ? "800" : "600"}
-              fill={active ? q.textOn : "#A8A3B8"}
-              letterSpacing="0.3">
-              {q.label}
-            </text>
-          </g>
+          <text
+            key={q.label}
+            x={p.x}
+            y={p.y}
+            textAnchor="middle"
+            dominantBaseline="middle"
+            fontSize={active ? "12" : "11"}
+            fontWeight={active ? "800" : "600"}
+            fill={active ? q.textOn : "#9994A8"}
+            letterSpacing="0.4"
+          >
+            {q.label}
+          </text>
         );
       })}
 
-      {/* 축 라벨 — 여백에 안정적으로 배치 */}
-      {/* Y축(회피) 위쪽 */}
-      <text x={cx} y={padT - 14} textAnchor="middle"
+      {/* 축 라벨 — 최외곽 */}
+      <text x={cx} y={18} textAnchor="middle"
         fontSize="10" fontWeight="700" fill="#7B9FC4" letterSpacing="1.2">
         회피 ↑
       </text>
-      <text x={cx} y={H - padB + 18} textAnchor="middle"
-        fontSize="9" fontWeight="600" fill="#B8B0C8" letterSpacing="1">
-        감정 거리두기
-      </text>
-      {/* X축(불안) 오른쪽 */}
-      <text x={padL + plotW + 4} y={cy - 5} textAnchor="start"
+      <text x={padL + plotW + 6} y={cy - 4} textAnchor="start"
         fontSize="10" fontWeight="700" fill="#D64B74" letterSpacing="1.2">
         불안
       </text>
-      <text x={padL + plotW + 4} y={cy + 8} textAnchor="start"
+      <text x={padL + plotW + 6} y={cy + 9} textAnchor="start"
         fontSize="12" fontWeight="700" fill="#D64B74">
         →
       </text>
-      {/* X축(불안) 왼쪽 설명 */}
-      <text x={padL - 4} y={cy - 5} textAnchor="end"
+      <text x={padL - 6} y={cy} textAnchor="end" dominantBaseline="middle"
         fontSize="9" fontWeight="600" fill="#B8B0C8" letterSpacing="0.5">
         안정
       </text>
 
-      {/* 데이터 점 — 큰 halo 그라디언트 + body */}
+      {/* 데이터 점 */}
       <circle cx={pointX} cy={pointY} r="18" fill="url(#attachHalo)" />
       <circle cx={pointX} cy={pointY} r="9"
         fill="url(#attachDotGrad)" opacity="0.55" />
