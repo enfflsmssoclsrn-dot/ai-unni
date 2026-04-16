@@ -1703,6 +1703,7 @@ export default function Home() {
   const [forcePaid, setForcePaid] = useState(false); // "새로 분석하기(유료)" 눌렀을 때 유료 모드 강제
   const [paidOrderId, setPaidOrderId] = useState<string | null>(null);   // 채팅 시뮬 부모 주문 ID
   const [simSessionId, setSimSessionId] = useState<string | null>(null);  // 채팅 시뮬 세션 ID (holder)
+  const [imageConsent, setImageConsent] = useState(false);                // 캡처 업로드 시 개인정보 동의
   const inputRef = useRef({ text: "", imageData: [] as any[] });
 
   // Check free usage + restore paid result on mount
@@ -1726,6 +1727,10 @@ export default function Home() {
   }, []);
 
   const hasInput = text.trim().length > 0 || images.length > 0;
+  // 캡처 업로드 시에만 동의 필수. 텍스트만 입력했을 땐 불필요.
+  const needsConsent = images.length > 0;
+  const consentOk = !needsConsent || imageConsent;
+  const canAnalyze = hasInput && consentOk;
   const result = paidResult || freeResult;
   const isPaid = !!paidResult;
 
@@ -1882,6 +1887,38 @@ export default function Home() {
             <TextInput value={text} onChange={setText} />
             <UploadZone images={images} onAdd={addImages} onRemove={removeImage} />
 
+            {/* 캡처 업로드 시 개인정보 동의 — 제3자(상대방) 정보 포함되므로 명시 동의 필수 */}
+            {images.length > 0 && (
+              <label className="flex items-start gap-2.5 p-3.5 rounded-[14px] cursor-pointer select-none transition-colors"
+                style={{
+                  background: imageConsent ? "#FFF0F3" : "#FFF8FA",
+                  border: `1.5px solid ${imageConsent ? "#FF6B8A" : "#FFD6E0"}`,
+                }}>
+                <input
+                  type="checkbox"
+                  checked={imageConsent}
+                  onChange={(e) => setImageConsent(e.target.checked)}
+                  className="mt-[3px] shrink-0 cursor-pointer"
+                  style={{ accentColor: "#E8456A", width: 16, height: 16 }}
+                />
+                <div className="flex-1">
+                  <div className="text-[12.5px] font-bold text-[#2D2B3D] leading-[1.5] mb-1">
+                    업로드한 대화 캡처에 대한 동의 (필수)
+                  </div>
+                  <div className="text-[11.5px] text-[#6E6A80] leading-[1.55]">
+                    업로드한 캡처에는 상대방의 대화가 포함될 수 있음을 이해하며,
+                    본인이 해당 내용을 분석 목적으로 이용할 책임이 있음을 확인합니다.
+                    이미지는 AI 분석 처리(Anthropic Claude API)에 전송되고,{" "}
+                    <a href="/privacy" target="_blank" rel="noopener noreferrer"
+                      className="underline font-semibold" style={{ color: "#E8456A" }}>
+                      개인정보처리방침
+                    </a>
+                    에 따라 분석 완료 후 30일 내 자동 파기됩니다.
+                  </div>
+                </div>
+              </label>
+            )}
+
             {error && (
               <div className="py-3 px-4 rounded-[16px] text-[13px] text-center"
                 style={{ background: "#FFF0F0", border: "1px solid #FFD6D6", color: "#E8456A" }}>
@@ -1909,28 +1946,38 @@ export default function Home() {
                     </span>
                   </div>
                 </div>
-                <button onClick={analyzePaidDirect} disabled={!hasInput || redirecting || unlocking}
+                <button onClick={analyzePaidDirect} disabled={!canAnalyze || redirecting || unlocking}
                   className="w-full py-4 rounded-[20px] border-none text-base font-bold transition-all active:scale-[0.97]"
                   style={{
-                    background: hasInput ? "linear-gradient(135deg, #FF6B8A, #E8456A)" : "#FFF0F3",
-                    color: hasInput ? "#fff" : "#C4C0D0",
-                    cursor: hasInput ? "pointer" : "default",
-                    boxShadow: hasInput ? "0 4px 20px rgba(255,107,138,0.2)" : "none",
+                    background: canAnalyze ? "linear-gradient(135deg, #FF6B8A, #E8456A)" : "#FFF0F3",
+                    color: canAnalyze ? "#fff" : "#C4C0D0",
+                    cursor: canAnalyze ? "pointer" : "default",
+                    boxShadow: canAnalyze ? "0 4px 20px rgba(255,107,138,0.2)" : "none",
                     opacity: (redirecting || unlocking) ? 0.7 : 1,
                   }}>
-                  {redirecting ? "결제창으로 이동 중..." : hasInput ? "🔓 바로 심층 분석 보기 · ₩2,900" : "먼저 상황을 알려줘! 💬"}
+                  {redirecting
+                    ? "결제창으로 이동 중..."
+                    : !hasInput
+                      ? "먼저 상황을 알려줘! 💬"
+                      : !consentOk
+                        ? "캡처 이용 동의에 체크해줘 ☝️"
+                        : "🔓 바로 심층 분석 보기 · ₩2,900"}
                 </button>
               </>
             ) : (
-              <button onClick={analyze} disabled={!hasInput}
+              <button onClick={analyze} disabled={!canAnalyze}
                 className="w-full py-4 rounded-[20px] border-none text-base font-bold transition-all active:scale-[0.97]"
                 style={{
-                  background: hasInput ? "linear-gradient(135deg, #FF6B8A, #E8456A)" : "#FFF0F3",
-                  color: hasInput ? "#fff" : "#C4C0D0",
-                  cursor: hasInput ? "pointer" : "default",
-                  boxShadow: hasInput ? "0 4px 20px rgba(255,107,138,0.2)" : "none",
+                  background: canAnalyze ? "linear-gradient(135deg, #FF6B8A, #E8456A)" : "#FFF0F3",
+                  color: canAnalyze ? "#fff" : "#C4C0D0",
+                  cursor: canAnalyze ? "pointer" : "default",
+                  boxShadow: canAnalyze ? "0 4px 20px rgba(255,107,138,0.2)" : "none",
                 }}>
-                {hasInput ? "무료로 분석해보기 →" : "먼저 상황을 알려줘! 💬"}
+                {!hasInput
+                  ? "먼저 상황을 알려줘! 💬"
+                  : !consentOk
+                    ? "캡처 이용 동의에 체크해줘 ☝️"
+                    : "무료로 분석해보기 →"}
               </button>
             )}
 
