@@ -819,8 +819,22 @@ function ChatSimulator({ parentOrderId }: { parentOrderId: string }) {
       return;
     }
     const toSend = draft.trim();
+
+    // ─── 낙관적 업데이트: 내 메시지를 즉시 화면에 띄우고 입력창 비움 ───
+    // turn_index는 서버 확정 전까지 임시로 -1 사용
+    setMessages(prev => [...prev, { role: "user", content: toSend, turn_index: -1 }]);
+    setDraft("");
     setSending(true);
     setError(null);
+
+    // 낙관적 추가를 롤백하는 헬퍼 (실패/거부 시 사용)
+    const rollbackOptimistic = () => {
+      setMessages(prev =>
+        prev.filter(m => !(m.role === "user" && m.turn_index === -1))
+      );
+      setDraft(toSend); // 입력창에 되돌려줘서 재전송 편의 제공
+    };
+
     try {
       const res = await fetch("/api/sim/message", {
         method: "POST",
@@ -837,32 +851,38 @@ function ChatSimulator({ parentOrderId }: { parentOrderId: string }) {
       if (typeof json.turns_used === "number") setTurnsUsed(json.turns_used);
       if (typeof json.turns_allowed === "number") setTurnsAllowed(json.turns_allowed);
 
-      // 서버가 "턴 초과 거부" 로 응답한 경우 — 로컬 메시지 append 안 함
+      // 서버가 "턴 초과 거부" 로 응답한 경우 — 낙관적 추가 롤백
       if (json.need_unlock && !json.partner_message) {
+        rollbackOptimistic();
         setNeedUnlock(true);
         return;
       }
       if (!res.ok) {
+        rollbackOptimistic();
         throw new Error(json?.error || "메시지 전송 실패");
       }
 
-      // 서버가 저장 완료한 user + partner 메시지를 로컬 state에 append
+      // 서버가 저장 완료한 user turn_index 확정 + partner 메시지 append
       if (typeof json.user_turn_index === "number" && typeof json.partner_message === "string") {
-        setMessages(prev => [
-          ...prev,
-          { role: "user", content: toSend, turn_index: json.user_turn_index },
-          {
+        setMessages(prev => {
+          // 임시 turn_index=-1인 내 메시지를 서버 확정값으로 치환
+          const patched = prev.map(m =>
+            m.role === "user" && m.turn_index === -1
+              ? { ...m, turn_index: json.user_turn_index as number }
+              : m
+          );
+          // 상대 메시지 추가
+          patched.push({
             role: "partner",
             content: json.partner_message,
             turn_index: json.partner_turn_index,
-          },
-        ]);
+          });
+          return patched;
+        });
       }
 
       // 턴 소진 여부는 서버의 권위 있는 need_unlock 플래그를 그대로 사용
       if (json.need_unlock) setNeedUnlock(true);
-
-      setDraft("");
     } catch (e: any) {
       setError(e?.message || "전송 중 오류가 났어");
     } finally {
