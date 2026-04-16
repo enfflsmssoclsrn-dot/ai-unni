@@ -398,52 +398,91 @@ function AttachmentChart({
   anxiety: number;
   type: string;
 }) {
-  const size = 280;
-  const pad = 36;
-  const plotSize = size - pad * 2;
-  const cx = pad + plotSize / 2;
-  const cy = pad + plotSize / 2;
+  // 뷰박스: 좌우·상단 충분히 여유 두고, 축 라벨 다 들어가게
+  const W = 240;
+  const H = 220;
+  const padL = 26;
+  const padR = 26;
+  const padT = 28;
+  const padB = 26;
+  const plotW = W - padL - padR;
+  const plotH = H - padT - padB;
+  const cx = padL + plotW / 2;
+  const cy = padT + plotH / 2;
 
-  // 값 → 좌표 (0~100 → pad ~ pad+plotSize)
-  // 불안(X): 0=왼쪽, 100=오른쪽
-  // 회피(Y): 0=아래, 100=위 (SVG Y는 반대)
   const clamp = (v: number) => Math.max(0, Math.min(100, v));
-  const pointX = pad + (clamp(anxiety) / 100) * plotSize;
-  const pointY = pad + (1 - clamp(avoidance) / 100) * plotSize;
+  const pointX = padL + (clamp(anxiety) / 100) * plotW;
+  const pointY = padT + (1 - clamp(avoidance) / 100) * plotH;
 
-  const quadrantLabels = [
-    { label: "회피형", x: pad + plotSize * 0.25, y: pad + plotSize * 0.28 },
-    { label: "혼합형", x: pad + plotSize * 0.75, y: pad + plotSize * 0.28 },
-    { label: "안정형", x: pad + plotSize * 0.25, y: pad + plotSize * 0.78 },
-    { label: "불안형", x: pad + plotSize * 0.75, y: pad + plotSize * 0.78 },
+  // 각 사분면의 메타 (배경색, 라벨 위치)
+  const quadrants = [
+    { label: "회피형",  bg: "#EAF2FA", x: padL + plotW * 0.25, y: padT + plotH * 0.30, color: "#6A8CAF" }, // 좌상
+    { label: "혼합형",  bg: "#F3ECF7", x: padL + plotW * 0.75, y: padT + plotH * 0.30, color: "#8A6AAF" }, // 우상
+    { label: "안정형",  bg: "#EAF6EF", x: padL + plotW * 0.25, y: padT + plotH * 0.72, color: "#4C9A6E" }, // 좌하
+    { label: "불안형",  bg: "#FCEAEE", x: padL + plotW * 0.75, y: padT + plotH * 0.72, color: "#D85378" }, // 우하
+  ];
+
+  // 사분면별 영역 좌표
+  const quadRects = [
+    { q: "회피형", x: padL,             y: padT,             w: plotW / 2, h: plotH / 2 },
+    { q: "혼합형", x: padL + plotW / 2, y: padT,             w: plotW / 2, h: plotH / 2 },
+    { q: "안정형", x: padL,             y: padT + plotH / 2, w: plotW / 2, h: plotH / 2 },
+    { q: "불안형", x: padL + plotW / 2, y: padT + plotH / 2, w: plotW / 2, h: plotH / 2 },
   ];
 
   return (
     <svg
-      width={size}
-      height={size}
-      viewBox={`0 0 ${size} ${size}`}
+      width="100%"
+      height={H}
+      viewBox={`0 0 ${W} ${H}`}
+      preserveAspectRatio="xMidYMid meet"
       className="block mx-auto"
+      style={{ maxWidth: 280 }}
     >
       <defs>
-        <radialGradient id="attachDot" cx="50%" cy="50%" r="50%">
+        <radialGradient id="attachDotGrad" cx="50%" cy="50%" r="50%">
           <stop offset="0%" stopColor="#FF8FA3" />
           <stop offset="100%" stopColor="#E8456A" />
         </radialGradient>
+        <filter id="attachDotShadow" x="-50%" y="-50%" width="200%" height="200%">
+          <feGaussianBlur in="SourceAlpha" stdDeviation="2" />
+          <feOffset dx="0" dy="1.5" result="shadow" />
+          <feComponentTransfer>
+            <feFuncA type="linear" slope="0.35" />
+          </feComponentTransfer>
+          <feMerge>
+            <feMergeNode />
+            <feMergeNode in="SourceGraphic" />
+          </feMerge>
+        </filter>
+        <clipPath id="plotClip">
+          <rect x={padL} y={padT} width={plotW} height={plotH} rx="10" />
+        </clipPath>
       </defs>
 
-      {/* 사분면 배경 */}
-      <rect x={pad} y={pad} width={plotSize} height={plotSize}
-        fill="#FFF8FA" stroke="#FFE8EC" strokeWidth="1" rx="8" />
+      {/* 사분면 배경 (각 영역 연한 파스텔) */}
+      <g clipPath="url(#plotClip)">
+        {quadRects.map((r) => {
+          const meta = quadrants.find((qq) => qq.label === r.q)!;
+          const active = r.q === type;
+          return (
+            <rect key={r.q} x={r.x} y={r.y} width={r.w} height={r.h}
+              fill={meta.bg}
+              opacity={active ? 1 : 0.55} />
+          );
+        })}
+      </g>
 
-      {/* 사분면 구분선 (십자) */}
-      <line x1={cx} y1={pad} x2={cx} y2={pad + plotSize}
-        stroke="#D4D0E0" strokeWidth="1.4" />
-      <line x1={pad} y1={cy} x2={pad + plotSize} y2={cy}
-        stroke="#D4D0E0" strokeWidth="1.4" />
+      {/* 외곽 + 십자 구분선 */}
+      <rect x={padL} y={padT} width={plotW} height={plotH}
+        fill="none" stroke="#E8E4F0" strokeWidth="1" rx="10" />
+      <line x1={cx} y1={padT} x2={cx} y2={padT + plotH}
+        stroke="#D4D0E0" strokeWidth="1" strokeDasharray="2 3" />
+      <line x1={padL} y1={cy} x2={padL + plotW} y2={cy}
+        stroke="#D4D0E0" strokeWidth="1" strokeDasharray="2 3" />
 
       {/* 사분면 라벨 */}
-      {quadrantLabels.map((q) => {
+      {quadrants.map((q) => {
         const active = q.label === type;
         return (
           <text
@@ -452,30 +491,38 @@ function AttachmentChart({
             y={q.y}
             textAnchor="middle"
             dominantBaseline="middle"
-            fontSize={active ? "14" : "12"}
+            fontSize={active ? "12.5" : "11"}
             fontWeight={active ? "800" : "600"}
-            fill={active ? "#E8456A" : "#8E8A9D"}
+            fill={active ? q.color : "#9994A8"}
+            letterSpacing="0.2"
           >
             {q.label}
           </text>
         );
       })}
 
-      {/* 축 라벨 — 회피(위), 불안(오른쪽) */}
-      <text x={cx} y={pad - 12} textAnchor="middle" fontSize="12"
-        fontWeight="700" fill="#7B9FC4">
-        회피 ↑
+      {/* 축 라벨 — 여백 내부에 배치해서 잘리지 않음 */}
+      <text x={cx} y={padT - 10} textAnchor="middle"
+        fontSize="10.5" fontWeight="700" fill="#7B9FC4" letterSpacing="1">
+        ↑ 회피
       </text>
-      <text x={pad + plotSize + 8} y={cy} textAnchor="start" dominantBaseline="middle"
-        fontSize="12" fontWeight="700" fill="#E8456A">
-        → 불안
+      <text x={padL + plotW + padR / 2} y={cy} textAnchor="middle" dominantBaseline="middle"
+        fontSize="10.5" fontWeight="700" fill="#E8456A" letterSpacing="1">
+        불안
+      </text>
+      <text x={padL + plotW + padR / 2} y={cy + 12} textAnchor="middle" dominantBaseline="middle"
+        fontSize="9" fontWeight="600" fill="#C09AA8">
+        →
       </text>
 
-      {/* 데이터 점 */}
-      <circle cx={pointX} cy={pointY} r="12"
-        fill="url(#attachDot)" stroke="#fff" strokeWidth="2" opacity="0.35" />
-      <circle cx={pointX} cy={pointY} r="7"
-        fill="url(#attachDot)" stroke="#fff" strokeWidth="2" />
+      {/* 데이터 점 (부드러운 halo + 본체) */}
+      <circle cx={pointX} cy={pointY} r="13"
+        fill="url(#attachDotGrad)" opacity="0.22" />
+      <circle cx={pointX} cy={pointY} r="8"
+        fill="url(#attachDotGrad)" opacity="0.4" />
+      <circle cx={pointX} cy={pointY} r="5"
+        fill="url(#attachDotGrad)" stroke="#fff" strokeWidth="1.8"
+        filter="url(#attachDotShadow)" />
     </svg>
   );
 }
