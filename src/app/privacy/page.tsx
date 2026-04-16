@@ -158,7 +158,7 @@ export default function PrivacyPage() {
           <ul className="space-y-1">
             <li>성명: 김경은</li>
             <li>직책: 대표</li>
-            <li>이메일: intactmirror@gmail.com</li>
+            <li>이메일: junilabstudio@gmail.com</li>
           </ul>
         </div>
       </section>

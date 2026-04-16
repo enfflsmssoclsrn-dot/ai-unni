@@ -98,7 +98,7 @@ export default function RefundPage() {
         <h2 className="text-[16px] font-bold mb-2">4. 고객센터</h2>
         <div className="rounded-[12px] bg-[#FFF8FA] border border-[#FFE8EC] p-4">
           <ul className="space-y-1">
-            <li>이메일: intactmirror@gmail.com</li>
+            <li>이메일: junilabstudio@gmail.com</li>
             <li>운영 시간: 평일 10:00 ~ 18:00 (주말·공휴일 제외)</li>
             <li>응답은 영업일 기준 1~2일 이내 안내드립니다.</li>
           </ul>
