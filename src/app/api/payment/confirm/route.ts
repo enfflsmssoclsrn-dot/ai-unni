@@ -10,7 +10,7 @@ import { runPaidAnalysis, processPaidResult } from "@/lib/paid-analysis";
 // ─────────────────────────────────────────────
 export async function POST(req: Request) {
   try {
-    const { paymentKey, orderId, amount } = await req.json();
+    const { paymentKey, orderId, amount, freeResult } = await req.json();
 
     if (!paymentKey || !orderId || typeof amount !== "number") {
       return Response.json(
@@ -67,7 +67,8 @@ export async function POST(req: Request) {
     }
 
     // 4. Claude 유료 분석 실행 (프롬프트 · 후처리 전부 포함)
-    const result = await runPaidAnalysis(order.input_text, order.input_images);
+    //    freeResult 가 있으면 앵커로 전달 → 무료↔유료 일관성 보장
+    const result = await runPaidAnalysis(order.input_text, order.input_images, freeResult || undefined);
 
     // 5. 결과 저장
     await supabase

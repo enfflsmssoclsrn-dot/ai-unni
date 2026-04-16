@@ -174,9 +174,14 @@ export function processPaidResult(result: any): any {
 }
 
 // ─── Claude API 호출 + JSON 파싱 ───
+// freeResult 가 넘어오면: 무료 분석→유료 업그레이드 흐름.
+//   사용자가 이미 본 score/temperature/stage/summary/attachment 를
+//   프롬프트에 앵커로 넣어서, 유료 결과가 무료와 일관적으로 나오게 함.
+//   (독립 호출 2회의 불일치 문제 해결)
 export async function runPaidAnalysis(
   text: string | null,
-  images: any[] | null
+  images: any[] | null,
+  freeResult?: any
 ): Promise<any> {
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) throw new Error("ANTHROPIC_API_KEY missing");
@@ -199,6 +204,33 @@ export async function runPaidAnalysis(
   if (text?.trim()) prompt += `\n\n[사용자가 설명한 상황]\n${text.trim()}`;
   if (images && images.length > 0)
     prompt += "\n\n위 이미지는 카톡 캡쳐야. 텍스트랑 이미지 둘 다 참고해서 분석해줘.";
+
+  // ── 무료 결과 앵커: 일관성 보장 ──
+  if (freeResult && typeof freeResult === "object") {
+    prompt += `\n\n[★ 일관성 최우선 규칙 — 반드시 지킬 것 ★]
+이 사용자는 이미 아래 무료 분석 결과를 봤어. 유료 심층 분석은 **아래 값을 기준선(anchor)으로** 작성해야 해.
+기준값:
+- score: ${freeResult.score ?? "없음"}
+- temperature: "${freeResult.temperature ?? "없음"}"
+- stage: "${freeResult.stage ?? "없음"}"
+- summary: "${freeResult.summary ?? "없음"}"
+- attachment.type: "${freeResult.attachment?.type ?? "없음"}"
+- attachment.avoidance: ${freeResult.attachment?.avoidance ?? "없음"}
+- attachment.anxiety: ${freeResult.attachment?.anxiety ?? "없음"}
+- diagnosis 방향: "${(freeResult.diagnosis || "").substring(0, 100)}"
+
+유지 규칙:
+1. **score**: 위 기준값과 동일하거나 ±5점 이내. 갑자기 30점 올리거나 내리면 안 됨.
+2. **temperature, stage**: 반드시 동일하게 유지.
+3. **summary**: 동일하거나, 같은 방향의 다른 표현으로 살짝 변형 가능.
+4. **attachment (type, avoidance, anxiety)**: 반드시 동일하게 유지.
+5. **axes 6축 평균 = score ±5점 이내**. 축 점수가 기준 score 와 동떨어지면 안 됨.
+6. **diagnosis**: 같은 진단 방향을 유지하면서, 더 구체적이고 깊게 확장.
+7. reasons, warnings, psychology, actions 는 위 score/diagnosis 방향에 맞춰 새로 작성.
+
+이 규칙을 어기면 사용자가 "아까랑 분석이 다르잖아?"라고 느끼게 돼. 절대 위반 금지.`;
+  }
+
   content.push({ type: "text", text: prompt });
 
   const res = await fetch("https://api.anthropic.com/v1/messages", {
