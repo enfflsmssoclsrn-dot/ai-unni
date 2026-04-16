@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
+import Script from "next/script";
 import "./globals.css";
 import { ScrollToTop } from "./scroll-to-top";
+
+const GA_ID = "G-9FMVRBCF2R";
 
 export const metadata: Metadata = {
   title: "AI 연애 상담 · 카톡 호감도 분석 | AI언니",
@@ -52,6 +55,15 @@ export default function RootLayout({
 }) {
   return (
     <html lang="ko">
+      <head>
+        <Script src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`} strategy="afterInteractive" />
+        <Script id="ga-init" strategy="afterInteractive">{`
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+          gtag('config', '${GA_ID}');
+        `}</Script>
+      </head>
       <body>
         <ScrollToTop />
         {children}
