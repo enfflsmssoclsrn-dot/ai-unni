@@ -655,8 +655,8 @@ function ResultCard({ result, isPaid, onReset, onResetPaid, onUnlock, unlocking,
         </div>
       </div>
 
-      {/* 무료: 애착 유형 4분면 / 유료: 6축 레이더 */}
-      {!isPaid && result.attachment && typeof result.attachment.avoidance === "number" && typeof result.attachment.anxiety === "number" && (
+      {/* 애착 유형 4분면 — 무료/유료 둘 다 표시 (무료에선 단독, 유료에선 육각형과 함께) */}
+      {result.attachment && typeof result.attachment.avoidance === "number" && typeof result.attachment.anxiety === "number" && (
         <SectionCard title="걔 애착 유형은?" icon="🧭">
           <AttachmentChart
             avoidance={result.attachment.avoidance}
@@ -677,6 +677,7 @@ function ResultCard({ result, isPaid, onReset, onResetPaid, onUnlock, unlocking,
           </div>
         </SectionCard>
       )}
+      {/* 유료 추가: 6축 호감도 레이더 (육각형) */}
       {isPaid && result.axes && (
         <SectionCard title="호감도 레이더" icon="📊">
           <RadarChart axes={result.axes} />
@@ -1948,20 +1949,12 @@ export default function Home() {
                   className="mt-[3px] shrink-0 cursor-pointer"
                   style={{ accentColor: "#E8456A", width: 16, height: 16 }}
                 />
-                <div className="flex-1">
-                  <div className="text-[12.5px] font-bold text-[#2D2B3D] leading-[1.5] mb-1">
-                    업로드한 대화 캡처에 대한 동의 (필수)
-                  </div>
-                  <div className="text-[11.5px] text-[#6E6A80] leading-[1.55]">
-                    업로드한 캡처에는 상대방의 대화가 포함될 수 있음을 이해하며,
-                    본인이 해당 내용을 분석 목적으로 이용할 책임이 있음을 확인합니다.
-                    이미지는 AI 분석 처리(Anthropic Claude API)에 전송되고,{" "}
-                    <a href="/privacy" target="_blank" rel="noopener noreferrer"
-                      className="underline font-semibold" style={{ color: "#E8456A" }}>
-                      개인정보처리방침
-                    </a>
-                    에 따라 분석 완료 후 30일 내 자동 파기됩니다.
-                  </div>
+                <div className="flex-1 text-[12.5px] text-[#2D2B3D] leading-[1.55]">
+                  캡처 분석 이용에 동의 (필수) ·{" "}
+                  <a href="/privacy" target="_blank" rel="noopener noreferrer"
+                    className="underline font-semibold" style={{ color: "#E8456A" }}>
+                    자세히
+                  </a>
                 </div>
               </label>
             )}
