@@ -222,7 +222,7 @@ export async function POST(request: Request) {
     content.push({ type: "text", text: prompt });
 
     // Call Claude API
-    const model = isFree ? "claude-haiku-4-5-20251001" : "claude-sonnet-4-6";
+    const model = "claude-sonnet-4-6"; // 무료·유료 동일 모델 — 전환율 + 일관성 확보
     const maxTokens = isFree ? 1000 : 2500;
 
     const response = await fetch("https://api.anthropic.com/v1/messages", {
