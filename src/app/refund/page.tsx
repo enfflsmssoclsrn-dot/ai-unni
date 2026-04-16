@@ -84,8 +84,8 @@ export default function RefundPage() {
       <section className="mb-6">
         <h2 className="text-[16px] font-bold mb-2">3. 환불 요청 방법</h2>
         <ol className="list-decimal pl-5 space-y-1">
-          <li>환불을 원하는 이용자는 아래 고객센터 이메일로 <b>주문번호, 결제
-            일시, 결제 금액, 환불 사유</b>를 기재하여 요청하시기 바랍니다.</li>
+          <li>환불을 원하는 이용자는 아래 고객센터 이메일로 <b>결제 일시, 결제
+            금액, 결제 수단(카드 끝 4자리), 환불 사유</b>를 기재하여 요청하시기 바랍니다.</li>
           <li>운영자는 환불 요청 수령일로부터 영업일 기준 <b>3일 이내</b>에 환불
             가능 여부를 안내하며, 환불이 승인될 경우 결제 수단의 승인 취소
             또는 계좌 환급을 통해 처리합니다.</li>
