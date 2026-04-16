@@ -1950,7 +1950,7 @@ export default function Home() {
                   style={{ accentColor: "#E8456A", width: 16, height: 16 }}
                 />
                 <div className="flex-1 text-[12.5px] text-[#2D2B3D] leading-[1.55]">
-                  캡처 분석 이용에 동의 (필수) ·{" "}
+                  대화 내용 분석 및 활용 동의 (필수) ·{" "}
                   <a href="/privacy" target="_blank" rel="noopener noreferrer"
                     className="underline font-semibold" style={{ color: "#E8456A" }}>
                     자세히
