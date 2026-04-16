@@ -1806,7 +1806,10 @@ export default function Home() {
   // Check free usage + restore paid result on mount
   // ?reset=1 붙이면 전체 초기화 (테스트용)
   useEffect(() => {
-    if (typeof window !== "undefined" && window.location.search.includes("reset=1")) {
+    // 페이지 진입 시 항상 스크롤 최상단 (결제 후 돌아왔을 때 등)
+    window.scrollTo({ top: 0, behavior: "instant" as ScrollBehavior });
+
+    if (window.location.search.includes("reset=1")) {
       localStorage.removeItem(FREE_LIMIT_KEY);
       localStorage.removeItem(PAID_KEY);
       localStorage.removeItem(PAID_RESULT_KEY);
@@ -1859,6 +1862,8 @@ export default function Home() {
       setFreeResult(result);
       markFreeUsed();
       setFreeUsed(true);
+      // 결과 나오면 최상단으로
+      window.scrollTo({ top: 0, behavior: "instant" as ScrollBehavior });
     } catch (err: any) {
       setError("앗, 오류가 났어! 다시 한번 해볼래? 🥲");
     } finally {
@@ -1938,10 +1943,9 @@ export default function Home() {
     setFreeUsed(hasFreeUsedToday());
     setForcePaid(!!opts?.forcePaidMode);
     // 첫 화면으로 돌아갈 때 스크롤 최상단으로
+    // ※ setTimeout 으로 React 리렌더 완료 후 즉시(instant) 이동
     if (typeof window !== "undefined") {
-      requestAnimationFrame(() => {
-        window.scrollTo({ top: 0, behavior: "smooth" });
-      });
+      setTimeout(() => window.scrollTo({ top: 0, behavior: "instant" as ScrollBehavior }), 50);
     }
   };
 
