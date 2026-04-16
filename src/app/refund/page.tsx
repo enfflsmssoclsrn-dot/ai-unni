@@ -108,9 +108,8 @@ export default function RefundPage() {
       <section>
         <h2 className="text-[16px] font-bold mb-2">5. 기타</h2>
         <p>
-          본 환불정책에 명시되지 않은 사항은 운영자의
-          「이용약관」(/terms) 및 관련 법령(전자상거래법, 소비자분쟁해결기준
-          등)에 따릅니다.
+          본 환불정책에 명시되지 않은 사항은 관련 법령(전자상거래법,
+          소비자분쟁해결기준 등)에 따릅니다.
         </p>
       </section>
     </LegalLayout>
