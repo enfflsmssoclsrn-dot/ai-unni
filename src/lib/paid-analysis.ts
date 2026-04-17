@@ -78,18 +78,24 @@ export const PAID_PROMPT = `[절대 규칙 - 반드시 지킬 것]
    · type: avoidance/anxiety 값에 따라 자동 판정 (50 기준)
      - <50 & <50 → "안정형" / <50 & >=50 → "불안형" / >=50 & <50 → "회피형" / >=50 & >=50 → "혼합형"
    · comment: 왜 그 유형인지 상대 행동 근거로 2~3문장, 친언니 말투.
-7. 현재 상태 진단 (diagnosis, 3문장) — 축 이름 금지. 친언니가 대화하듯 상대 행동 패턴을 구체적으로 짚기.
-8. 호감 근거 3개 (각 1~2문장) — 구체적인 상대 행동 인용
-9. 주의 포인트 2개 (솔직하게. 없으면 빈 배열)
-10. 상대방 심리 해석 (2~3문장)
-11. 행동 전략 4가지 (반드시 구체적 예시 포함)
+7. **위험 신호 진단 (red_flags)** — 가트만의 Four Horsemen. 대화에서 관찰된 빈도·강도를 0~100 점수로 진단.
+   - criticism (비난, 0~100, 5의 배수): "넌 항상 ~", "넌 왜 맨날 ~"
+   - defensiveness (방어, 0~100, 5의 배수): 변명·반격. "나는 안 그랬는데"
+   - contempt (경멸, 0~100, 5의 배수): 빈정거림·무시. 가장 위험한 신호.
+   - stonewalling (담쌓기, 0~100, 5의 배수): 대화 차단·무반응·읽씹.
+   - 관찰 근거 부족하면 낮게(10~20). 최소 5~10.
+8. 현재 상태 진단 (diagnosis, 3문장) — 축 이름 금지. 친언니가 대화하듯 상대 행동 패턴을 구체적으로 짚기.
+9. 호감 근거 3개 (각 1~2문장) — 구체적인 상대 행동 인용
+10. 주의 포인트 2개 (솔직하게. 없으면 빈 배열)
+11. 상대방 심리 해석 (2~3문장)
+12. 행동 전략 4가지 (반드시 구체적 예시 포함)
   - 1번: 객관적 현실 진단. "솔직히 지금 상태로는 좀 어려워 보여" 또는 "지금 흐름이면 가능성은 있어" 같이 현실적으로.
   - 2번: 그래도 해보고 싶다면 시도할 구체적 행동 예시.
   - 3번: 대화에서 쓸 수 있는 구체적 멘트. 실제 카톡에 칠 수 있는 말.
   - 4번: 멘탈 관리 & 위로. 이 연애가 잘 안 되더라도 괜찮다는 자존감 챙겨주는 말.
 
 JSON만 응답해:
-{"score":72,"temperature":"따뜻","stage":"썸","summary":"촌철살인","axes":{"관심도":85,"적극성":62,"반응성":78,"친밀감":54,"일관성":70,"미래지향":45},"attachment":{"avoidance":55,"anxiety":40,"type":"회피형","comment":"거리두기는 있지만 완전 끊진 않음"},"diagnosis":"진단","reasons":["1","2","3"],"warnings":["1","2"],"psychology":"심리","actions":["1","2","3","4"]}`;
+{"score":72,"temperature":"따뜻","stage":"썸","summary":"촌철살인","axes":{"관심도":85,"적극성":62,"반응성":78,"친밀감":54,"일관성":70,"미래지향":45},"attachment":{"avoidance":55,"anxiety":40,"type":"회피형","comment":"거리두기는 있지만 완전 끊진 않음"},"red_flags":{"criticism":15,"defensiveness":20,"contempt":10,"stonewalling":25},"diagnosis":"진단","reasons":["1","2","3"],"warnings":["1","2"],"psychology":"심리","actions":["1","2","3","4"]}`;
 
 // ─── 유틸 ───
 const AXIS_KEYS = ["관심도", "적극성", "반응성", "친밀감", "일관성", "미래지향"] as const;
@@ -168,6 +174,16 @@ export function processPaidResult(result: any): any {
         attachment?.comment ||
         `${derivedType} 패턴이야. 감정 거리두기 ${avSnap}, 관계 불안 ${axSnap} 수준으로 보여.`,
     };
+  }
+
+  // ── red_flags ──
+  const RF_KEYS = ["criticism", "defensiveness", "contempt", "stonewalling"] as const;
+  if (result?.red_flags && typeof result.red_flags === "object") {
+    for (const k of RF_KEYS) {
+      let v = Number(result.red_flags[k]);
+      if (!Number.isFinite(v)) v = 10;
+      result.red_flags[k] = snapTo5(clamp01(v));
+    }
   }
 
   return result;

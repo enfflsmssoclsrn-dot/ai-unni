@@ -76,14 +76,26 @@ const FREE_PROMPT = `[절대 규칙 - 반드시 지킬 것]
    - 기계적 해석(“회피성이 높고~” 같은 축 해설) 절대 금지.
    - 친언니가 카페에서 대화하듯 상대 행동을 구체적으로 짚어주는 톤.
    - 상대가 어떤 패턴을 보이는지 · 네가 놓치고 있는 포인트가 뭔지 · 이 관계가 어디로 흘러가는지 — 이 중 핵심 2~3개를 콕 찍어서.
-   - 마지막 문장은 살짝 호기심 자극하며 "왜 그런지는 상세 분석에서" 정도로 자연스럽게 유도.
+   - 마지막 문장은 살짝 호기심 자극하며 “왜 그런지는 상세 분석에서” 정도로 자연스럽게 유도.
+7. **위험 신호 진단 (red_flags)** — 가트만의 Four Horsemen 기반. 대화에서 관찰된 빈도·강도를 0~100 점수로 진단.
+   - criticism (비난, 0~100, 5의 배수): 상대방 인격을 공격하는 표현. “넌 항상 ~”, “넌 왜 맨날 ~”
+     · 0~20: 거의 없음 / 40~60: 가끔 불만 표현 / 80~100: 빈번한 인격 비난
+   - defensiveness (방어, 0~100, 5의 배수): 문제 제기 시 변명·반격. “나는 안 그랬는데”, “네가 먼저 ~”
+     · 0~20: 수용적 / 40~60: 때때로 방어적 / 80~100: 항상 방어적
+   - contempt (경멸, 0~100, 5의 배수): 눈 굴리기·빈정거림·무시. “그것도 모르냐”, “하~”
+     · 0~20: 없음 / 40~60: 은근한 무시 / 80~100: 노골적 경멸 (가장 위험한 신호)
+   - stonewalling (담쌓기, 0~100, 5의 배수): 대화 차단·무반응·읽씹·회피. 상대가 벽 쌓는 정도.
+     · 0~20: 대화 열려있음 / 40~60: 가끔 회피 / 80~100: 완전 차단
+   - 점수가 모두 낮으면(20 이하) 건강한 관계. 하나라도 60 이상이면 주의, 80 이상이면 위험.
+   - 관찰 근거가 부족하면 낮게(10~20) 줄 것. 없다고 0으로 하지 말 것 (최소 5~10).
 
 **결정적 채점 추가 규칙**:
 - attachment.avoidance, attachment.anxiety 도 **5의 배수**로만 찍을 것 (20, 25, 30, ..., 95).
+- red_flags 4개 값도 **5의 배수**로만 찍을 것.
 - score(종합점수)는 avoidance/anxiety 와 별개로, 원래 기준대로 0~100 사이 5의 배수.
 
 반드시 아래 JSON만 응답해:
-{"score":72,"temperature":"따뜻","stage":"썸","summary":"촌철살인 한마디","attachment":{"avoidance":55,"anxiety":40,"type":"회피형","comment":"감정 표현은 있지만 거리두기가 보임. 답장은 오지만 속마음은 잘 안 열음."},"diagnosis":"총평 3~4문장"}`;
+{“score”:72,”temperature”:”따뜻”,”stage”:”썸”,”summary”:”촌철살인 한마디”,”attachment”:{“avoidance”:55,”anxiety”:40,”type”:”회피형”,”comment”:”감정 표현은 있지만 거리두기가 보임.”},”red_flags”:{“criticism”:15,”defensiveness”:20,”contempt”:10,”stonewalling”:25},”diagnosis”:”총평 3~4문장”}`;
 
 const PAID_PROMPT = `[절대 규칙 - 반드시 지킬 것]
 1. 어떤 경우에도 반드시 JSON 형식으로만 응답할 것. JSON 외의 텍스트/설명/질문 절대 금지.
@@ -156,18 +168,24 @@ const PAID_PROMPT = `[절대 규칙 - 반드시 지킬 것]
    · type: avoidance/anxiety 값에 따라 자동 판정 (50 기준)
      - <50 & <50 → "안정형" / <50 & >=50 → "불안형" / >=50 & <50 → "회피형" / >=50 & >=50 → "혼합형"
    · comment: 왜 그 유형인지 상대 행동 근거로 2~3문장, 친언니 말투.
-7. 현재 상태 진단 (diagnosis, 3문장) — 축 이름 금지. 친언니가 대화하듯 상대 행동 패턴을 구체적으로 짚기.
-8. 호감 근거 3개 (각 1~2문장) — 구체적인 상대 행동 인용
-9. 주의 포인트 2개 (솔직하게. 없으면 빈 배열)
-10. 상대방 심리 해석 (2~3문장)
-11. 행동 전략 4가지 (반드시 구체적 예시 포함)
+7. **위험 신호 진단 (red_flags)** — 가트만의 Four Horsemen. 대화에서 관찰된 빈도·강도를 0~100 점수로 진단.
+   - criticism (비난, 0~100, 5의 배수): "넌 항상 ~", "넌 왜 맨날 ~"
+   - defensiveness (방어, 0~100, 5의 배수): 변명·반격. "나는 안 그랬는데"
+   - contempt (경멸, 0~100, 5의 배수): 빈정거림·무시. 가장 위험한 신호.
+   - stonewalling (담쌓기, 0~100, 5의 배수): 대화 차단·무반응·읽씹.
+   - 관찰 근거 부족하면 낮게(10~20). 최소 5~10.
+8. 현재 상태 진단 (diagnosis, 3문장) — 축 이름 금지. 친언니가 대화하듯 상대 행동 패턴을 구체적으로 짚기.
+9. 호감 근거 3개 (각 1~2문장) — 구체적인 상대 행동 인용
+10. 주의 포인트 2개 (솔직하게. 없으면 빈 배열)
+11. 상대방 심리 해석 (2~3문장)
+12. 행동 전략 4가지 (반드시 구체적 예시 포함)
   - 1번: 객관적 현실 진단. "솔직히 지금 상태로는 좀 어려워 보여" 또는 "지금 흐름이면 가능성은 있어" 같이 현실적으로.
   - 2번: 그래도 해보고 싶다면 시도할 구체적 행동 예시.
   - 3번: 대화에서 쓸 수 있는 구체적 멘트. 실제 카톡에 칠 수 있는 말.
   - 4번: 멘탈 관리 & 위로. 이 연애가 잘 안 되더라도 괜찮다는 자존감 챙겨주는 말.
 
 JSON만 응답해:
-{"score":72,"temperature":"따뜻","stage":"썸","summary":"촌철살인","axes":{"관심도":85,"적극성":62,"반응성":78,"친밀감":54,"일관성":70,"미래지향":45},"attachment":{"avoidance":55,"anxiety":40,"type":"회피형","comment":"거리두기는 있지만 완전 끊진 않음"},"diagnosis":"진단","reasons":["1","2","3"],"warnings":["1","2"],"psychology":"심리","actions":["1","2","3","4"]}`;
+{"score":72,"temperature":"따뜻","stage":"썸","summary":"촌철살인","axes":{"관심도":85,"적극성":62,"반응성":78,"친밀감":54,"일관성":70,"미래지향":45},"attachment":{"avoidance":55,"anxiety":40,"type":"회피형","comment":"거리두기는 있지만 완전 끊진 않음"},"red_flags":{"criticism":15,"defensiveness":20,"contempt":10,"stonewalling":25},"diagnosis":"진단","reasons":["1","2","3"],"warnings":["1","2"],"psychology":"심리","actions":["1","2","3","4"]}`;
 
 // GET: health check
 export async function GET() {
@@ -362,6 +380,16 @@ export async function POST(request: Request) {
           attachment?.comment ||
           `${derivedType} 패턴이야. 감정 거리두기 ${avSnap}, 관계 불안 ${axSnap} 수준으로 보여.`,
       };
+    }
+
+    // ─── red_flags 스냅 (5의 배수) ───
+    const RF_KEYS = ["criticism", "defensiveness", "contempt", "stonewalling"] as const;
+    if (result?.red_flags && typeof result.red_flags === "object") {
+      for (const k of RF_KEYS) {
+        let v = Number(result.red_flags[k]);
+        if (!Number.isFinite(v)) v = 10;
+        result.red_flags[k] = snapTo5(clamp01(v));
+      }
     }
 
     return Response.json({ result, tier });
