@@ -271,6 +271,55 @@ const AXIS_META: { key: string; label: string; desc: string }[] = [
   { key: "미래지향", label: "미래지향", desc: "같이 뭐 하자는 의사" },
 ];
 
+// ─── 위험 신호 차트 (가트만 Four Horsemen) ───
+function RedFlagsChart({ flags }: { flags: { criticism: number; defensiveness: number; contempt: number; stonewalling: number } }) {
+  const items = [
+    { key: "비난", value: flags.criticism, color: "#FF8FA3", icon: "💢" },
+    { key: "방어", value: flags.defensiveness, color: "#FFB347", icon: "🛡" },
+    { key: "경멸", value: flags.contempt, color: "#E8456A", icon: "😤" },
+    { key: "담쌓기", value: flags.stonewalling, color: "#7B7FC4", icon: "🧱" },
+  ];
+  const maxVal = Math.max(...items.map(i => i.value), 1);
+  const getLevel = (v: number) => {
+    if (v <= 20) return { text: "안전", color: "#3E8C66" };
+    if (v <= 40) return { text: "양호", color: "#6BAF8D" };
+    if (v <= 60) return { text: "주의", color: "#E8956A" };
+    if (v <= 80) return { text: "경고", color: "#E8456A" };
+    return { text: "위험", color: "#C0392B" };
+  };
+
+  return (
+    <div>
+      {items.map((item) => {
+        const level = getLevel(item.value);
+        return (
+          <div key={item.key} className="mb-2.5 last:mb-0">
+            <div className="flex items-center justify-between mb-1">
+              <div className="flex items-center gap-1.5">
+                <span className="text-[13px]">{item.icon}</span>
+                <span className="text-[12px] font-bold text-[#2D2B3D]">{item.key}</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <span className="text-[11px] font-bold" style={{ color: level.color }}>{level.text}</span>
+                <span className="text-[11px] font-bold tabular-nums" style={{ color: "#8E8A9D" }}>{item.value}</span>
+              </div>
+            </div>
+            <div className="h-[6px] rounded-full overflow-hidden" style={{ background: "#F0EDF5" }}>
+              <div
+                className="h-full rounded-full transition-all duration-700"
+                style={{
+                  width: `${Math.max((item.value / 100) * 100, 3)}%`,
+                  background: `linear-gradient(90deg, ${item.color}88, ${item.color})`,
+                }}
+              />
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
 function RadarChart({ axes }: { axes: Record<string, number> }) {
   const size = 280;
   const cx = size / 2;
@@ -726,6 +775,28 @@ function ResultCard({ result, isPaid, onReset, onResetPaid, onUnlock, unlocking,
           </div>
         </SectionCard>
       )}
+      {/* 위험 신호 진단 (가트만 Four Horsemen) — 무료/유료 둘 다 표시 */}
+      {result.red_flags && typeof result.red_flags === "object" && (
+        <SectionCard title="관계 위험 신호 진단" icon="🚨">
+          <div className="text-[11px] text-[#8E8A9D] mb-3 leading-[1.5]">
+            가트만 박사의 &lsquo;관계를 망치는 4가지 신호(Four Horsemen)&rsquo; 기반 분석
+          </div>
+          <RedFlagsChart flags={result.red_flags} />
+          <div className="mt-3 px-3 py-2 rounded-[10px]" style={{ background: "#FFF8FA", border: "1px solid #FFE8EC" }}>
+            <p className="text-[10.5px] text-[#8E8A9D] leading-[1.5]">
+              {(() => {
+                const vals = [result.red_flags.criticism, result.red_flags.defensiveness, result.red_flags.contempt, result.red_flags.stonewalling];
+                const max = Math.max(...vals);
+                if (max <= 20) return "모든 신호가 안전 구간이야. 건강한 대화 패턴을 보이고 있어.";
+                if (max <= 40) return "전반적으로 양호해. 사소한 신호가 있지만 크게 걱정할 수준은 아니야.";
+                if (max <= 60) return "일부 신호에 주의가 필요해. 지금 패턴이 반복되면 관계에 영향을 줄 수 있어.";
+                return "경고 수준의 신호가 감지됐어. 대화 패턴을 의식적으로 바꿔볼 필요가 있어.";
+              })()}
+            </p>
+          </div>
+        </SectionCard>
+      )}
+
       {/* 유료 추가: 6축 호감도 레이더 (육각형) */}
       {isPaid && result.axes && (
         <SectionCard title="호감도 레이더" icon="📊">
@@ -1415,6 +1486,7 @@ const SAMPLE_RESULT = {
   temperature: "미지근",
   stage: "호감",
   summary: "걔 발만 살짝 걸쳐놨어",
+  attachment: { type: "불안형", anxiety: 72, avoidance: 25 },
   axes: {
     관심도: 68,
     적극성: 42,
@@ -1424,13 +1496,23 @@ const SAMPLE_RESULT = {
     미래지향: 35,
   } as Record<string, number>,
   diagnosis:
-    "이 사람, 아예 마음이 없는 건 아니야. 답장은 꾸준하고 너 얘기에 반응도 해주거든. 근데 자기 얘길 먼저 꺼내거나 다음 약속을 짚는 건 피해 — 관계를 책임지고 진전시킬 준비는 덜 된 상태야. 네가 불안해질수록 상대는 더 애매해지는 흐름이라, 지금 결정타는 너의 감정 싸움이 아니라 '속도 조절'이야.",
+    "이 사람, 아예 마음이 없는 건 아니야. 답장은 꾸준하고 너 얘기에 반응도 해주거든. 근데 자기 얘길 먼저 꺼내거나 다음 약속을 짚는 건 피해 — 관계를 책임지고 진전시킬 준비는 덜 된 상태야.",
   reasons: [
     "답장은 꾸준한데 관계 진전 얘기는 피하고 있어",
     "호감 표현보다 상황 설명이 더 많아",
     "네가 불안해질수록 더 애매하게 반응하는 흐름이 보여",
   ],
   advice: "지금은 답을 재촉하기보다 조금 텀을 두고 상대 반응을 보는 게 더 유리해.",
+  inner_psychology: "상대방은 호감은 있지만 '확신이 없는 상태'야. 거절당할까 봐 확실한 표현을 피하고 있어.",
+  caution_points: [
+    "네가 먼저 감정 표현을 과하게 하면 부담 느낄 수 있어",
+    "연락 텀이 불규칙해지면 불안 신호일 수 있어",
+  ],
+  recommended_messages: [
+    "오늘 뭐 했어? 나는 — 하고 있었는데 갑자기 네 생각 남ㅋㅋ",
+    "이번 주 시간 되면 — 가볼래? 거기 맛집이래",
+  ],
+  red_flags: { criticism: 10, defensiveness: 15, contempt: 5, stonewalling: 30 },
 };
 
 function SamplePreview() {
@@ -1502,66 +1584,120 @@ function SamplePreview() {
           </div>
         </div>
 
-        {/* 2) 호감도 레이더 (축소 버전) */}
+        {/* 2) 애착 유형 4분면 (축소 버전) */}
         <div className="bg-white rounded-[16px] p-3 mb-2" style={{ border: "1px solid rgba(255,143,171,0.15)" }}>
-          <div className="text-[12px] font-bold mb-1.5 text-[#2D2B3D]">📊 호감도 레이더</div>
-          <div className="flex gap-2 items-center">
-            <div className="shrink-0" style={{ width: 150 }}>
-              <div style={{ transform: "scale(0.54)", transformOrigin: "top left", width: 280, height: 151 }}>
-                <RadarChart axes={s.axes} />
-              </div>
+          <div className="text-[12px] font-bold mb-1 text-[#2D2B3D]">💜 상대방 애착 유형</div>
+          <div className="text-center">
+            <div style={{ transform: "scale(0.75)", transformOrigin: "top center", height: 203 }}>
+              <AttachmentChart
+                avoidance={s.attachment.avoidance}
+                anxiety={s.attachment.anxiety}
+                type={s.attachment.type}
+              />
             </div>
-            <div className="flex-1 min-w-0">
-              {Object.entries(s.axes).map(([k, v]) => (
-                <div key={k} className="flex items-center gap-1.5 mb-1 last:mb-0">
-                  <span className="text-[10px] font-semibold text-[#2D2B3D] shrink-0" style={{ width: 44 }}>{k}</span>
-                  <div className="flex-1 h-[4px] rounded-full overflow-hidden" style={{ background: "#FFE8EC" }}>
-                    <div className="h-full rounded-full" style={{ width: `${v}%`, background: "linear-gradient(90deg, #FF8FA3, #E8456A)" }} />
-                  </div>
-                  <span className="text-[9px] font-bold tabular-nums shrink-0" style={{ color: "#FF6B8A", width: 18 }}>{v}</span>
-                </div>
-              ))}
-            </div>
+          </div>
+          <div className="text-center mt-[-4px]">
+            <span className="inline-block px-3 py-1 rounded-full text-[11px] font-bold"
+              style={{ background: "#FDE3EA", color: "#A83557" }}>
+              {s.attachment.type}
+            </span>
           </div>
         </div>
 
-        {/* 3) AI언니 총평 */}
+        {/* 3) 위험 신호 진단 */}
+        <div className="bg-white rounded-[16px] p-3 mb-2" style={{ border: "1px solid rgba(255,143,171,0.15)" }}>
+          <div className="text-[12px] font-bold mb-1 text-[#2D2B3D]">🚨 관계 위험 신호</div>
+          <div className="text-[9px] text-[#8E8A9D] mb-2">가트만 Four Horsemen 기반</div>
+          <div style={{ transform: "scale(0.9)", transformOrigin: "top left" }}>
+            <RedFlagsChart flags={s.red_flags} />
+          </div>
+        </div>
+
+        {/* 4) AI언니 총평 */}
         <div className="bg-white rounded-[16px] p-3 mb-2" style={{ border: "1px solid rgba(255,143,171,0.15)" }}>
           <div className="text-[12px] font-bold mb-1.5 text-[#2D2B3D]">🔍 AI언니 총평</div>
           <p className="text-[11.5px] text-[#2D2B3D] leading-[1.7]">{s.diagnosis}</p>
         </div>
 
-        {/* 4) 유료에서 더 보여주는 파트 (잠금 티저) */}
+        {/* 5) 유료 결과 미리보기 */}
         <div className="rounded-[16px] p-3 relative overflow-hidden"
           style={{
             background: "linear-gradient(135deg, #FFF0F3 0%, #FFE8EC 100%)",
             border: "1px dashed #FFADC4",
           }}>
-          <div className="text-[12px] font-bold mb-2" style={{ color: "#E8456A" }}>🔒 프리미엄에선 여기까지 나와</div>
-          <div className="mb-2">
+          <div className="text-[12px] font-bold mb-2.5" style={{ color: "#E8456A" }}>🔒 프리미엄에선 여기까지 나와</div>
+
+          {/* 호감도 레이더 */}
+          <div className="bg-white rounded-[12px] p-2.5 mb-2" style={{ border: "1px solid rgba(255,143,171,0.15)" }}>
+            <div className="text-[10px] font-bold mb-1 text-[#FF6B8A]">📊 호감도 레이더</div>
+            <div className="flex gap-2 items-center">
+              <div className="shrink-0" style={{ width: 120 }}>
+                <div style={{ transform: "scale(0.43)", transformOrigin: "top left", width: 280, height: 151 }}>
+                  <RadarChart axes={s.axes} />
+                </div>
+              </div>
+              <div className="flex-1 min-w-0">
+                {Object.entries(s.axes).map(([k, v]) => (
+                  <div key={k} className="flex items-center gap-1 mb-[3px] last:mb-0">
+                    <span className="text-[9px] font-semibold text-[#2D2B3D] shrink-0" style={{ width: 40 }}>{k}</span>
+                    <div className="flex-1 h-[3px] rounded-full overflow-hidden" style={{ background: "#FFE8EC" }}>
+                      <div className="h-full rounded-full" style={{ width: `${v}%`, background: "linear-gradient(90deg, #FF8FA3, #E8456A)" }} />
+                    </div>
+                    <span className="text-[8px] font-bold tabular-nums shrink-0" style={{ color: "#FF6B8A", width: 16 }}>{v}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* 이 점수가 나온 이유 */}
+          <div className="bg-white rounded-[12px] p-2.5 mb-2" style={{ border: "1px solid rgba(255,143,171,0.15)" }}>
             <div className="text-[10px] font-bold mb-1 text-[#FF6B8A]">💡 이 점수가 나온 이유</div>
             <ul className="space-y-1">
               {s.reasons.map((r, i) => (
-                <li key={i} className="flex items-start gap-1.5 text-[11px] text-[#2D2B3D] leading-[1.5]">
+                <li key={i} className="flex items-start gap-1.5 text-[10.5px] text-[#2D2B3D] leading-[1.5]">
                   <span className="w-1 h-1 rounded-full mt-[6px] shrink-0" style={{ background: "#FF6B8A" }} />
                   <span>{r}</span>
                 </li>
               ))}
             </ul>
           </div>
-          <div className="pt-2" style={{ borderTop: "1px dashed #FFADC4" }}>
-            <div className="text-[10px] font-bold mb-1" style={{ color: "#7B7FC4" }}>🎯 언니 말 들어, 이렇게 해봐</div>
-            <div className="text-[11px] text-[#2D2B3D] leading-[1.55] italic p-2 rounded-[10px]"
-              style={{ background: "rgba(255,255,255,0.75)" }}>
-              {s.advice}
-            </div>
+
+          {/* 걔 속마음 */}
+          <div className="bg-white rounded-[12px] p-2.5 mb-2" style={{ border: "1px solid rgba(255,143,171,0.15)" }}>
+            <div className="text-[10px] font-bold mb-1" style={{ color: "#7B7FC4" }}>🧠 걔 속마음</div>
+            <p className="text-[10.5px] text-[#2D2B3D] leading-[1.55]">{s.inner_psychology}</p>
           </div>
-          <div className="mt-2 flex items-center justify-center gap-1 text-[10px] font-semibold" style={{ color: "#A09CB0" }}>
-            <span>🧠 걔 속마음 · ⚠️ 걸리는 부분 · 💬 멘트 예시</span>
+
+          {/* 걸리는 부분 */}
+          <div className="bg-white rounded-[12px] p-2.5 mb-2" style={{ border: "1px solid rgba(255,143,171,0.15)" }}>
+            <div className="text-[10px] font-bold mb-1" style={{ color: "#E8956A" }}>⚠️ 걸리는 부분</div>
+            <ul className="space-y-1">
+              {s.caution_points.map((c, i) => (
+                <li key={i} className="flex items-start gap-1.5 text-[10.5px] text-[#2D2B3D] leading-[1.5]">
+                  <span className="w-1 h-1 rounded-full mt-[6px] shrink-0" style={{ background: "#E8956A" }} />
+                  <span>{c}</span>
+                </li>
+              ))}
+            </ul>
           </div>
-          {/* 채팅 시뮬 NEW 한 줄 (어필 4/5) */}
+
+          {/* 이렇게 해봐 + 멘트 예시 */}
+          <div className="bg-white rounded-[12px] p-2.5 mb-2" style={{ border: "1px solid rgba(255,143,171,0.15)" }}>
+            <div className="text-[10px] font-bold mb-1" style={{ color: "#3E8C66" }}>🎯 이렇게 해봐</div>
+            <p className="text-[10.5px] text-[#2D2B3D] leading-[1.55] mb-2">{s.advice}</p>
+            <div className="text-[10px] font-bold mb-1" style={{ color: "#FF6B8A" }}>💬 이런 멘트 보내봐</div>
+            {s.recommended_messages.map((m, i) => (
+              <div key={i} className="text-[10.5px] text-[#2D2B3D] leading-[1.5] p-1.5 rounded-[8px] mb-1 last:mb-0"
+                style={{ background: "rgba(255,107,138,0.06)" }}>
+                &ldquo;{m}&rdquo;
+              </div>
+            ))}
+          </div>
+
+          {/* 채팅 시뮬 NEW */}
           <div
-            className="mt-2 px-2.5 py-[6px] rounded-[10px] text-center"
+            className="px-2.5 py-[6px] rounded-[10px] text-center"
             style={{ background: "rgba(45,43,61,0.85)" }}>
             <span
               className="text-[9px] font-extrabold tracking-[1.5px] mr-1 px-1.5 py-[1px] rounded-full"
