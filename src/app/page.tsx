@@ -628,11 +628,11 @@ function AttachmentChart({
 // ─── 프리미엄 분석 예고 카드 (무료 유저용) ───
 function PremiumPreview({ onUnlock, unlocking, redirecting }: { onUnlock: () => void; unlocking: boolean; redirecting?: boolean }) {
   const items = [
-    { icon: "💡", title: "이 점수가 나온 구체적 이유", desc: "걔 행동 하나하나가 어떤 신호인지" },
-    { icon: "⚠️", title: "솔직히 걸리는 부분", desc: "놓치면 안 되는 경고 신호" },
-    { icon: "🧠", title: "걔 속마음 해석", desc: "지금 걔가 진짜로 생각하는 것" },
-    { icon: "🎯", title: "언니의 맞춤 행동 전략", desc: "실제 카톡에 칠 수 있는 멘트 + 현실 진단" },
-    { icon: "💬", title: "걔랑 실시간 대화 시뮬레이션 NEW", desc: "걔 말투 그대로 답장이 와 · 2턴 무료" },
+    { icon: "🔍", title: "걔가 보낸 숨은 신호 해석", desc: "너는 몰랐던 그 행동의 진짜 의미" },
+    { icon: "💭", title: "걔 속마음 낱낱이", desc: "지금 걔 머릿속에서 무슨 생각을 하고 있는지" },
+    { icon: "⚡", title: "지금 네가 놓치고 있는 것", desc: "이걸 모르면 타이밍 놓쳐" },
+    { icon: "🎯", title: "바로 쓸 수 있는 카톡 멘트", desc: "이렇게 치면 걔 반응이 달라져" },
+    { icon: "💬", title: "걔랑 대화 시뮬레이션 NEW", desc: "걔 말투 그대로 답장이 와 · 2턴 무료" },
   ];
 
   return (
@@ -641,11 +641,11 @@ function PremiumPreview({ onUnlock, unlocking, redirecting }: { onUnlock: () => 
         background: "linear-gradient(135deg, #FFF0F3 0%, #FFE8EC 100%)",
         borderColor: "#FFD6E0",
       }}>
-      <div className="text-sm font-bold mb-0.5 text-[#2D2B3D]">
-        🔒 상세 프리미엄 분석
-      </div>
-      <p className="text-[11px] text-[#8E8A9D] mb-3 leading-[1.5]">
-        애매한 관계일수록 객관적인 해석이 필요해
+      <p className="text-[15px] font-bold text-[#2D2B3D] leading-[1.5] mb-1">
+        걔 속마음, 진짜 궁금하지 않아?
+      </p>
+      <p className="text-[12px] text-[#8E8A9D] mb-3.5 leading-[1.55]">
+        지금 이대로면 모르고 지나칠 결정적 신호가 있어
       </p>
       <div className="mb-3.5">
         {items.map((it, i) => (
@@ -671,7 +671,7 @@ function PremiumPreview({ onUnlock, unlocking, redirecting }: { onUnlock: () => 
           boxShadow: (redirecting || unlocking) ? "none" : "0 4px 20px rgba(255,107,138,0.2)",
           cursor: (redirecting || unlocking) ? "not-allowed" : "pointer",
         }}>
-        {redirecting ? "결제창으로 이동 중..." : "🔓 프리미엄 분석 보기 · ₩2,900"}
+        {redirecting ? "결제창으로 이동 중..." : "걔 속마음 열어보기 · ₩2,900"}
       </button>
       {!redirecting && !unlocking && (
         <p className="text-center text-[11px] text-[#C4C0D0] mt-2">⚡ 30초면 나와요</p>
