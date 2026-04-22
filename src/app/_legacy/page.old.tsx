@@ -1,12 +1,5 @@
 "use client";
 import { useState, useRef, useCallback, useEffect } from "react";
-import { Masthead } from "@/components/layout/Masthead";
-import { BtnPrimary } from "@/components/ui/BtnPrimary";
-import { BtnGhost } from "@/components/ui/BtnGhost";
-import { PastelBG } from "@/components/ui/PastelBG";
-import { Eyebrow } from "@/components/ui/Eyebrow";
-import { Card } from "@/components/ui/Card";
-import { NyangMascot } from "@/components/NyangMascot";
 
 // ─── Free Usage Limit (1/day, localStorage) ───
 const FREE_LIMIT_KEY = "ai-unni-free-used";
@@ -745,10 +738,10 @@ function ResultCard({ result, isPaid, onReset, onResetPaid, onUnlock, unlocking,
           {result.stage && <StageBadge stage={result.stage} />}
           <TempBadge temperature={result.temperature} />
         </div>
-        {/* 촌철살인 한마디 — AI 냥이의 팩폭 */}
+        {/* 촌철살인 한마디 — AI언니의 팩폭 */}
         <div className="mt-5 mb-1 px-3">
           <div className="text-[10px] font-bold mb-1.5" style={{ color: "#E8456A", letterSpacing: 1.2 }}>
-            💬 AI 냥이 한마디
+            💬 AI언니 한마디
           </div>
           <div className="text-[19px] font-extrabold leading-[1.4]"
             style={{
@@ -812,8 +805,8 @@ function ResultCard({ result, isPaid, onReset, onResetPaid, onUnlock, unlocking,
         </SectionCard>
       )}
 
-      {/* AI 냥이 총평 */}
-      <SectionCard title="AI 냥이 총평" icon="🔍">
+      {/* AI언니 총평 */}
+      <SectionCard title="AI언니 총평" icon="🔍">
         <div className="text-sm text-[#2D2B3D] leading-[1.8]">{result.diagnosis}</div>
       </SectionCard>
 
@@ -869,7 +862,7 @@ function ResultCard({ result, isPaid, onReset, onResetPaid, onUnlock, unlocking,
 
       {/* Watermark */}
       <p className="text-center text-[11px] text-[#C4C0D0] mt-2 mb-3.5 tracking-wider font-semibold">
-        AI 냥이 · 연애 분석
+        AI언니 · 연애 분석
       </p>
 
       {/* Buttons */}
@@ -935,8 +928,8 @@ function SaveImageButton({ targetId }: { targetId: string }) {
         // Web Share API (모바일 공유 시트)
         try {
           const blob = await (await fetch(dataUrl)).blob();
-          const file = new File([blob], `AI 냥이-분석리포트.png`, { type: "image/png" });
-          await navigator.share({ files: [file], title: "AI 냥이 분석 리포트" });
+          const file = new File([blob], `AI언니-분석리포트.png`, { type: "image/png" });
+          await navigator.share({ files: [file], title: "AI언니 분석 리포트" });
         } catch {
           // 공유 취소 또는 미지원 → 새 탭으로 열기
           const w = window.open();
@@ -953,7 +946,7 @@ function SaveImageButton({ targetId }: { targetId: string }) {
       } else {
         // 데스크톱: 일반 다운로드
         const link = document.createElement("a");
-        link.download = `AI 냥이-분석리포트-${new Date().toISOString().slice(0, 10)}.png`;
+        link.download = `AI언니-분석리포트-${new Date().toISOString().slice(0, 10)}.png`;
         link.href = dataUrl;
         link.click();
       }
@@ -1583,7 +1576,7 @@ function SamplePreview() {
           {/* 촌철살인 한마디 */}
           <div className="mt-3 px-2">
             <div className="text-[9px] font-bold mb-1" style={{ color: "#E8456A", letterSpacing: 1 }}>
-              💬 AI 냥이 한마디
+              💬 AI언니 한마디
             </div>
             <div className="text-[14px] font-extrabold leading-[1.35] text-[#2D2B3D]">
               &ldquo;{s.summary}&rdquo;
@@ -1620,9 +1613,9 @@ function SamplePreview() {
           </div>
         </div>
 
-        {/* 4) AI 냥이 총평 */}
+        {/* 4) AI언니 총평 */}
         <div className="bg-white rounded-[16px] p-3 mb-2" style={{ border: "1px solid rgba(255,143,171,0.15)" }}>
-          <div className="text-[12px] font-bold mb-1.5 text-[#2D2B3D]">🔍 AI 냥이 총평</div>
+          <div className="text-[12px] font-bold mb-1.5 text-[#2D2B3D]">🔍 AI언니 총평</div>
           <p className="text-[11.5px] text-[#2D2B3D] leading-[1.7]">{s.diagnosis}</p>
         </div>
 
@@ -1896,7 +1889,7 @@ function LoadingState() {
         style={{ border: "3px solid #FFD6E0", borderTopColor: "#FF6B8A" }} />
 
       <div className="text-[10px] font-bold mb-2" style={{ color: "#E8456A", letterSpacing: 1.2 }}>
-        🔬 AI 냥이 분석 중
+        🔬 AI언니 분석 중
       </div>
       <p className="text-[15px] text-[#2D2B3D] font-bold mb-1 leading-[1.4]">
         {steps[i].msg}...
@@ -2093,12 +2086,26 @@ export default function Home() {
   };
 
   return (
-    <>
-      <Masthead />
-      <main className="min-h-screen bg-bg text-ink">
-        {!result && <HeroSection />}
-        <div id="analyze" className="max-w-[420px] mx-auto px-4 pt-6 pb-10 scroll-mt-16">
-
+    <main className="min-h-screen px-4 pt-5 pb-10"
+      style={{ background: "linear-gradient(180deg, #FFF0F3 0%, #FFF5F7 30%, #FFFFFF 100%)" }}>
+      <div className="max-w-[420px] mx-auto">
+        {!result && (
+          <div className="text-center mb-6 pt-4 animate-fadeUp">
+            {/* 가트만 · 애착이론 배지 — AI언니 위 테두리 박스 */}
+            <div className="inline-block mb-3 px-3 py-1.5 rounded-full border border-[#FF6B8A]/40 bg-white/70 backdrop-blur-sm shadow-sm">
+              <span className="text-[11px] text-[#7B7FC4] font-bold tracking-wide">
+                🔬 Gottman 관계심리학 · 애착이론 기반 분석
+              </span>
+            </div>
+            <div className="text-[40px] mb-2 animate-float">👩‍❤️‍👨</div>
+            <h1 className="text-[32px] font-extrabold text-[#2D2B3D] tracking-tight mb-1.5">
+              AI<span className="text-[#FF6B8A]">언니</span>
+            </h1>
+            <p className="text-[13px] text-[#2D2B3D] font-bold leading-relaxed">
+              대화 캡쳐 한 장이면 걔 속마음이 보여
+            </p>
+          </div>
+        )}
 
         {result ? (
           <>
@@ -2228,25 +2235,14 @@ export default function Home() {
               </div>
             </div>
 
-            <div id="sample" className="scroll-mt-16">
-              <SamplePreview />
-            </div>
+            <SamplePreview />
           </div>
         )}
 
-        </div>
-
-        {!result && (
-          <>
-            <HowItWorksSection />
-            <PricingSection />
-            <FaqSection />
-          </>
-        )}
-
+        {/* 푸터 — 사업자 정보 + 법적 페이지 링크 (토스 심사 필수) */}
         <SiteFooter />
-      </main>
-    </>
+      </div>
+    </main>
   );
 }
 
@@ -2254,188 +2250,25 @@ export default function Home() {
 // ※ [대괄호] 플레이스홀더는 사업자등록 완료 후 실제 값으로 교체할 것.
 function SiteFooter() {
   return (
-    <footer className="mt-10 border-t border-line">
-      <div className="mx-auto max-w-[1200px] px-5 py-8 text-[11px] leading-[1.7] text-sub">
-        <div className="mb-3 flex flex-wrap gap-x-3 gap-y-1">
-          <a href="/terms" className="font-semibold text-ink hover:underline">이용약관</a>
-          <span className="text-sub/40">·</span>
-          <a href="/privacy" className="font-semibold text-ink hover:underline">개인정보처리방침</a>
-          <span className="text-sub/40">·</span>
-          <a href="/refund" className="font-semibold text-ink hover:underline">환불정책</a>
-        </div>
-        <div className="text-[10.5px] leading-[1.75] text-sub/80">
-          <div>상호: 주니랩스튜디오 | 대표자: 김경은</div>
-          <div>사업자등록번호: 875-56-01088 | 통신판매업신고번호: [제0000-지역-0000호]</div>
-          <div>주소: 서울특별시 서초구 바우뫼로7길 29</div>
-          <div>고객센터: junilabstudio@gmail.com (평일 10:00~18:00)</div>
-          <div className="mt-1.5 text-sub/60">
-            © {new Date().getFullYear()} AI 냥이. All rights reserved.
-          </div>
+    <footer
+      className="mt-10 pt-5 pb-2 text-[11px] leading-[1.7] text-[#6E6A80]"
+      style={{ borderTop: "1px solid #FFD6E0" }}>
+      <div className="flex flex-wrap gap-x-3 gap-y-1 mb-2.5">
+        <a href="/terms" className="font-semibold text-[#2D2B3D] hover:underline">이용약관</a>
+        <span className="text-[#D8D4E0]">·</span>
+        <a href="/privacy" className="font-semibold text-[#2D2B3D] hover:underline">개인정보처리방침</a>
+        <span className="text-[#D8D4E0]">·</span>
+        <a href="/refund" className="font-semibold text-[#2D2B3D] hover:underline">환불정책</a>
+      </div>
+      <div className="text-[10.5px] text-[#8E8A9D] leading-[1.75]">
+        <div>상호: 주니랩스튜디오 | 대표자: 김경은</div>
+        <div>사업자등록번호: 875-56-01088 | 통신판매업신고번호: [제0000-지역-0000호]</div>
+        <div>주소: 서울특별시 서초구 바우뫼로7길 29</div>
+        <div>고객센터: junilabstudio@gmail.com (평일 10:00~18:00)</div>
+        <div className="mt-1.5 text-[#A09CB0]">
+          © {new Date().getFullYear()} AI언니. All rights reserved.
         </div>
       </div>
     </footer>
-  );
-}
-
-// ─── Landing Sections (PR #3) ────────────────────────────────────────
-
-function HeroSection() {
-  const scrollTo = (id: string) => {
-    if (typeof document !== "undefined") {
-      document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
-    }
-  };
-  return (
-    <section className="relative overflow-hidden px-4 pt-12 pb-14">
-      <PastelBG />
-      <div className="animate-fadeUp relative mx-auto max-w-[720px] text-center">
-        <Eyebrow>ISSUE · 026</Eyebrow>
-        <h1 className="mt-5 font-serif text-[clamp(44px,9vw,84px)] font-bold leading-[0.98] tracking-[-0.03em]">
-          그 애가 나를
-          <br />
-          <span className="italic text-primary">진짜로</span> 좋아할까?
-        </h1>
-        <p className="mx-auto mt-5 max-w-[420px] text-[15px] leading-relaxed text-sub">
-          카톡 스크린샷 한 장이면 충분해요.
-          <br />
-          냥이가 대신 읽어줄게요.
-        </p>
-        <div className="mt-7 flex flex-wrap justify-center gap-3">
-          <BtnPrimary size="lg" onClick={() => scrollTo("analyze")}>
-            카톡 분석 시작 →
-          </BtnPrimary>
-          <BtnGhost size="lg" onClick={() => scrollTo("sample")}>
-            샘플 결과 보기
-          </BtnGhost>
-        </div>
-        <div className="mt-8 flex justify-center">
-          <NyangMascot pose="waving" size={160} />
-        </div>
-        <div className="mt-4 font-mono text-[11px] uppercase tracking-[0.18em] text-sub">
-          🔬 Gottman 관계심리학 · 애착이론 기반
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function HowItWorksSection() {
-  const steps = [
-    { n: "01", title: "캡처", desc: "카톡·DM 스크린샷 올리거나 텍스트 붙여넣기" },
-    { n: "02", title: "분석", desc: "냥이가 말투·읽씹·답장속도로 속마음 읽기" },
-    { n: "03", title: "결과", desc: "호감도·감정·답장 추천까지 한 번에" },
-  ];
-  return (
-    <section className="bg-bg-alt px-4 py-16">
-      <div className="mx-auto max-w-[1200px]">
-        <div className="mb-10 text-center">
-          <Eyebrow>HOW IT WORKS</Eyebrow>
-          <h2 className="mt-3 font-serif text-3xl md:text-4xl font-bold tracking-[-0.02em]">
-            3단계면 끝
-          </h2>
-        </div>
-        <div className="grid grid-cols-1 gap-5 md:grid-cols-3">
-          {steps.map((s) => (
-            <Card key={s.n}>
-              <div className="font-serif text-3xl font-bold text-primary">{s.n}</div>
-              <h3 className="mt-3 font-serif text-xl font-bold">{s.title}</h3>
-              <p className="mt-2 text-sm leading-relaxed text-sub">{s.desc}</p>
-            </Card>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function PricingSection() {
-  return (
-    <section id="pricing" className="px-4 py-16 scroll-mt-16">
-      <div className="mx-auto max-w-[1200px]">
-        <div className="mb-10 text-center">
-          <Eyebrow>PRICING</Eyebrow>
-          <h2 className="mt-3 font-serif text-3xl md:text-4xl font-bold tracking-[-0.02em]">
-            무료 vs 프리미엄
-          </h2>
-        </div>
-        <div className="mx-auto grid max-w-[720px] grid-cols-1 gap-5 md:grid-cols-2">
-          <Card>
-            <div className="font-mono text-xs uppercase tracking-[0.18em] text-sub">FREE</div>
-            <div className="mt-2 font-serif text-4xl font-bold">₩0</div>
-            <p className="mt-1 text-sm text-sub">하루 1회 무료 분석</p>
-            <ul className="mt-5 space-y-2 text-sm">
-              <li>✓ 호감도 점수</li>
-              <li>✓ 기본 속마음 번역</li>
-              <li>✓ 가트만 4신호 체크</li>
-              <li className="text-sub/60">— 3톤 답장 추천 (제한)</li>
-              <li className="text-sub/60">— 감정 타임라인 (제한)</li>
-            </ul>
-          </Card>
-          <Card className="relative ring-2 ring-primary/30">
-            <div className="absolute -top-3 right-5 rounded-full bg-primary px-3 py-1 font-mono text-[10px] font-bold uppercase tracking-[0.18em] text-white">
-              RECOMMENDED
-            </div>
-            <div className="font-mono text-xs uppercase tracking-[0.18em] text-sub">PREMIUM</div>
-            <div className="mt-2 font-serif text-4xl font-bold">₩2,900</div>
-            <p className="mt-1 text-sm text-sub">1회 심층 분석</p>
-            <ul className="mt-5 space-y-2 text-sm">
-              <li>✓ 모든 Free 기능</li>
-              <li>✓ 전체 속마음 번역</li>
-              <li>✓ 감정 타임라인 그래프</li>
-              <li>✓ 3톤 답장 추천</li>
-              <li>✓ 🚩 레드플래그 공개</li>
-              <li>✓ 💬 대화 시뮬 2턴 무료</li>
-            </ul>
-          </Card>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function FaqSection() {
-  const items = [
-    {
-      q: "정말로 카톡 한 장으로 호감도가 나와요?",
-      a: "가트만 관계심리학·애착이론 기반으로 말투·읽씹 간격·답장 톤을 종합해서 수치화해요. 100% 정답은 아니지만 '혼자 머리 굴리는 시간'은 확 줄어요.",
-    },
-    {
-      q: "내 대화 데이터는 안전한가요?",
-      a: "업로드한 이미지/텍스트는 분석 용도로만 쓰고, 분석 직후 자동 삭제돼요. 자세한 건 개인정보처리방침에서 확인해 주세요.",
-    },
-    {
-      q: "환불 가능한가요?",
-      a: "결제 후 분석을 시작하기 전까지는 전액 환불돼요. 환불정책 참고.",
-    },
-    {
-      q: "무료는 하루 한 번뿐인가요?",
-      a: "네, 무료는 하루 1회. 프리미엄은 즉시 심층 분석으로 열려요.",
-    },
-  ];
-  return (
-    <section className="bg-bg-alt px-4 py-16">
-      <div className="mx-auto max-w-[720px]">
-        <div className="mb-10 text-center">
-          <Eyebrow>FAQ</Eyebrow>
-          <h2 className="mt-3 font-serif text-3xl md:text-4xl font-bold tracking-[-0.02em]">
-            자주 묻는 질문
-          </h2>
-        </div>
-        <div className="space-y-3">
-          {items.map((it, i) => (
-            <details
-              key={i}
-              className="group rounded-[var(--radius-lg)] border border-line bg-white p-5"
-            >
-              <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-semibold text-ink">
-                <span>{it.q}</span>
-                <span className="text-sub transition-transform group-open:rotate-45">+</span>
-              </summary>
-              <p className="mt-3 text-sm leading-relaxed text-sub">{it.a}</p>
-            </details>
-          ))}
-        </div>
-      </div>
-    </section>
   );
 }

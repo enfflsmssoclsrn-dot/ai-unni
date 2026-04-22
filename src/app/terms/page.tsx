@@ -1,8 +1,8 @@
 import LegalLayout from "../_legal/LegalLayout";
 
 export const metadata = {
-  title: "이용약관 | AI언니",
-  description: "AI언니 서비스 이용약관",
+  title: "이용약관 | AI 냥이",
+  description: "AI 냥이 서비스 이용약관",
 };
 
 // ※ 아래 [대괄호] 플레이스홀더는 사업자등록 완료 후 실제 값으로 교체할 것.
@@ -12,7 +12,7 @@ export default function TermsPage() {
       <section className="mb-6">
         <h2 className="text-[16px] font-bold mb-2">제1조 (목적)</h2>
         <p>
-          본 약관은 AI언니(이하 “서비스”)를 운영하는 주니랩스튜디오(이하 “운영자”)이
+          본 약관은 AI 냥이(이하 “서비스”)를 운영하는 주니랩스튜디오(이하 “운영자”)이
           제공하는 모든 서비스의 이용과 관련하여, 운영자와 이용자 간의 권리·의무
           및 책임사항, 기타 필요한 사항을 규정함을 목적으로 합니다.
         </p>

@@ -1,8 +1,8 @@
 import LegalLayout from "../_legal/LegalLayout";
 
 export const metadata = {
-  title: "환불정책 | AI언니",
-  description: "AI언니 결제 및 환불 정책",
+  title: "환불정책 | AI 냥이",
+  description: "AI 냥이 결제 및 환불 정책",
 };
 
 // ※ 아래 [대괄호] 플레이스홀더는 사업자등록 완료 후 실제 값으로 교체할 것.
@@ -11,7 +11,7 @@ export default function RefundPage() {
     <LegalLayout title="환불정책" updatedAt="2026-04-16">
       <section className="mb-6">
         <p>
-          본 환불정책은 AI언니 서비스(이하 “서비스”)의 유료 상품에 대한 결제
+          본 환불정책은 AI 냥이 서비스(이하 “서비스”)의 유료 상품에 대한 결제
           및 환불 기준을 정합니다. 본 정책은 「전자상거래 등에서의 소비자보호에
           관한 법률」(이하 “전상법”) 및 관련 법령에 따라 작성되었습니다.
         </p>

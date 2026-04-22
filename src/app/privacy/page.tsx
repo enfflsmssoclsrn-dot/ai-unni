@@ -1,8 +1,8 @@
 import LegalLayout from "../_legal/LegalLayout";
 
 export const metadata = {
-  title: "개인정보처리방침 | AI언니",
-  description: "AI언니 개인정보처리방침",
+  title: "개인정보처리방침 | AI 냥이",
+  description: "AI 냥이 개인정보처리방침",
 };
 
 // ※ 아래 [대괄호] 플레이스홀더는 사업자등록 완료 후 실제 값으로 교체할 것.
@@ -13,7 +13,7 @@ export default function PrivacyPage() {
         <p>
           주니랩스튜디오(이하 “운영자”)은 이용자의 개인정보를 중요시하며,
           「개인정보 보호법」 및 관련 법령을 준수합니다. 본 개인정보처리방침은
-          AI언니 서비스(이하 “서비스”)가 이용자의 개인정보를 어떻게 수집·이용·보관·파기하는지를
+          AI 냥이 서비스(이하 “서비스”)가 이용자의 개인정보를 어떻게 수집·이용·보관·파기하는지를
           안내합니다.
         </p>
       </section>

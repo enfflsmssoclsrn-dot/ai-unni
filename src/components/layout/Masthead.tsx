@@ -13,7 +13,7 @@ export function Masthead({ nav }: MastheadProps) {
           href="/"
           className="font-serif text-[22px] font-bold leading-none tracking-tight"
         >
-          AI<span className="text-primary">언니</span>
+          AI <span className="text-primary">냥이</span>
         </Link>
         <nav className="flex items-center gap-5 text-sm text-ink/80">
           {nav ?? <DefaultNav />}
@@ -25,16 +25,8 @@ export function Masthead({ nav }: MastheadProps) {
 
 function DefaultNav() {
   return (
-    <>
-      <Link href="/pricing" className="hover:text-ink">
-        프리미엄
-      </Link>
-      <Link
-        href="/login"
-        className="rounded-full border border-ink px-3 py-1 hover:bg-ink/5"
-      >
-        로그인
-      </Link>
-    </>
+    <Link href="/#pricing" className="hover:text-ink">
+      프리미엄
+    </Link>
   );
 }

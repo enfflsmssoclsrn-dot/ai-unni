@@ -7,12 +7,12 @@ import { loadTossPayments, ANONYMOUS } from "@tosspayments/tosspayments-sdk";
 // ─── 결제 상품 정의 (분석 / 채팅 시뮬 언락) ───
 const PRODUCTS = {
   analysis: {
-    name: "AI언니 프리미엄 분석",
+    name: "AI 냥이 프리미엄 분석",
     subtitle: "가트만 관계 심리학 + 애착이론 기반 심층 분석",
     amount: 2900,
   },
   "sim-unlock": {
-    name: "AI언니 대화 시뮬레이션 · 턴 15회 추가",
+    name: "AI 냥이 대화 시뮬레이션 · 턴 15회 추가",
     subtitle: "걔 말투로 15번 더 대화 가능",
     amount: 990,
   },

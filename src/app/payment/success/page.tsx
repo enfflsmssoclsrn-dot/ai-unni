@@ -209,7 +209,7 @@ function SuccessInner() {
             ) : (
               <AnalysisProgress
                 steps={STEPS}
-                header="🔬 AI언니 심층 분석 중"
+                header="🔬 AI 냥이 심층 분석 중"
                 footer={"가트만 관계심리학 + 애착이론 기반\n30초 정도 걸려요"}
               />
             )

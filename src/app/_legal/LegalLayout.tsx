@@ -22,7 +22,7 @@ export default function LegalLayout({
           <Link
             href="/"
             className="text-[13px] text-[#FF6B8A] font-semibold hover:underline">
-            ← AI언니 홈으로
+            ← AI 냥이 홈으로
           </Link>
         </div>
 
