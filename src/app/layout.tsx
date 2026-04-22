@@ -1,9 +1,28 @@
 import type { Metadata } from "next";
 import Script from "next/script";
+import { Fraunces, Caveat, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { ScrollToTop } from "./scroll-to-top";
 
 const GA_ID = "G-9FMVRBCF2R";
+
+const fraunces = Fraunces({
+  subsets: ["latin"],
+  variable: "--font-fraunces",
+  display: "swap",
+});
+
+const caveat = Caveat({
+  subsets: ["latin"],
+  variable: "--font-caveat",
+  display: "swap",
+});
+
+const jetbrainsMono = JetBrains_Mono({
+  subsets: ["latin"],
+  variable: "--font-jetbrains",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   title: "AI 연애 상담 · 카톡 호감도 분석 | AI언니",
@@ -54,8 +73,15 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="ko">
+    <html
+      lang="ko"
+      className={`${fraunces.variable} ${caveat.variable} ${jetbrainsMono.variable}`}
+    >
       <head>
+        <link
+          rel="stylesheet"
+          href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"
+        />
         <Script src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`} strategy="afterInteractive" />
         <Script id="ga-init" strategy="afterInteractive">{`
           window.dataLayer = window.dataLayer || [];
@@ -64,7 +90,7 @@ export default function RootLayout({
           gtag('config', '${GA_ID}');
         `}</Script>
       </head>
-      <body>
+      <body className="bg-bg text-ink font-sans antialiased">
         <ScrollToTop />
         {children}
       </body>
