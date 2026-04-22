@@ -1,9 +1,9 @@
 @import "tailwindcss";
 
 @theme {
-  /* Cream mood — main palette */
-  --color-bg: #f4efe6;
-  --color-bg-alt: #e9e3d5;
+  /* Cream mood — main palette (cooler neutral variant) */
+  --color-bg: #f4f1ea;
+  --color-bg-alt: #e8e4da;
   --color-ink: #1a1714;
   --color-sub: #6e665c;
   --color-line: rgba(26, 23, 20, 0.14);
@@ -14,7 +14,7 @@
   --color-accent-a: #1a1714;
   --color-accent-b: #d97557;
   --color-accent-c: #e88b5e;
-  --color-accent-d: #f4efe6;
+  --color-accent-d: #f4f1ea;
 
   /* Pastel gradient ingredients (PastelBG) */
   --color-pastel-1: #fde8a8;
