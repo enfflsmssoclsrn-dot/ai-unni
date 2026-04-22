@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Script from "next/script";
-import { Fraunces, Caveat, JetBrains_Mono } from "next/font/google";
+import { Fraunces, Caveat, JetBrains_Mono, Noto_Serif_KR } from "next/font/google";
 import "./globals.css";
 import { ScrollToTop } from "./scroll-to-top";
 
@@ -21,6 +21,13 @@ const caveat = Caveat({
 const jetbrainsMono = JetBrains_Mono({
   subsets: ["latin"],
   variable: "--font-jetbrains",
+  display: "swap",
+});
+
+const notoSerifKR = Noto_Serif_KR({
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "700"],
+  variable: "--font-noto-serif-kr",
   display: "swap",
 });
 
@@ -75,7 +82,7 @@ export default function RootLayout({
   return (
     <html
       lang="ko"
-      className={`${fraunces.variable} ${caveat.variable} ${jetbrainsMono.variable}`}
+      className={`${fraunces.variable} ${caveat.variable} ${jetbrainsMono.variable} ${notoSerifKR.variable}`}
     >
       <head>
         <link

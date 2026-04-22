@@ -2,11 +2,7 @@
 import { useState, useRef, useCallback, useEffect } from "react";
 import { Masthead } from "@/components/layout/Masthead";
 import { BtnPrimary } from "@/components/ui/BtnPrimary";
-import { BtnGhost } from "@/components/ui/BtnGhost";
-import { PastelBG } from "@/components/ui/PastelBG";
-import { Eyebrow } from "@/components/ui/Eyebrow";
-import { Card } from "@/components/ui/Card";
-import { NyangMascot } from "@/components/NyangMascot";
+import { NyangHead, NyangEyes } from "@/components/nyang-icons";
 
 // ─── Free Usage Limit (1/day, localStorage) ───
 const FREE_LIMIT_KEY = "ai-unni-free-used";
@@ -2096,8 +2092,10 @@ export default function Home() {
     <>
       <Masthead />
       <main className="min-h-screen bg-bg text-ink">
-        {!result && <HeroSection />}
-        <div id="analyze" className="max-w-[420px] mx-auto px-4 pt-6 pb-10 scroll-mt-16">
+        <div className="mx-auto max-w-[420px]">
+          {!result && <HeroSection />}
+          {!result && <DashedDivider />}
+          <div id="analyze" className="px-[22px] pt-6 pb-10 scroll-mt-16">
 
 
         {result ? (
@@ -2228,22 +2226,22 @@ export default function Home() {
               </div>
             </div>
 
-            <div id="sample" className="scroll-mt-16">
-              <SamplePreview />
-            </div>
           </div>
         )}
 
+          </div>
+          {!result && (
+            <>
+              <DashedDivider />
+              <HowItWorksSection />
+              <DashedDivider />
+              <SampleReportSection />
+              <TestimonialsSection />
+              <LandingFaqSection />
+              <FinalCTASection />
+            </>
+          )}
         </div>
-
-        {!result && (
-          <>
-            <HowItWorksSection />
-            <PricingSection />
-            <FaqSection />
-          </>
-        )}
-
         <SiteFooter />
       </main>
     </>
@@ -2277,42 +2275,59 @@ function SiteFooter() {
   );
 }
 
-// ─── Landing Sections (PR #3) ────────────────────────────────────────
+// ─── Landing Sections (PR #3 · editorial reference) ─────────────────
+
+function DashedDivider() {
+  return <div className="mx-[22px] h-px bg-ink opacity-[0.28]" />;
+}
+
+function scrollToId(id: string) {
+  if (typeof document !== "undefined") {
+    document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+}
 
 function HeroSection() {
-  const scrollTo = (id: string) => {
-    if (typeof document !== "undefined") {
-      document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
-    }
-  };
   return (
-    <section className="relative overflow-hidden px-4 pt-12 pb-14">
-      <PastelBG />
-      <div className="animate-fadeUp relative mx-auto max-w-[720px] text-center">
-        <Eyebrow>ISSUE · 026</Eyebrow>
-        <h1 className="mt-5 font-serif text-[clamp(44px,9vw,84px)] font-bold leading-[0.98] tracking-[-0.03em]">
-          그 애가 나를
-          <br />
-          <span className="italic text-primary">진짜로</span> 좋아할까?
-        </h1>
-        <p className="mx-auto mt-5 max-w-[420px] text-[15px] leading-relaxed text-sub">
-          카톡 스크린샷 한 장이면 충분해요.
-          <br />
-          냥이가 대신 읽어줄게요.
-        </p>
-        <div className="mt-7 flex flex-wrap justify-center gap-3">
-          <BtnPrimary size="lg" onClick={() => scrollTo("analyze")}>
-            카톡 분석 시작 →
-          </BtnPrimary>
-          <BtnGhost size="lg" onClick={() => scrollTo("sample")}>
-            샘플 결과 보기
-          </BtnGhost>
-        </div>
-        <div className="mt-8 flex justify-center">
-          <NyangMascot pose="waving" size={160} />
-        </div>
-        <div className="mt-4 font-mono text-[11px] uppercase tracking-[0.18em] text-sub">
-          🔬 Gottman 관계심리학 · 애착이론 기반
+    <section className="relative px-[22px] pt-[26px] pb-[10px]">
+      <div className="mb-3 flex items-center gap-[10px]">
+        <span className="text-[10px] font-bold tracking-[2.5px] text-primary-deep">
+          — COVER STORY
+        </span>
+        <span className="font-script text-[18px] leading-none text-sub">no.026</span>
+      </div>
+      <h1 className="relative m-0 font-serif text-[44px] font-light leading-[1.0] tracking-[-1.7px] text-ink">
+        대화 캡쳐
+        <br />
+        한 장이면
+        <br />
+        <em className="font-medium not-italic">걔 속마음</em>이
+        <br />
+        보여.
+        <span className="absolute -top-2 right-[6px] rotate-[12deg]">
+          <NyangHead size={46} />
+        </span>
+      </h1>
+      <div className="mt-5 inline-flex items-center gap-[10px] rounded-full bg-bg-alt py-[10px] pl-[10px] pr-[14px]">
+        <NyangHead size={28} />
+        <span className="font-script text-[18px] leading-none text-ink">
+          by 연애박사 냥이
+        </span>
+      </div>
+      <p className="mx-0 mb-[10px] mt-5 max-w-[320px] text-[14px] leading-[1.7] text-sub">
+        길게 설명 안 해도 돼. 카톡·인스타 DM·문자 어디서든 캡처만 올리면, 말투와
+        텀, 애매한 표현, 거리감까지 — 냥이가 대신 읽어줄게.
+      </p>
+      <div className="pb-6 pt-4">
+        <BtnPrimary
+          size="lg"
+          className="w-full justify-center"
+          onClick={() => scrollToId("analyze")}
+        >
+          지금 분석 시작하기 →
+        </BtnPrimary>
+        <div className="mt-3 text-center font-mono text-[9px] tracking-[2px] text-sub">
+          GOTTMAN · ATTACHMENT · AI
         </div>
       </div>
     </section>
@@ -2321,119 +2336,148 @@ function HeroSection() {
 
 function HowItWorksSection() {
   const steps = [
-    { n: "01", title: "캡처", desc: "카톡·DM 스크린샷 올리거나 텍스트 붙여넣기" },
-    { n: "02", title: "분석", desc: "냥이가 말투·읽씹·답장속도로 속마음 읽기" },
-    { n: "03", title: "결과", desc: "호감도·감정·답장 추천까지 한 번에" },
+    { n: "01", t: "캡처 업로드", d: "카톡·DM·문자 — 형식 상관없어" },
+    { n: "02", t: "말투와 텀 분석", d: "답장 속도, 단답·장문, 이모지, 회피 표현" },
+    { n: "03", t: "호감도 + 애착 유형", d: "Gottman 4대 위험 신호 · 애착 이론 기반" },
+    { n: "04", t: "이런 멘트 보내봐", d: "상황 맞춤 답장 멘트까지 골라줘" },
   ];
   return (
-    <section className="bg-bg-alt px-4 py-16">
-      <div className="mx-auto max-w-[1200px]">
-        <div className="mb-10 text-center">
-          <Eyebrow>HOW IT WORKS</Eyebrow>
-          <h2 className="mt-3 font-serif text-3xl md:text-4xl font-bold tracking-[-0.02em]">
-            3단계면 끝
-          </h2>
+    <section className="relative">
+      <div className="relative px-[22px] pt-6 pb-2">
+        <div className="mb-1 font-mono text-[10px] font-bold tracking-[2.5px] text-sub">
+          03 · 작동 방식
         </div>
-        <div className="grid grid-cols-1 gap-5 md:grid-cols-3">
-          {steps.map((s) => (
-            <Card key={s.n}>
-              <div className="font-serif text-3xl font-bold text-primary">{s.n}</div>
-              <h3 className="mt-3 font-serif text-xl font-bold">{s.title}</h3>
-              <p className="mt-2 text-sm leading-relaxed text-sub">{s.desc}</p>
-            </Card>
-          ))}
+        <div className="font-serif text-[22px] font-normal tracking-[-0.5px]">
+          이렇게 분석해
+        </div>
+        <div className="absolute right-5 top-10 rotate-[8deg]">
+          <NyangEyes size={30} color="var(--color-primary)" />
         </div>
       </div>
-    </section>
-  );
-}
-
-function PricingSection() {
-  return (
-    <section id="pricing" className="px-4 py-16 scroll-mt-16">
-      <div className="mx-auto max-w-[1200px]">
-        <div className="mb-10 text-center">
-          <Eyebrow>PRICING</Eyebrow>
-          <h2 className="mt-3 font-serif text-3xl md:text-4xl font-bold tracking-[-0.02em]">
-            무료 vs 프리미엄
-          </h2>
-        </div>
-        <div className="mx-auto grid max-w-[720px] grid-cols-1 gap-5 md:grid-cols-2">
-          <Card>
-            <div className="font-mono text-xs uppercase tracking-[0.18em] text-sub">FREE</div>
-            <div className="mt-2 font-serif text-4xl font-bold">₩0</div>
-            <p className="mt-1 text-sm text-sub">하루 1회 무료 분석</p>
-            <ul className="mt-5 space-y-2 text-sm">
-              <li>✓ 호감도 점수</li>
-              <li>✓ 기본 속마음 번역</li>
-              <li>✓ 가트만 4신호 체크</li>
-              <li className="text-sub/60">— 3톤 답장 추천 (제한)</li>
-              <li className="text-sub/60">— 감정 타임라인 (제한)</li>
-            </ul>
-          </Card>
-          <Card className="relative ring-2 ring-primary/30">
-            <div className="absolute -top-3 right-5 rounded-full bg-primary px-3 py-1 font-mono text-[10px] font-bold uppercase tracking-[0.18em] text-white">
-              RECOMMENDED
+      <div className="px-[22px] pb-[18px]">
+        {steps.map((s, i) => (
+          <div
+            key={s.n}
+            className={`flex gap-[14px] py-3 ${i < 3 ? "border-b border-line" : ""}`}
+          >
+            <div className="w-6 shrink-0 pt-[3px] font-mono text-[10px] tracking-[1px] text-primary-deep">
+              {s.n}
             </div>
-            <div className="font-mono text-xs uppercase tracking-[0.18em] text-sub">PREMIUM</div>
-            <div className="mt-2 font-serif text-4xl font-bold">₩2,900</div>
-            <p className="mt-1 text-sm text-sub">1회 심층 분석</p>
-            <ul className="mt-5 space-y-2 text-sm">
-              <li>✓ 모든 Free 기능</li>
-              <li>✓ 전체 속마음 번역</li>
-              <li>✓ 감정 타임라인 그래프</li>
-              <li>✓ 3톤 답장 추천</li>
-              <li>✓ 🚩 레드플래그 공개</li>
-              <li>✓ 💬 대화 시뮬 2턴 무료</li>
-            </ul>
-          </Card>
+            <div className="flex-1">
+              <div className="mb-0.5 text-[14px] font-semibold tracking-[-0.3px]">
+                {s.t}
+              </div>
+              <div className="text-[12px] leading-[1.5] text-sub">{s.d}</div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function SampleReportSection() {
+  return (
+    <section className="relative px-[22px] pt-6 pb-3">
+      <div className="mb-1 font-mono text-[10px] font-bold tracking-[2.5px] text-sub">
+        04 · 샘플 리포트
+      </div>
+      <div className="mb-3 font-serif text-[22px] font-normal tracking-[-0.5px]">
+        이렇게 나와
+      </div>
+      <div className="relative overflow-hidden rounded-lg border border-line bg-bg-alt p-[18px]">
+        <div className="flex items-baseline justify-between">
+          <div className="font-mono text-[10px] tracking-[2px] text-sub">
+            호감도 점수
+          </div>
+          <div className="text-[10px] font-bold tracking-[1.5px] text-primary-deep">
+            SAMPLE
+          </div>
+        </div>
+        <div className="mt-0.5 flex items-baseline gap-1.5">
+          <div className="font-serif text-[72px] font-light leading-none tracking-[-3px]">
+            58
+          </div>
+          <div className="font-mono text-[11px] tracking-[1.5px] text-sub">
+            / 100
+          </div>
+        </div>
+        <div className="mt-2.5 font-serif text-[16px] italic leading-[1.35] text-ink">
+          &ldquo;걔 발만 살짝 걸쳐놨어.&rdquo;
+        </div>
+        <div className="absolute -bottom-2 -right-2 rotate-[14deg]">
+          <NyangHead size={42} />
         </div>
       </div>
     </section>
   );
 }
 
-function FaqSection() {
+function TestimonialsSection() {
   const items = [
-    {
-      q: "정말로 카톡 한 장으로 호감도가 나와요?",
-      a: "가트만 관계심리학·애착이론 기반으로 말투·읽씹 간격·답장 톤을 종합해서 수치화해요. 100% 정답은 아니지만 '혼자 머리 굴리는 시간'은 확 줄어요.",
-    },
-    {
-      q: "내 대화 데이터는 안전한가요?",
-      a: "업로드한 이미지/텍스트는 분석 용도로만 쓰고, 분석 직후 자동 삭제돼요. 자세한 건 개인정보처리방침에서 확인해 주세요.",
-    },
-    {
-      q: "환불 가능한가요?",
-      a: "결제 후 분석을 시작하기 전까지는 전액 환불돼요. 환불정책 참고.",
-    },
-    {
-      q: "무료는 하루 한 번뿐인가요?",
-      a: "네, 무료는 하루 1회. 프리미엄은 즉시 심층 분석으로 열려요.",
-    },
+    { q: "카톡만 봐도 상대가 어떤 사람인지 감이 와서 진짜 신기했음…", a: "수지, 27" },
+    { q: "혼자 검열하다 지쳤는데 냥이가 짚어주니까 정리됨.", a: "현우, 31" },
+    { q: "멘트 추천 그대로 썼는데 답장 퀄이 달라졌다;", a: "나연, 24" },
   ];
   return (
-    <section className="bg-bg-alt px-4 py-16">
-      <div className="mx-auto max-w-[720px]">
-        <div className="mb-10 text-center">
-          <Eyebrow>FAQ</Eyebrow>
-          <h2 className="mt-3 font-serif text-3xl md:text-4xl font-bold tracking-[-0.02em]">
-            자주 묻는 질문
-          </h2>
+    <section className="px-[22px] pt-4 pb-2">
+      <div className="mb-3 font-mono text-[10px] font-bold tracking-[2.5px] text-sub">
+        05 · 먼저 써본 사람들
+      </div>
+      {items.map((r, i) => (
+        <div key={i} className="border-t border-line py-[14px]">
+          <div className="mb-1.5 font-serif text-[15px] italic leading-[1.5] text-ink">
+            &ldquo;{r.q}&rdquo;
+          </div>
+          <div className="font-mono text-[11px] tracking-[1px] text-sub">— {r.a}</div>
         </div>
-        <div className="space-y-3">
-          {items.map((it, i) => (
-            <details
-              key={i}
-              className="group rounded-[var(--radius-lg)] border border-line bg-white p-5"
-            >
-              <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-semibold text-ink">
-                <span>{it.q}</span>
-                <span className="text-sub transition-transform group-open:rotate-45">+</span>
-              </summary>
-              <p className="mt-3 text-sm leading-relaxed text-sub">{it.a}</p>
-            </details>
-          ))}
+      ))}
+    </section>
+  );
+}
+
+function LandingFaqSection() {
+  const items = [
+    { q: "내 대화가 저장돼?", a: "분석 후 즉시 삭제돼. 걱정 ㄴㄴ." },
+    { q: "결과 정확해?", a: "애착이론 + Gottman + AI. 단, 참고용이야." },
+    { q: "꼭 카톡이어야 해?", a: "DM · 문자 · 노션 메모 다 돼." },
+  ];
+  return (
+    <section className="mt-2 border-t border-line px-[22px] pt-4 pb-2">
+      <div className="mb-2.5 font-mono text-[10px] font-bold tracking-[2.5px] text-sub">
+        06 · FAQ
+      </div>
+      {items.map((f, i) => (
+        <details key={i} className="border-b border-line py-3">
+          <summary className="flex cursor-pointer list-none items-center justify-between text-[14px] font-semibold tracking-[-0.3px]">
+            <span>{f.q}</span>
+            <span className="text-sub">+</span>
+          </summary>
+          <div className="mt-2 text-[13px] leading-[1.6] text-sub">{f.a}</div>
+        </details>
+      ))}
+    </section>
+  );
+}
+
+function FinalCTASection() {
+  return (
+    <section className="relative px-[22px] pt-6 pb-5">
+      <div className="relative overflow-hidden rounded-md bg-ink p-[22px] text-bg">
+        <div className="mb-2 font-mono text-[10px] tracking-[2px] opacity-60">
+          — READY?
+        </div>
+        <div className="mb-4 max-w-[240px] font-serif text-[24px] font-normal leading-[1.25] tracking-[-0.6px]">
+          혼자 고민하지 말자.
+        </div>
+        <button
+          onClick={() => scrollToId("analyze")}
+          className="inline-flex items-center gap-2 rounded-full bg-bg px-5 py-3 text-[13px] font-semibold text-ink transition-transform hover:scale-[1.02] active:scale-[0.98]"
+        >
+          지금 분석 시작하기 →
+        </button>
+        <div className="absolute -top-1.5 -right-1.5 rotate-[18deg]">
+          <NyangHead size={54} eyeColor="var(--color-primary)" />
         </div>
       </div>
     </section>
