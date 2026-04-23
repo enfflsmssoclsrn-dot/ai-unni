@@ -1700,29 +1700,28 @@ export function GottmanCard({
 // 유지: MethodologyCard (랜딩에서 사용)
 // ═════════════════════════════════════════════════════════════
 export function MethodologyCard() {
-  const pillars: { tag: string; title: string; d: string }[] = [
+  const items: { label: string; title: string; sub: string }[] = [
     {
-      tag: "GOTTMAN",
+      label: "GOTTMAN",
       title: "관계 위험 신호",
-      d: "40년 종단연구 · 이혼 예측 정확도 93.6%",
+      sub: "40년 종단연구 · 이혼 예측 정확도 93.6%",
     },
     {
-      tag: "ATTACHMENT",
+      label: "ATTACHMENT",
       title: "성인 애착 4유형",
-      d: "Bartholomew-Horowitz · 행동 패턴의 뿌리",
+      sub: "Bartholomew-Horowitz · 행동 패턴의 뿌리",
     },
     {
-      tag: "AI",
-      title: "말투·텀·행간 해석",
-      d: "사람이 놓치는 미묘한 신호까지 수치화",
+      label: "AI",
+      title: "말투 · 텀 · 행간 해석",
+      sub: "사람이 놓치는 미묘한 신호까지 수치화",
     },
   ];
   return (
     <div
       style={{
-        background: R_CREAM_CARD,
-        border: `1px solid ${R_BORDER}`,
-        padding: 28,
+        padding: "40px 28px",
+        textAlign: "center",
         fontFamily: "var(--font-sans)",
         color: R_DARK,
       }}
@@ -1730,119 +1729,133 @@ export function MethodologyCard() {
       <div
         style={{
           fontSize: 10,
-          letterSpacing: "0.3em",
+          letterSpacing: "0.35em",
           color: R_MUTED,
-          marginBottom: 10,
+          marginBottom: 14,
           fontWeight: 500,
         }}
       >
-        — METHOD · 00 —
+        METHOD · 00
       </div>
-      <h3
+
+      <h2
         style={{
           fontFamily: "var(--font-serif)",
           fontWeight: 500,
-          fontSize: 22,
-          margin: "0 0 6px",
-          letterSpacing: "-0.01em",
+          fontSize: 24,
+          margin: "0 0 8px",
+          letterSpacing: "-0.03em",
+          lineHeight: 1.2,
+          whiteSpace: "nowrap",
         }}
       >
-        가트만 × 애착이론 × AI
-      </h3>
+        가트만{" "}
+        <span style={{ color: R_MUTED, fontWeight: 300, margin: "0 1px" }}>
+          ×
+        </span>{" "}
+        애착이론{" "}
+        <span style={{ color: R_MUTED, fontWeight: 300, margin: "0 1px" }}>
+          ×
+        </span>{" "}
+        <span style={{ fontFamily: "var(--font-serif)" }}>AI</span>
+      </h2>
       <p
         style={{
           fontFamily: "var(--font-serif)",
           fontStyle: "italic",
           fontWeight: 300,
-          fontSize: 13,
+          fontSize: 14,
           color: R_MUTED,
-          margin: "0 0 22px",
+          margin: "0 0 40px",
         }}
       >
         Why this combination is powerful
       </p>
 
-      <div style={{ borderTop: `1px solid ${R_BORDER}` }}>
-        {pillars.map((p, i) => (
+      <div style={{ marginBottom: 36 }}>
+        {items.map((it, i) => (
           <div
             key={i}
             style={{
-              display: "flex",
-              gap: 14,
-              padding: "14px 0",
-              borderBottom: `1px solid ${R_BORDER}`,
+              padding: "18px 0",
+              borderTop: i === 0 ? "none" : `1px solid ${R_BORDER}`,
             }}
           >
             <div
               style={{
-                height: "fit-content",
-                whiteSpace: "nowrap",
-                border: `1px solid ${R_DARK}`,
-                padding: "3px 7px",
                 fontFamily: "var(--font-serif)",
-                fontSize: 9,
-                fontWeight: 700,
-                letterSpacing: "0.15em",
-                color: R_DARK,
+                fontSize: 18,
+                color: R_MUTED,
+                fontWeight: 300,
+                lineHeight: 1,
+                marginBottom: 10,
               }}
             >
-              {p.tag}
+              {String(i + 1).padStart(2, "0")}
             </div>
-            <div style={{ flex: 1 }}>
-              <div
-                style={{
-                  fontFamily: "var(--font-serif)",
-                  fontWeight: 500,
-                  fontSize: 14,
-                  color: R_DARK,
-                  marginBottom: 2,
-                }}
-              >
-                {p.title}
-              </div>
-              <div style={{ fontSize: 12, color: R_MUTED, lineHeight: 1.5 }}>
-                {p.d}
-              </div>
+            <div
+              style={{
+                fontSize: 10,
+                letterSpacing: "0.22em",
+                color: R_MUSTARD,
+                fontWeight: 600,
+                marginBottom: 8,
+              }}
+            >
+              {it.label}
+            </div>
+            <div
+              style={{
+                fontFamily: "var(--font-serif)",
+                fontWeight: 500,
+                fontSize: 17,
+                color: R_DARK,
+                marginBottom: 6,
+                letterSpacing: "-0.01em",
+              }}
+            >
+              {it.title}
+            </div>
+            <div style={{ fontSize: 12.5, color: R_MUTED, lineHeight: 1.6 }}>
+              {it.sub}
             </div>
           </div>
         ))}
       </div>
 
-      <div
-        style={{
-          marginTop: 22,
-          padding: "16px 18px",
-          background: R_CREAM_SUB,
-          borderLeft: `2px solid ${R_DARK}`,
-        }}
-      >
+      <div style={{ borderTop: `1px solid ${R_BORDER}`, paddingTop: 28 }}>
         <div
           style={{
             fontFamily: "var(--font-serif)",
             fontStyle: "italic",
             fontSize: 11,
-            color: R_DARK,
-            letterSpacing: "0.15em",
-            textTransform: "uppercase",
-            marginBottom: 6,
+            color: R_MUTED,
+            letterSpacing: "0.2em",
+            marginBottom: 14,
           }}
         >
           Why it matters
         </div>
         <p
           style={{
-            fontSize: 13,
+            fontSize: 14,
             color: R_DARK,
-            lineHeight: 1.7,
+            lineHeight: 1.8,
+            margin: "0 0 12px",
+          }}
+        >
+          셋을 합쳐야 <b>감정이 아닌 증거</b>로 진단할 수 있다냥.
+        </p>
+        <p
+          style={{
+            fontSize: 13,
+            color: R_MUTED,
+            lineHeight: 1.75,
             margin: 0,
           }}
         >
-          세 개 중 하나만 쓰면 놓치는 게 많아. 가트만은{" "}
-          <b>&ldquo;관계 위험&rdquo;</b>을, 애착이론은{" "}
-          <b>&ldquo;행동의 뿌리&rdquo;</b>를, AI는{" "}
-          <b>&ldquo;말투·텀 속 미묘한 증거&rdquo;</b>를 본다냥.
-          <br />셋을 합치면 <b>감정이 아닌 증거</b>로 진단할 수 있어 — 그래서
-          혼자 머리 굴리던 시간이 확 줄어든다냥.
+          가트만은 관계 위험을, 애착이론은 행동의 뿌리를, AI는 말투 속 미묘한
+          증거를 본다. 하나만 쓰면 놓치는 걸, 셋을 겹치면 보이거든.
         </p>
       </div>
     </div>
