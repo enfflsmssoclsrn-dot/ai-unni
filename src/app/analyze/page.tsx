@@ -3,6 +3,8 @@ import { useState, useRef, useCallback, useEffect } from "react";
 import { Masthead } from "@/components/layout/Masthead";
 import { BtnPrimary } from "@/components/ui/BtnPrimary";
 import { NyangHead, NyangEyes, NyangPaw } from "@/components/nyang-icons";
+import { LoadingFree } from "./LoadingFree";
+import { LoadingFinal } from "./LoadingFinal";
 
 // ─── Free Usage Limit (1/day, localStorage) ───
 const FREE_LIMIT_KEY = "ai-unni-free-used";
@@ -2284,6 +2286,11 @@ export default function Home() {
     }
   };
 
+  // 분석 중에는 전체 viewport 로딩 화면으로 교체
+  if (loading) {
+    return forcePaid ? <LoadingFinal /> : <LoadingFree />;
+  }
+
   return (
     <>
       <Masthead />
@@ -2330,8 +2337,6 @@ export default function Home() {
               />
             )}
           </>
-        ) : loading ? (
-          <LoadingState />
         ) : (
           <div className="animate-fadeUp flex flex-col gap-4">
             <UploadZone images={images} onAdd={addImages} onRemove={removeImage} />
