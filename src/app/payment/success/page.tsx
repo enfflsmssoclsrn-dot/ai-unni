@@ -178,7 +178,7 @@ function SuccessInner() {
         } catch {}
 
         setStatus("done");
-        setTimeout(() => router.replace("/analyze"), 1200);
+        setTimeout(() => router.replace("/analyze?reveal=1"), 1200);
       } catch (e: any) {
         console.error(e);
         setStatus("error");

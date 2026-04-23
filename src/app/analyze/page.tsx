@@ -6,6 +6,11 @@ import { NyangHead, NyangEyes, NyangPaw } from "@/components/nyang-icons";
 import { LoadingFree } from "./LoadingFree";
 import { LoadingFinal } from "./LoadingFinal";
 import { ResultReveal } from "./ResultReveal";
+import {
+  PremiumCTA,
+  GottmanCard,
+  AttachmentQuadrant,
+} from "./ResultCards";
 
 // ─── Free Usage Limit (1/day, localStorage) ───
 const FREE_LIMIT_KEY = "ai-unni-free-used";
@@ -766,53 +771,34 @@ function ResultCard({ result, isPaid, onReset, onResetPaid, onUnlock, unlocking,
       </div>
       <div className="mx-[22px] mb-4 h-px bg-ink opacity-[0.28]" />
 
-      {/* 애착 유형 4분면 — 무료/유료 둘 다 표시 (무료에선 단독, 유료에선 육각형과 함께) */}
+      {/* 애착 유형 4분면 — 무료/유료 둘 다 표시 */}
       {result.attachment && typeof result.attachment.avoidance === "number" && typeof result.attachment.anxiety === "number" && (
-        <SectionCard title="걔 애착 유형은?" icon="🧭">
-          <AttachmentChart
+        <div className="mb-4">
+          <AttachmentQuadrant
             avoidance={result.attachment.avoidance}
             anxiety={result.attachment.anxiety}
             type={result.attachment.type || ""}
+            comment={result.attachment.comment || ""}
           />
-          <div className="mt-3 px-3 py-2.5 rounded-[12px]"
-            style={{ background: "var(--color-bg-alt)", border: "1px solid var(--color-line)" }}>
-            <div className="text-[11px] font-bold mb-1" style={{ color: "var(--color-primary-deep)" }}>
-              {result.attachment.type}
-            </div>
-            <div className="text-[13px] leading-[1.6] text-[var(--color-ink)]">
-              {result.attachment.comment}
-            </div>
-          </div>
-          <div className="mt-2 text-[10.5px] text-[var(--color-sub)] leading-[1.5] px-1">
-            * Bartholomew-Horowitz 애착이론 기반. 회피(감정 거리두기) × 불안(관계 불안) 두 축으로 유형 진단.
-          </div>
-        </SectionCard>
+        </div>
       )}
-      {/* 위험 신호 진단 (가트만 Four Horsemen) — 무료/유료 둘 다 표시 */}
+      {/* 위험 신호 진단 (가트만 Four Horsemen) */}
       {result.red_flags && typeof result.red_flags === "object" && (
-        <SectionCard title="관계 위험 신호 진단" icon="🚨">
-          <div className="text-[11px] text-[var(--color-sub)] mb-3 leading-[1.5]">
-            가트만 박사의 &lsquo;관계를 망치는 4가지 신호(Four Horsemen)&rsquo; 기반 분석
-          </div>
-          <RedFlagsChart flags={result.red_flags} />
-          <div className="mt-3 px-3 py-2 rounded-[10px]" style={{ background: "var(--color-bg)", border: "1px solid var(--color-bg-alt)" }}>
-            <p className="text-[10.5px] text-[var(--color-sub)] leading-[1.5]">
-              {(() => {
-                const vals = [result.red_flags.criticism, result.red_flags.defensiveness, result.red_flags.contempt, result.red_flags.stonewalling];
-                const max = Math.max(...vals);
-                if (max <= 20) return "모든 신호가 안전 구간이야. 건강한 대화 패턴을 보이고 있어.";
-                if (max <= 40) return "전반적으로 양호해. 사소한 신호가 있지만 크게 걱정할 수준은 아니야.";
-                if (max <= 60) return "일부 신호에 주의가 필요해. 지금 패턴이 반복되면 관계에 영향을 줄 수 있어.";
-                return "경고 수준의 신호가 감지됐어. 대화 패턴을 의식적으로 바꿔볼 필요가 있어.";
-              })()}
-            </p>
-          </div>
-        </SectionCard>
+        <div className="mb-4">
+          <GottmanCard flags={result.red_flags} />
+        </div>
       )}
 
       {/* 유료 추가: 6축 호감도 레이더 (육각형) */}
       {isPaid && result.axes && (
         <SectionCard title="호감도 레이더" icon="📊">
+          <div className="mb-3 rounded-[8px] border-l-2 border-ink bg-bg-alt px-3.5 py-3 text-[12px] leading-[1.6] text-ink">
+            <div className="mb-1 font-serif text-[10px] italic uppercase tracking-[0.15em] text-sub">
+              Why it matters
+            </div>
+            호감도를 하나로 퉁치면 놓치는 게 많아. 관심 · 반응 · 적극 · 일관 ·
+            친밀 · 미래 6축으로 쪼개야 어디가 약한지, 왜 애매한지 보인다냥.
+          </div>
           <RadarChart axes={result.axes} />
           <AxesList axes={result.axes} />
         </SectionCard>
@@ -870,7 +856,13 @@ function ResultCard({ result, isPaid, onReset, onResetPaid, onUnlock, unlocking,
           </div>
         </>
       ) : (
-        <PremiumPreview onUnlock={onUnlock} unlocking={unlocking} redirecting={redirecting} />
+        <div className="mb-4">
+          <PremiumCTA
+            onUnlock={onUnlock}
+            disabled={unlocking || redirecting}
+            redirecting={redirecting}
+          />
+        </div>
       )}
 
       {/* Watermark */}
