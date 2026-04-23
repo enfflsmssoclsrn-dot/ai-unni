@@ -807,6 +807,124 @@ export function AttachmentQuadrant({
   );
 }
 
+// ─────────────────────────────────────────
+// 4) Result page footer — reset analysis
+// ─────────────────────────────────────────
+
+export function ResultFooter({ onReset }: { onReset?: () => void }) {
+  return (
+    <div
+      style={{
+        fontFamily: "var(--font-sans)",
+        color: R_DARK,
+        padding: "32px 0 16px",
+      }}
+    >
+      {/* Magazine-style colophon */}
+      <div style={{ textAlign: "center", marginBottom: 28 }}>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: 16,
+            marginBottom: 10,
+          }}
+        >
+          <div style={{ width: 40, borderTop: `1px solid ${R_DARK}` }} />
+          <span
+            style={{
+              fontFamily: "var(--font-serif)",
+              fontStyle: "italic",
+              fontSize: 12,
+              color: R_DARK,
+              letterSpacing: "0.1em",
+            }}
+          >
+            fin.
+          </span>
+          <div style={{ width: 40, borderTop: `1px solid ${R_DARK}` }} />
+        </div>
+        <div
+          style={{
+            fontFamily: "var(--font-serif)",
+            fontWeight: 500,
+            fontSize: 14,
+            color: R_DARK,
+            letterSpacing: "0.05em",
+          }}
+        >
+          AI 냥이 · 연애 분석
+        </div>
+        <div
+          style={{
+            fontFamily: "var(--font-serif)",
+            fontStyle: "italic",
+            fontSize: 11,
+            color: R_MUTED,
+            marginTop: 4,
+            letterSpacing: "0.15em",
+          }}
+        >
+          Issue · 026 · Report · 30일 후 자동 파기
+        </div>
+      </div>
+
+      {/* Divider */}
+      <div style={{ borderTop: `1px dashed ${R_BORDER}`, marginBottom: 20 }} />
+
+      {/* Reset action — tertiary outline */}
+      <button
+        onClick={onReset}
+        type="button"
+        style={{
+          width: "100%",
+          padding: "16px",
+          background: "transparent",
+          border: `1px solid ${R_DARK}`,
+          color: R_DARK,
+          fontFamily: "var(--font-serif)",
+          fontWeight: 500,
+          fontSize: 14,
+          cursor: onReset ? "pointer" : "default",
+          letterSpacing: "0.02em",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          gap: 8,
+        }}
+      >
+        <svg
+          width="14"
+          height="14"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke={R_DARK}
+          strokeWidth={1.5}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          aria-hidden
+        >
+          <path d="M3 12a9 9 0 0 1 15.5-6.3L21 8M21 3v5h-5M21 12a9 9 0 0 1-15.5 6.3L3 16M3 21v-5h5" />
+        </svg>
+        <span>다른 대화로 새로 분석하기</span>
+      </button>
+      <div
+        style={{
+          fontFamily: "var(--font-serif)",
+          fontStyle: "italic",
+          fontSize: 11,
+          color: R_MUTED,
+          textAlign: "center",
+          marginTop: 10,
+        }}
+      >
+        · 새 분석도 무료 · 캡처만 올리면 끝 ·
+      </div>
+    </div>
+  );
+}
+
 function renderQuadrantCell(
   pos: string,
   kor: string,

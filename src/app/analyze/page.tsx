@@ -10,6 +10,7 @@ import {
   PremiumCTA,
   GottmanCard,
   AttachmentQuadrant,
+  ResultFooter,
 } from "./ResultCards";
 
 // ─── Free Usage Limit (1/day, localStorage) ───
@@ -865,35 +866,10 @@ function ResultCard({ result, isPaid, onReset, onResetPaid, onUnlock, unlocking,
         </div>
       )}
 
-      {/* Watermark */}
-      <p className="text-center text-[11px] text-[var(--color-sub)] mt-2 mb-3.5 tracking-wider font-semibold">
-        AI 냥이 · 연애 분석
-      </p>
+      {/* 에디토리얼 푸터 — fin. 콜로폰 + 리셋 outline 버튼 */}
+      <ResultFooter onReset={freeUsed && !isPaid ? onResetPaid : onReset} />
 
-      {/* Buttons */}
-      <div className="flex gap-2.5">
-        {isPaid ? (
-          <button onClick={onReset}
-            className="flex-1 py-3.5 rounded-[16px] text-sm font-semibold cursor-pointer transition-all"
-            style={{ background: "var(--color-bg-alt)", border: "1px solid var(--color-line)", color: "var(--color-primary)" }}>
-            다시 분석하기
-          </button>
-        ) : freeUsed ? (
-          <button onClick={onResetPaid}
-            className="flex-1 py-3.5 rounded-[16px] text-sm font-semibold cursor-pointer transition-all"
-            style={{ background: "var(--color-bg-alt)", border: "1px solid var(--color-line)", color: "var(--color-primary)" }}>
-            🔄 새로 분석하기 (유료)
-          </button>
-        ) : (
-          <button onClick={onReset}
-            className="flex-1 py-3.5 rounded-[16px] text-sm font-semibold cursor-pointer transition-all"
-            style={{ background: "var(--color-bg-alt)", border: "1px solid var(--color-line)", color: "var(--color-primary)" }}>
-            다시 분석하기
-          </button>
-        )}
-      </div>
-
-      {/* Save as Image — 유료 분석에서만 노출 (무료는 뿌옇게 흐려져서 저장 품질 낮음) */}
+      {/* Save as Image — 유료에서만 */}
       {isPaid && <SaveImageButton targetId="result-card" />}
     </div>
   );
