@@ -277,21 +277,46 @@ export function ResultReveal({
           width: stage >= 6 ? 140 : 0,
           borderTop: `1px dashed ${RR_DARK}`,
           transition: "width 0.8s cubic-bezier(0.22, 1, 0.36, 1)",
-          marginBottom: 14,
+          marginBottom: 20,
         }}
       />
-      <div
+      <button
+        type="button"
+        onClick={() => onDone?.()}
+        disabled={!onDone}
         style={{
+          display: "inline-flex",
+          alignItems: "center",
+          gap: 8,
+          padding: "14px 22px",
+          background: RR_DARK,
+          color: RR_CREAM,
+          border: "none",
           fontFamily: "var(--font-serif)",
-          fontSize: 11,
-          color: RR_MUTED,
-          fontStyle: "italic",
+          fontWeight: 500,
+          fontSize: 14,
+          letterSpacing: "0.02em",
+          cursor: onDone ? "pointer" : "default",
           opacity: stage >= 6 ? 1 : 0,
-          transition: "opacity 0.5s 0.2s",
+          transform: stage >= 6 ? "translateY(0)" : "translateY(8px)",
+          transition: "all 0.5s 0.2s",
         }}
       >
-        상세 분석 아래로 ↓
-      </div>
+        <span>이어서 보기</span>
+        <svg
+          width="14"
+          height="14"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke={RR_CREAM}
+          strokeWidth={1.5}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          aria-hidden
+        >
+          <path d="M5 12h14M13 6l6 6-6 6" />
+        </svg>
+      </button>
 
       <style
         dangerouslySetInnerHTML={{

@@ -808,6 +808,166 @@ export function AttachmentQuadrant({
 }
 
 // ─────────────────────────────────────────
+// 3.5) Methodology — 왜 강력한가
+// ─────────────────────────────────────────
+
+export function MethodologyCard() {
+  const pillars: { tag: string; title: string; d: string }[] = [
+    {
+      tag: "GOTTMAN",
+      title: "관계 위험 신호",
+      d: "40년 종단연구 · 이혼 예측 정확도 93.6%",
+    },
+    {
+      tag: "ATTACHMENT",
+      title: "성인 애착 4유형",
+      d: "Bartholomew-Horowitz · 행동 패턴의 뿌리",
+    },
+    {
+      tag: "AI",
+      title: "말투·텀·행간 해석",
+      d: "사람이 놓치는 미묘한 신호까지 수치화",
+    },
+  ];
+  return (
+    <div
+      style={{
+        background: R_CREAM_CARD,
+        border: `1px solid ${R_BORDER}`,
+        padding: 28,
+        fontFamily: "var(--font-sans)",
+        color: R_DARK,
+      }}
+    >
+      <div
+        style={{
+          fontSize: 10,
+          letterSpacing: "0.3em",
+          color: R_MUTED,
+          marginBottom: 10,
+          fontWeight: 500,
+        }}
+      >
+        — METHOD · 00 —
+      </div>
+      <h3
+        style={{
+          fontFamily: "var(--font-serif)",
+          fontWeight: 500,
+          fontSize: 22,
+          margin: "0 0 6px",
+          letterSpacing: "-0.01em",
+        }}
+      >
+        가트만 × 애착이론 × AI
+      </h3>
+      <p
+        style={{
+          fontFamily: "var(--font-serif)",
+          fontStyle: "italic",
+          fontWeight: 300,
+          fontSize: 13,
+          color: R_MUTED,
+          margin: "0 0 22px",
+        }}
+      >
+        Why this combination is powerful
+      </p>
+
+      <div style={{ borderTop: `1px solid ${R_BORDER}` }}>
+        {pillars.map((p, i) => (
+          <div
+            key={i}
+            style={{
+              display: "flex",
+              gap: 14,
+              padding: "14px 0",
+              borderBottom: `1px solid ${R_BORDER}`,
+            }}
+          >
+            <div
+              style={{
+                height: "fit-content",
+                whiteSpace: "nowrap",
+                border: `1px solid ${R_DARK}`,
+                padding: "3px 7px",
+                fontFamily: "var(--font-serif)",
+                fontSize: 9,
+                fontWeight: 700,
+                letterSpacing: "0.15em",
+                color: R_DARK,
+              }}
+            >
+              {p.tag}
+            </div>
+            <div style={{ flex: 1 }}>
+              <div
+                style={{
+                  fontFamily: "var(--font-serif)",
+                  fontWeight: 500,
+                  fontSize: 14,
+                  color: R_DARK,
+                  marginBottom: 2,
+                }}
+              >
+                {p.title}
+              </div>
+              <div
+                style={{
+                  fontSize: 12,
+                  color: R_MUTED,
+                  lineHeight: 1.5,
+                }}
+              >
+                {p.d}
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div
+        style={{
+          marginTop: 22,
+          padding: "16px 18px",
+          background: R_CREAM_SUB,
+          borderLeft: `2px solid ${R_DARK}`,
+        }}
+      >
+        <div
+          style={{
+            fontFamily: "var(--font-serif)",
+            fontStyle: "italic",
+            fontSize: 11,
+            color: R_DARK,
+            letterSpacing: "0.15em",
+            textTransform: "uppercase",
+            marginBottom: 6,
+          }}
+        >
+          Why it matters
+        </div>
+        <p
+          style={{
+            fontSize: 13,
+            color: R_DARK,
+            lineHeight: 1.7,
+            margin: 0,
+          }}
+        >
+          세 개 중 하나만 쓰면 놓치는 게 많아. 가트만은{" "}
+          <b>&ldquo;관계 위험&rdquo;</b>을, 애착이론은{" "}
+          <b>&ldquo;행동의 뿌리&rdquo;</b>를, AI는{" "}
+          <b>&ldquo;말투·텀 속 미묘한 증거&rdquo;</b>를 본다냥.
+          <br />셋을 합치면 <b>감정이 아닌 증거</b>로 진단할 수 있어 — 그래서
+          혼자 머리 굴리던 시간이 확 줄어든다냥.
+        </p>
+      </div>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────
 // 4) Result page footer — reset analysis
 // ─────────────────────────────────────────
 

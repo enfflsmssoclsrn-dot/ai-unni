@@ -10,6 +10,7 @@ import {
   PremiumCTA,
   GottmanCard,
   AttachmentQuadrant,
+  MethodologyCard,
   ResultFooter,
 } from "./ResultCards";
 
@@ -771,6 +772,11 @@ function ResultCard({ result, isPaid, onReset, onResetPaid, onUnlock, unlocking,
         </div>
       </div>
       <div className="mx-[22px] mb-4 h-px bg-ink opacity-[0.28]" />
+
+      {/* Methodology — 왜 이 조합이 강력한가 */}
+      <div className="mb-4">
+        <MethodologyCard />
+      </div>
 
       {/* 애착 유형 4분면 — 무료/유료 둘 다 표시 */}
       {result.attachment && typeof result.attachment.avoidance === "number" && typeof result.attachment.anxiety === "number" && (
@@ -2174,6 +2180,7 @@ export default function Home() {
   const [simSessionId, setSimSessionId] = useState<string | null>(null);  // 채팅 시뮬 세션 ID (holder)
   const [imageConsent, setImageConsent] = useState(false);                // 캡처 업로드 시 개인정보 동의
   const [situation, setSituation] = useState<string | null>(null);        // 랜딩 01에서 고른 상황
+  const [revealDone, setRevealDone] = useState(false);                    // reveal hero 해제 여부
   const inputRef = useRef({ text: "", imageData: [] as any[] });
 
   // Check free usage + restore paid result on mount
@@ -2196,6 +2203,8 @@ export default function Home() {
       setPaidResult(saved);
       setPaidOrderId(loadPaidOrderId());
       setSimSessionId(loadSimSessionId());
+      // 이미 본 결과 복원 시엔 reveal 바로 스킵
+      setRevealDone(true);
     }
   }, []);
 
@@ -2232,6 +2241,7 @@ export default function Home() {
       inputRef.current = { text, imageData };
 
       const result = await analyzeAPI(text, imageData, "free");
+      setRevealDone(false); // 새 결과 들어오면 reveal 재생
       setFreeResult(result);
       markFreeUsed();
       setFreeUsed(true);
@@ -2327,19 +2337,24 @@ export default function Home() {
     return forcePaid ? <LoadingFinal /> : <LoadingFree />;
   }
 
+  // 결과 도착 직후 reveal 전용 화면 — 버튼 클릭 시 상세로 전환
+  if (result && !revealDone) {
+    return (
+      <ResultReveal
+        score={result.score || 0}
+        tags={[result.stage, result.temperature].filter(
+          (t): t is string => Boolean(t)
+        )}
+        quote={result.summary || ""}
+        onDone={() => setRevealDone(true)}
+      />
+    );
+  }
+
   return (
     <>
       <Masthead />
       <main className="min-h-screen bg-bg text-ink">
-        {result && (
-          <ResultReveal
-            score={result.score || 0}
-            tags={[result.stage, result.temperature].filter(
-              (t): t is string => Boolean(t)
-            )}
-            quote={result.summary || ""}
-          />
-        )}
         <div className="mx-auto max-w-[420px]">
           {!result && !loading && (
             <>
