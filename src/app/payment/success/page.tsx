@@ -3,6 +3,7 @@
 import { useEffect, useState, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { LoadingFinal } from "@/app/analyze/LoadingFinal";
+import { NyangUnlockReveal } from "./NyangUnlockReveal";
 
 const PAID_KEY = "ai-unni-paid";
 const PAID_RESULT_KEY = "ai-unni-paid-result";
@@ -177,8 +178,9 @@ function SuccessInner() {
           localStorage.setItem(PAID_ORDER_ID_KEY, orderId);
         } catch {}
 
+        // 유료 심층 분석은 UnlockReveal → 사용자 클릭으로 전환
+        // (sim-unlock 타입은 위 분기에서 이미 return 처리됨)
         setStatus("done");
-        setTimeout(() => router.replace("/analyze?reveal=1"), 1200);
       } catch (e: any) {
         console.error(e);
         setStatus("error");
@@ -190,6 +192,13 @@ function SuccessInner() {
   // 심층 분석 중에는 풀뷰포트 LoadingFinal로 교체
   if (status === "analyzing" && type !== "sim-unlock") {
     return <LoadingFinal />;
+  }
+
+  // 분석 끝나면 유료 유저는 UnlockReveal 시퀀스 (시뮬 언락 제외)
+  if (status === "done" && type !== "sim-unlock") {
+    return (
+      <NyangUnlockReveal onComplete={() => router.replace("/analyze")} />
+    );
   }
 
   return (
