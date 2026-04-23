@@ -2,6 +2,7 @@
 
 import { useEffect, useState, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
+import { LoadingFinal } from "@/app/analyze/LoadingFinal";
 
 const PAID_KEY = "ai-unni-paid";
 const PAID_RESULT_KEY = "ai-unni-paid-result";
@@ -177,7 +178,7 @@ function SuccessInner() {
         } catch {}
 
         setStatus("done");
-        setTimeout(() => router.replace("/"), 1200);
+        setTimeout(() => router.replace("/analyze"), 1200);
       } catch (e: any) {
         console.error(e);
         setStatus("error");
@@ -186,62 +187,56 @@ function SuccessInner() {
     })();
   }, [params, router, type]);
 
+  // 심층 분석 중에는 풀뷰포트 LoadingFinal로 교체
+  if (status === "analyzing" && type !== "sim-unlock") {
+    return <LoadingFinal />;
+  }
+
   return (
-    <div style={{ background: "#FFF5F7", minHeight: "100vh" }}>
-      <div className="max-w-[420px] mx-auto px-4 py-10 text-center">
-        <div className="bg-white rounded-[24px] p-8 border border-[#FFD6E0]">
+    <div style={{ background: "var(--color-bg)", minHeight: "100vh" }}>
+      <div className="mx-auto max-w-[420px] px-[22px] py-12 text-center">
+        <div className="rounded-[14px] border border-line bg-bg-alt p-8">
           {status === "confirming" && (
             <>
               <div
-                className="w-[36px] h-[36px] mx-auto mb-3 rounded-full animate-spin"
-                style={{ border: "3px solid #FFD6E0", borderTopColor: "#FF6B8A" }}
+                className="mx-auto mb-3 h-[36px] w-[36px] animate-spin rounded-full"
+                style={{ border: "3px solid var(--color-line)", borderTopColor: "var(--color-ink)" }}
               />
-              <div className="text-[15px] font-bold text-[#2D2B3D]">결제 확인 중...</div>
+              <div className="text-[15px] font-bold text-ink">결제 확인 중...</div>
             </>
           )}
-          {status === "analyzing" && (
-            type === "sim-unlock" ? (
-              <AnalysisProgress
-                steps={UNLOCK_STEPS}
-                header="💬 +15턴 언락 중"
-                footer={"결제가 확인되면 바로 대화로 돌아가\n잠깐만"}
-              />
-            ) : (
-              <AnalysisProgress
-                steps={STEPS}
-                header="🔬 AI 냥이 심층 분석 중"
-                footer={"가트만 관계심리학 + 애착이론 기반\n30초 정도 걸려요"}
-              />
-            )
+          {status === "analyzing" && type === "sim-unlock" && (
+            <AnalysisProgress
+              steps={UNLOCK_STEPS}
+              header="💬 +15턴 언락 중"
+              footer={"결제가 확인되면 바로 대화로 돌아가\n잠깐만"}
+            />
           )}
           {status === "done" && (
             <>
-              <div className="text-[40px] mb-2">{type === "sim-unlock" ? "💬" : "💖"}</div>
-              <div className="text-[15px] font-bold text-[#2D2B3D] mb-1">
+              <div className="mb-2 text-[40px]">{type === "sim-unlock" ? "💬" : "💖"}</div>
+              <div className="mb-1 text-[15px] font-bold text-ink">
                 {type === "sim-unlock" ? "+15턴 추가 완료!" : "분석 완료!"}
               </div>
-              <div className="text-[12px] text-[#8E8A9D]">
+              <div className="text-[12px] text-sub">
                 {type === "sim-unlock" ? "대화 화면으로 돌아가고 있어" : "잠시 후 결과 화면으로 이동해요"}
               </div>
             </>
           )}
           {status === "error" && (
             <>
-              <div className="text-[40px] mb-2">😥</div>
-              <div className="text-[15px] font-bold text-[#2D2B3D] mb-2">
+              <div className="mb-2 text-[40px]">😥</div>
+              <div className="mb-2 text-[15px] font-bold text-ink">
                 문제가 생겼어요
               </div>
-              <div className="text-[12px] text-[#8E8A9D] mb-4 whitespace-pre-wrap">
+              <div className="mb-4 whitespace-pre-wrap text-[12px] text-sub">
                 {error}
               </div>
               <button
                 onClick={() => router.push("/")}
-                className="px-5 py-2.5 rounded-full text-white text-[13px] font-bold"
-                style={{
-                  background: "linear-gradient(135deg, #FF6B8A, #E8456A)",
-                  border: "none",
-                  cursor: "pointer",
-                }}>
+                className="rounded-full bg-ink px-5 py-2.5 text-[13px] font-bold text-bg transition-transform hover:scale-[1.02] active:scale-[0.98]"
+                type="button"
+              >
                 홈으로
               </button>
             </>
