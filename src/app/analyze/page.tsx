@@ -2,7 +2,7 @@
 import { useState, useRef, useCallback, useEffect } from "react";
 import { Masthead } from "@/components/layout/Masthead";
 import { BtnPrimary } from "@/components/ui/BtnPrimary";
-import { NyangPaw } from "@/components/nyang-icons";
+import { NyangHead, NyangEyes, NyangPaw } from "@/components/nyang-icons";
 
 // ─── Free Usage Limit (1/day, localStorage) ───
 const FREE_LIMIT_KEY = "ai-unni-free-used";
@@ -194,18 +194,18 @@ function ScoreGauge({ score }: { score: number }) {
       <svg width="140" height="140" viewBox="0 0 140 140">
         <defs>
           <linearGradient id="scoreGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#FF6B8A" />
-            <stop offset="100%" stopColor="#FF8FA3" />
+            <stop offset="0%" stopColor="var(--color-primary)" />
+            <stop offset="100%" stopColor="var(--color-primary)" />
           </linearGradient>
         </defs>
-        <circle cx="70" cy="70" r={r} fill="none" stroke="#FFD6E0" strokeWidth="10" />
+        <circle cx="70" cy="70" r={r} fill="none" stroke="var(--color-line)" strokeWidth="10" />
         <circle cx="70" cy="70" r={r} fill="none" stroke="url(#scoreGrad)" strokeWidth="10"
           strokeLinecap="round" strokeDasharray={c} strokeDashoffset={c - p}
           transform="rotate(-90 70 70)" style={{ transition: "stroke-dashoffset 1.5s cubic-bezier(.4,0,.2,1)" }} />
-        <text x="70" y="68" textAnchor="middle" dominantBaseline="central" fill="#2D2B3D"
+        <text x="70" y="68" textAnchor="middle" dominantBaseline="central" fill="var(--color-ink)"
           style={{ fontSize: 32, fontWeight: 800 }}>{n}</text>
       </svg>
-      <p className="text-[12px] font-semibold tracking-wide" style={{ color: "#8E8A9D", marginTop: -8 }}>
+      <p className="text-[12px] font-semibold tracking-wide" style={{ color: "var(--color-sub)", marginTop: -8 }}>
         호감도 점수
       </p>
     </div>
@@ -216,19 +216,19 @@ function ScoreGauge({ score }: { score: number }) {
 function StageBadge({ stage }: { stage: string }) {
   const m: Record<string, { e: string; bg: string; c: string }> = {
     // 썸/연애/재회 모드
-    "관심없음": { e: "😐", bg: "#F0F0F0", c: "#8E8A9D" },
-    "예의": { e: "🙂", bg: "#EEF0FF", c: "#7B7FC4" },
-    "호감": { e: "✨", bg: "#FFF4E6", c: "#E8956A" },
-    "썸": { e: "💕", bg: "#FFF0F3", c: "#FF6B8A" },
-    "연애직전": { e: "🔥", bg: "#FFE8EC", c: "#E8456A" },
-    "안정기": { e: "🌿", bg: "#E8F5E9", c: "#5B8A72" },
-    "권태 직전": { e: "🌫️", bg: "#F0F0F5", c: "#8E8A9D" },
+    "관심없음": { e: "😐", bg: "var(--color-line)", c: "var(--color-sub)" },
+    "예의": { e: "🙂", bg: "var(--color-bg-alt)", c: "var(--color-primary-deep)" },
+    "호감": { e: "✨", bg: "var(--color-bg-alt)", c: "var(--color-primary)" },
+    "썸": { e: "💕", bg: "var(--color-bg-alt)", c: "var(--color-primary)" },
+    "연애직전": { e: "🔥", bg: "var(--color-bg-alt)", c: "var(--color-primary-deep)" },
+    "안정기": { e: "🌿", bg: "var(--color-bg-alt)", c: "#5B8A72" },
+    "권태 직전": { e: "🌫️", bg: "var(--color-line)", c: "var(--color-sub)" },
     // 부부 모드
-    "권태기": { e: "🌫️", bg: "#F0F0F5", c: "#8E8A9D" },
-    "냉랭": { e: "🧊", bg: "#EEF2F7", c: "#6B7A8F" },
-    "회복기": { e: "🌱", bg: "#E8F5E9", c: "#5B8A72" },
-    "안정": { e: "🏡", bg: "#FFF4E6", c: "#E8956A" },
-    "애정기": { e: "💞", bg: "#FFE8EC", c: "#E8456A" },
+    "권태기": { e: "🌫️", bg: "var(--color-line)", c: "var(--color-sub)" },
+    "냉랭": { e: "🧊", bg: "var(--color-line)", c: "#6B7A8F" },
+    "회복기": { e: "🌱", bg: "var(--color-bg-alt)", c: "#5B8A72" },
+    "안정": { e: "🏡", bg: "var(--color-bg-alt)", c: "var(--color-primary)" },
+    "애정기": { e: "💞", bg: "var(--color-bg-alt)", c: "var(--color-primary-deep)" },
   };
   const v = m[stage] || m["호감"];
   return (
@@ -241,7 +241,7 @@ function TempBadge({ temperature }: { temperature: string }) {
   const te: Record<string, string> = { "차가움": "🧊", "미지근": "🌤", "따뜻": "☀️", "뜨거움": "🔥" };
   return (
     <span className="inline-flex items-center gap-1 px-3.5 py-1.5 rounded-full text-[13px] font-semibold"
-      style={{ background: "#FFF0F3", color: "#2D2B3D" }}>{te[temperature] || "🌡"} {temperature}</span>
+      style={{ background: "var(--color-bg-alt)", color: "var(--color-ink)" }}>{te[temperature] || "🌡"} {temperature}</span>
   );
 }
 
@@ -249,7 +249,7 @@ function TempBadge({ temperature }: { temperature: string }) {
 function SectionCard({ title, icon, accent, children }: { title: string; icon: string; accent?: string; children: React.ReactNode }) {
   return (
     <div className="bg-white rounded-[20px] border border-[rgba(255,143,171,0.15)] shadow-[0_2px_20px_rgba(255,143,171,0.08)] p-5 mb-3">
-      <div className="text-sm font-bold mb-3" style={{ color: accent || "#2D2B3D" }}>{icon} {title}</div>
+      <div className="text-sm font-bold mb-3" style={{ color: accent || "var(--color-ink)" }}>{icon} {title}</div>
       {children}
     </div>
   );
@@ -258,8 +258,8 @@ function SectionCard({ title, icon, accent, children }: { title: string; icon: s
 function BulletItem({ text, color }: { text: string; color?: string }) {
   return (
     <div className="flex gap-2.5 mb-2.5 items-start">
-      <div className="w-1.5 h-1.5 rounded-full mt-2 shrink-0" style={{ background: color || "#FF6B8A" }} />
-      <div className="text-sm text-[#2D2B3D] leading-[1.7]">{text}</div>
+      <div className="w-1.5 h-1.5 rounded-full mt-2 shrink-0" style={{ background: color || "var(--color-primary)" }} />
+      <div className="text-sm text-[var(--color-ink)] leading-[1.7]">{text}</div>
     </div>
   );
 }
@@ -277,17 +277,17 @@ const AXIS_META: { key: string; label: string; desc: string }[] = [
 // ─── 위험 신호 차트 (가트만 Four Horsemen) ───
 function RedFlagsChart({ flags }: { flags: { criticism: number; defensiveness: number; contempt: number; stonewalling: number } }) {
   const items = [
-    { key: "비난", value: flags.criticism, color: "#FF8FA3", icon: "💢" },
-    { key: "방어", value: flags.defensiveness, color: "#FFB347", icon: "🛡" },
-    { key: "경멸", value: flags.contempt, color: "#E8456A", icon: "😤" },
-    { key: "담쌓기", value: flags.stonewalling, color: "#7B7FC4", icon: "🧱" },
+    { key: "비난", value: flags.criticism, color: "var(--color-primary)", icon: "💢" },
+    { key: "방어", value: flags.defensiveness, color: "var(--color-accent-c)", icon: "🛡" },
+    { key: "경멸", value: flags.contempt, color: "var(--color-primary-deep)", icon: "😤" },
+    { key: "담쌓기", value: flags.stonewalling, color: "var(--color-primary-deep)", icon: "🧱" },
   ];
   const maxVal = Math.max(...items.map(i => i.value), 1);
   const getLevel = (v: number) => {
     if (v <= 20) return { text: "안전", color: "#3E8C66" };
     if (v <= 40) return { text: "양호", color: "#6BAF8D" };
-    if (v <= 60) return { text: "주의", color: "#E8956A" };
-    if (v <= 80) return { text: "경고", color: "#E8456A" };
+    if (v <= 60) return { text: "주의", color: "var(--color-primary)" };
+    if (v <= 80) return { text: "경고", color: "var(--color-primary-deep)" };
     return { text: "위험", color: "#C0392B" };
   };
 
@@ -300,14 +300,14 @@ function RedFlagsChart({ flags }: { flags: { criticism: number; defensiveness: n
             <div className="flex items-center justify-between mb-1">
               <div className="flex items-center gap-1.5">
                 <span className="text-[13px]">{item.icon}</span>
-                <span className="text-[12px] font-bold text-[#2D2B3D]">{item.key}</span>
+                <span className="text-[12px] font-bold text-[var(--color-ink)]">{item.key}</span>
               </div>
               <div className="flex items-center gap-1.5">
                 <span className="text-[11px] font-bold" style={{ color: level.color }}>{level.text}</span>
-                <span className="text-[11px] font-bold tabular-nums" style={{ color: "#8E8A9D" }}>{item.value}</span>
+                <span className="text-[11px] font-bold tabular-nums" style={{ color: "var(--color-sub)" }}>{item.value}</span>
               </div>
             </div>
-            <div className="h-[6px] rounded-full overflow-hidden" style={{ background: "#F0EDF5" }}>
+            <div className="h-[6px] rounded-full overflow-hidden" style={{ background: "var(--color-line)" }}>
               <div
                 className="h-full rounded-full transition-all duration-700"
                 style={{
@@ -357,8 +357,8 @@ function RadarChart({ axes }: { axes: Record<string, number> }) {
     <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className="block mx-auto">
       <defs>
         <linearGradient id="radarFill" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stopColor="#FF8FA3" stopOpacity="0.55" />
-          <stop offset="100%" stopColor="#E8456A" stopOpacity="0.55" />
+          <stop offset="0%" stopColor="var(--color-primary)" stopOpacity="0.55" />
+          <stop offset="100%" stopColor="var(--color-primary-deep)" stopOpacity="0.55" />
         </linearGradient>
       </defs>
 
@@ -368,7 +368,7 @@ function RadarChart({ axes }: { axes: Record<string, number> }) {
         return (
           <polygon key={lv} points={pts}
             fill="none"
-            stroke="#FFD6E0"
+            stroke="var(--color-line)"
             strokeWidth={lv === 100 ? 1.2 : 0.8}
             strokeDasharray={lv === 100 ? "0" : "3 3"} />
         );
@@ -377,15 +377,15 @@ function RadarChart({ axes }: { axes: Record<string, number> }) {
       {/* 축선 */}
       {AXIS_META.map((_, i) => {
         const [x, y] = point(100, i);
-        return <line key={i} x1={cx} y1={cy} x2={x} y2={y} stroke="#FFD6E0" strokeWidth={0.8} />;
+        return <line key={i} x1={cx} y1={cy} x2={x} y2={y} stroke="var(--color-line)" strokeWidth={0.8} />;
       })}
 
       {/* 데이터 폴리곤 */}
-      <polygon points={dataPath} fill="url(#radarFill)" stroke="#E8456A" strokeWidth={1.8} strokeLinejoin="round" />
+      <polygon points={dataPath} fill="url(#radarFill)" stroke="var(--color-primary-deep)" strokeWidth={1.8} strokeLinejoin="round" />
 
       {/* 데이터 점 */}
       {dataPts.map(([x, y], i) => (
-        <circle key={i} cx={x} cy={y} r={3} fill="#fff" stroke="#E8456A" strokeWidth={1.5} />
+        <circle key={i} cx={x} cy={y} r={3} fill="#fff" stroke="var(--color-primary-deep)" strokeWidth={1.5} />
       ))}
 
       {/* 라벨 */}
@@ -397,7 +397,7 @@ function RadarChart({ axes }: { axes: Record<string, number> }) {
             dominantBaseline="middle"
             fontSize="11"
             fontWeight="700"
-            fill="#2D2B3D">
+            fill="var(--color-ink)">
             {m.label}
           </text>
         );
@@ -415,16 +415,16 @@ function AxesList({ axes }: { axes: Record<string, number> }) {
         return (
           <div key={m.key} className="mb-2.5 last:mb-0">
             <div className="flex items-baseline justify-between mb-1">
-              <div className="text-[13px] font-bold text-[#2D2B3D]">
-                {m.label} <span className="text-[11px] font-medium text-[#8E8A9D] ml-1">{m.desc}</span>
+              <div className="text-[13px] font-bold text-[var(--color-ink)]">
+                {m.label} <span className="text-[11px] font-medium text-[var(--color-sub)] ml-1">{m.desc}</span>
               </div>
-              <div className="text-[12px] font-bold tabular-nums" style={{ color: "#E8456A" }}>{v}</div>
+              <div className="text-[12px] font-bold tabular-nums" style={{ color: "var(--color-primary-deep)" }}>{v}</div>
             </div>
-            <div className="h-[5px] rounded-full overflow-hidden" style={{ background: "#FFE8EC" }}>
+            <div className="h-[5px] rounded-full overflow-hidden" style={{ background: "var(--color-bg-alt)" }}>
               <div className="h-full rounded-full"
                 style={{
                   width: `${v}%`,
-                  background: "linear-gradient(90deg, #FF8FA3, #E8456A)",
+                  background: "linear-gradient(90deg, var(--color-primary), var(--color-primary-deep))",
                   transition: "width 0.8s cubic-bezier(.4,0,.2,1)",
                 }} />
             </div>
@@ -471,9 +471,9 @@ function AttachmentChart({
   // 사분면 메타 (이모지 없음, 색만)
   const quadrants = [
     { label: "회피형", light: "#E6EFF8", textOn: "#3B6490", deep: "#4A7FB8", pos: "tl" },
-    { label: "혼합형", light: "#F0E8F5", textOn: "#5D3F80", deep: "#7B55A6", pos: "tr" },
+    { label: "혼합형", light: "var(--color-bg-alt)", textOn: "#5D3F80", deep: "#7B55A6", pos: "tr" },
     { label: "안정형", light: "#E4F1E9", textOn: "#2D6B4D", deep: "#3E8C66", pos: "bl" },
-    { label: "불안형", light: "#FDE3EA", textOn: "#A83557", deep: "#D64B74", pos: "br" },
+    { label: "불안형", light: "var(--color-bg-alt)", textOn: "#A83557", deep: "#D64B74", pos: "br" },
   ] as const;
 
   // 사분면 영역 좌표
@@ -506,13 +506,13 @@ function AttachmentChart({
     >
       <defs>
         <radialGradient id="attachDotGrad" cx="35%" cy="35%" r="65%">
-          <stop offset="0%" stopColor="#FFB0C2" />
-          <stop offset="60%" stopColor="#FF6B8A" />
-          <stop offset="100%" stopColor="#E8456A" />
+          <stop offset="0%" stopColor="var(--color-primary)" />
+          <stop offset="60%" stopColor="var(--color-primary)" />
+          <stop offset="100%" stopColor="var(--color-primary-deep)" />
         </radialGradient>
         <radialGradient id="attachHalo" cx="50%" cy="50%" r="50%">
-          <stop offset="0%" stopColor="#FF6B8A" stopOpacity="0.4" />
-          <stop offset="100%" stopColor="#FF6B8A" stopOpacity="0" />
+          <stop offset="0%" stopColor="var(--color-primary)" stopOpacity="0.4" />
+          <stop offset="100%" stopColor="var(--color-primary)" stopOpacity="0" />
         </radialGradient>
         <filter id="attachDotShadow" x="-60%" y="-60%" width="220%" height="220%">
           <feGaussianBlur in="SourceAlpha" stdDeviation="2.2" />
@@ -571,7 +571,7 @@ function AttachmentChart({
 
       {/* 플롯 외곽 */}
       <rect x={padL} y={padT} width={plotW} height={plotH}
-        fill="none" stroke="#EAE5F2" strokeWidth="1.2" rx="14" />
+        fill="none" stroke="var(--color-bg-alt)" strokeWidth="1.2" rx="14" />
       {/* 십자 점선 */}
       <line x1={cx} y1={padT + 4} x2={cx} y2={padT + plotH - 4}
         stroke="#C9C2D6" strokeWidth="0.9" strokeDasharray="2 3" />
@@ -641,13 +641,13 @@ function PremiumPreview({ onUnlock, unlocking, redirecting }: { onUnlock: () => 
   return (
     <div className="rounded-[20px] p-5 mb-3 border"
       style={{
-        background: "linear-gradient(135deg, #FFF0F3 0%, #FFE8EC 100%)",
-        borderColor: "#FFD6E0",
+        background: "linear-gradient(135deg, var(--color-bg-alt) 0%, var(--color-bg-alt) 100%)",
+        borderColor: "var(--color-line)",
       }}>
-      <p className="text-[15px] font-bold text-[#2D2B3D] leading-[1.5] mb-1">
+      <p className="text-[15px] font-bold text-[var(--color-ink)] leading-[1.5] mb-1">
         걔 속마음, 진짜 궁금하지 않아?
       </p>
-      <p className="text-[12px] text-[#8E8A9D] mb-3.5 leading-[1.55]">
+      <p className="text-[12px] text-[var(--color-sub)] mb-3.5 leading-[1.55]">
         지금 이대로면 모르고 지나칠 결정적 신호가 있어
       </p>
       <div className="mb-3.5">
@@ -656,10 +656,10 @@ function PremiumPreview({ onUnlock, unlocking, redirecting }: { onUnlock: () => 
             style={{ borderColor: "rgba(255,214,224,0.6)" }}>
             <div className="text-[16px] leading-none mt-0.5">{it.icon}</div>
             <div className="flex-1">
-              <div className="text-[13px] font-bold text-[#2D2B3D] leading-[1.4]">{it.title}</div>
-              <div className="text-[11.5px] text-[#8E8A9D] leading-[1.45] mt-0.5">{it.desc}</div>
+              <div className="text-[13px] font-bold text-[var(--color-ink)] leading-[1.4]">{it.title}</div>
+              <div className="text-[11.5px] text-[var(--color-sub)] leading-[1.45] mt-0.5">{it.desc}</div>
             </div>
-            <div className="text-[11px] font-bold text-[#FF6B8A] shrink-0 mt-0.5">🔒</div>
+            <div className="text-[11px] font-bold text-[var(--color-primary)] shrink-0 mt-0.5">🔒</div>
           </div>
         ))}
       </div>
@@ -670,14 +670,14 @@ function PremiumPreview({ onUnlock, unlocking, redirecting }: { onUnlock: () => 
         style={{
           background: (redirecting || unlocking)
             ? "#D0CDE0"
-            : "linear-gradient(135deg, #FF6B8A, #E8456A)",
+            : "linear-gradient(135deg, var(--color-primary), var(--color-primary-deep))",
           boxShadow: (redirecting || unlocking) ? "none" : "0 4px 20px rgba(255,107,138,0.2)",
           cursor: (redirecting || unlocking) ? "not-allowed" : "pointer",
         }}>
         {redirecting ? "결제창으로 이동 중..." : "걔 속마음 열어보기 · ₩2,900"}
       </button>
       {!redirecting && !unlocking && (
-        <p className="text-center text-[11px] text-[#C4C0D0] mt-2">⚡ 30초면 나와요</p>
+        <p className="text-center text-[11px] text-[var(--color-sub)] mt-2">⚡ 30초면 나와요</p>
       )}
     </div>
   );
@@ -706,19 +706,19 @@ function UnlockingProgress() {
 
   return (
     <div className="py-5 px-4 rounded-[20px] mb-3 text-center"
-      style={{ background: "linear-gradient(135deg, #FFF0F3, #FFF5F7)", border: "1px solid #FFD6E0" }}>
+      style={{ background: "linear-gradient(135deg, var(--color-bg-alt), var(--color-bg))", border: "1px solid var(--color-line)" }}>
       <div className="w-[36px] h-[36px] mx-auto mb-3 rounded-full animate-spin"
-        style={{ border: "3px solid #FFD6E0", borderTopColor: "#FF6B8A" }} />
-      <p className="text-[14px] text-[#2D2B3D] font-semibold mb-3">{steps[i].msg}</p>
+        style={{ border: "3px solid var(--color-line)", borderTopColor: "var(--color-primary)" }} />
+      <p className="text-[14px] text-[var(--color-ink)] font-semibold mb-3">{steps[i].msg}</p>
       <div className="w-full max-w-[220px] mx-auto">
-        <div className="h-[5px] rounded-full overflow-hidden" style={{ background: "#FFE8EC" }}>
+        <div className="h-[5px] rounded-full overflow-hidden" style={{ background: "var(--color-bg-alt)" }}>
           <div className="h-full rounded-full" style={{
             width: `${smoothPct}%`,
-            background: "linear-gradient(90deg, #FF8FA3, #FF6B8A)",
+            background: "linear-gradient(90deg, var(--color-primary), var(--color-primary))",
             transition: "width 1.8s cubic-bezier(.4,0,.2,1)",
           }} />
         </div>
-        <p className="mt-1.5 text-[11px] font-semibold" style={{ color: "#FF6B8A" }}>
+        <p className="mt-1.5 text-[11px] font-semibold" style={{ color: "var(--color-primary)" }}>
           {smoothPct}%
         </p>
       </div>
@@ -732,8 +732,8 @@ function ResultCard({ result, isPaid, onReset, onResetPaid, onUnlock, unlocking,
     <div id="result-card" className="w-full max-w-[400px] mx-auto animate-fadeUp">
       {/* Score Header */}
       <div className="text-center mb-5 py-7 px-5 rounded-[24px] border border-[rgba(255,143,171,0.15)] shadow-[0_2px_20px_rgba(255,143,171,0.08)]"
-        style={{ background: "linear-gradient(180deg, #FFF0F3 0%, #fff 100%)" }}>
-        <p className="mb-3" style={{ fontSize: 11, color: "#A09CB0", letterSpacing: 0.3, fontWeight: 600 }}>
+        style={{ background: "linear-gradient(180deg, var(--color-bg-alt) 0%, #fff 100%)" }}>
+        <p className="mb-3" style={{ fontSize: 11, color: "var(--color-sub)", letterSpacing: 0.3, fontWeight: 600 }}>
           가트만 관계 심리학 · 애착이론 기반 분석
         </p>
         <ScoreGauge score={result.score} />
@@ -743,12 +743,12 @@ function ResultCard({ result, isPaid, onReset, onResetPaid, onUnlock, unlocking,
         </div>
         {/* 촌철살인 한마디 — AI 냥이의 팩폭 */}
         <div className="mt-5 mb-1 px-3">
-          <div className="text-[10px] font-bold mb-1.5" style={{ color: "#E8456A", letterSpacing: 1.2 }}>
+          <div className="text-[10px] font-bold mb-1.5" style={{ color: "var(--color-primary-deep)", letterSpacing: 1.2 }}>
             💬 AI 냥이 한마디
           </div>
           <div className="text-[19px] font-extrabold leading-[1.4]"
             style={{
-              color: "#2D2B3D",
+              color: "var(--color-ink)",
               textShadow: "0 1px 0 rgba(255,255,255,0.5)",
             }}>
             &ldquo;{result.summary}&rdquo;
@@ -765,15 +765,15 @@ function ResultCard({ result, isPaid, onReset, onResetPaid, onUnlock, unlocking,
             type={result.attachment.type || ""}
           />
           <div className="mt-3 px-3 py-2.5 rounded-[12px]"
-            style={{ background: "#FFF0F3", border: "1px solid #FFD6E0" }}>
-            <div className="text-[11px] font-bold mb-1" style={{ color: "#E8456A" }}>
+            style={{ background: "var(--color-bg-alt)", border: "1px solid var(--color-line)" }}>
+            <div className="text-[11px] font-bold mb-1" style={{ color: "var(--color-primary-deep)" }}>
               {result.attachment.type}
             </div>
-            <div className="text-[13px] leading-[1.6] text-[#2D2B3D]">
+            <div className="text-[13px] leading-[1.6] text-[var(--color-ink)]">
               {result.attachment.comment}
             </div>
           </div>
-          <div className="mt-2 text-[10.5px] text-[#8E8A9D] leading-[1.5] px-1">
+          <div className="mt-2 text-[10.5px] text-[var(--color-sub)] leading-[1.5] px-1">
             * Bartholomew-Horowitz 애착이론 기반. 회피(감정 거리두기) × 불안(관계 불안) 두 축으로 유형 진단.
           </div>
         </SectionCard>
@@ -781,12 +781,12 @@ function ResultCard({ result, isPaid, onReset, onResetPaid, onUnlock, unlocking,
       {/* 위험 신호 진단 (가트만 Four Horsemen) — 무료/유료 둘 다 표시 */}
       {result.red_flags && typeof result.red_flags === "object" && (
         <SectionCard title="관계 위험 신호 진단" icon="🚨">
-          <div className="text-[11px] text-[#8E8A9D] mb-3 leading-[1.5]">
+          <div className="text-[11px] text-[var(--color-sub)] mb-3 leading-[1.5]">
             가트만 박사의 &lsquo;관계를 망치는 4가지 신호(Four Horsemen)&rsquo; 기반 분석
           </div>
           <RedFlagsChart flags={result.red_flags} />
-          <div className="mt-3 px-3 py-2 rounded-[10px]" style={{ background: "#FFF8FA", border: "1px solid #FFE8EC" }}>
-            <p className="text-[10.5px] text-[#8E8A9D] leading-[1.5]">
+          <div className="mt-3 px-3 py-2 rounded-[10px]" style={{ background: "var(--color-bg)", border: "1px solid var(--color-bg-alt)" }}>
+            <p className="text-[10.5px] text-[var(--color-sub)] leading-[1.5]">
               {(() => {
                 const vals = [result.red_flags.criticism, result.red_flags.defensiveness, result.red_flags.contempt, result.red_flags.stonewalling];
                 const max = Math.max(...vals);
@@ -810,31 +810,31 @@ function ResultCard({ result, isPaid, onReset, onResetPaid, onUnlock, unlocking,
 
       {/* AI 냥이 총평 */}
       <SectionCard title="AI 냥이 총평" icon="🔍">
-        <div className="text-sm text-[#2D2B3D] leading-[1.8]">{result.diagnosis}</div>
+        <div className="text-sm text-[var(--color-ink)] leading-[1.8]">{result.diagnosis}</div>
       </SectionCard>
 
       {isPaid ? (
         <>
-          <SectionCard title="이 점수가 나온 이유" icon="💡" accent="#FF6B8A">
-            {result.reasons?.map((r: string, i: number) => <BulletItem key={i} text={r} color="#FF6B8A" />)}
+          <SectionCard title="이 점수가 나온 이유" icon="💡" accent="var(--color-primary)">
+            {result.reasons?.map((r: string, i: number) => <BulletItem key={i} text={r} color="var(--color-primary)" />)}
           </SectionCard>
 
           {result.warnings?.length > 0 && result.warnings[0] && (
-            <SectionCard title="솔직히 좀 걸리는 부분" icon="⚠️" accent="#FFB347">
-              {result.warnings.map((w: string, i: number) => <BulletItem key={i} text={w} color="#FFB347" />)}
+            <SectionCard title="솔직히 좀 걸리는 부분" icon="⚠️" accent="var(--color-accent-c)">
+              {result.warnings.map((w: string, i: number) => <BulletItem key={i} text={w} color="var(--color-accent-c)" />)}
             </SectionCard>
           )}
 
-          <SectionCard title="걔는 지금 이런 마음이야" icon="🧠" accent="#7B7FC4">
-            <div className="text-sm text-[#2D2B3D] leading-[1.8]">{result.psychology}</div>
+          <SectionCard title="걔는 지금 이런 마음이야" icon="🧠" accent="var(--color-primary-deep)">
+            <div className="text-sm text-[var(--color-ink)] leading-[1.8]">{result.psychology}</div>
           </SectionCard>
 
-          <div className="p-5 rounded-[20px] mb-4 border border-[#FFD6E0]"
-            style={{ background: "linear-gradient(135deg, #FFF0F3, #FFF5F7)" }}>
-            <div className="text-sm font-bold mb-3 text-[#FF6B8A]">🎯 언니 말 들어, 이렇게 해봐</div>
+          <div className="p-5 rounded-[20px] mb-4 border border-[var(--color-line)]"
+            style={{ background: "linear-gradient(135deg, var(--color-bg-alt), var(--color-bg))" }}>
+            <div className="text-sm font-bold mb-3 text-[var(--color-primary)]">🎯 언니 말 들어, 이렇게 해봐</div>
             {result.actions?.slice(0, 3).map((a: string, i: number) => {
               const labels = ["📋 현실 진단", "💪 그래도 해보고 싶다면", "💬 이렇게 말해봐"];
-              const colors = ["#8E8A9D", "#FF6B8A", "#7B7FC4"];
+              const colors = ["var(--color-sub)", "var(--color-primary)", "var(--color-primary-deep)"];
               return (
                 <div key={i} className="mb-3">
                   <div className="text-[11px] font-bold mb-1" style={{ color: colors[i] }}>{labels[i]}</div>
@@ -843,16 +843,16 @@ function ResultCard({ result, isPaid, onReset, onResetPaid, onUnlock, unlocking,
                       style={{ background: colors[i] }}>
                       {i + 1}
                     </div>
-                    <div className="text-sm text-[#2D2B3D] leading-[1.7]">{a}</div>
+                    <div className="text-sm text-[var(--color-ink)] leading-[1.7]">{a}</div>
                   </div>
                 </div>
               );
             })}
             {result.actions?.[3] && (
-              <div className="mt-3 pt-3" style={{ borderTop: "1px dashed #FFD6E0" }}>
-                <div className="text-[11px] font-bold mb-1" style={{ color: "#E8956A" }}>🤗 언니가 해주고 싶은 말</div>
+              <div className="mt-3 pt-3" style={{ borderTop: "1px dashed var(--color-line)" }}>
+                <div className="text-[11px] font-bold mb-1" style={{ color: "var(--color-primary)" }}>🤗 언니가 해주고 싶은 말</div>
                 <div className="text-sm leading-[1.8] p-3 rounded-[14px]"
-                  style={{ background: "rgba(255,255,255,0.7)", color: "#2D2B3D" }}>
+                  style={{ background: "rgba(255,255,255,0.7)", color: "var(--color-ink)" }}>
                   {result.actions[3]}
                 </div>
               </div>
@@ -864,7 +864,7 @@ function ResultCard({ result, isPaid, onReset, onResetPaid, onUnlock, unlocking,
       )}
 
       {/* Watermark */}
-      <p className="text-center text-[11px] text-[#C4C0D0] mt-2 mb-3.5 tracking-wider font-semibold">
+      <p className="text-center text-[11px] text-[var(--color-sub)] mt-2 mb-3.5 tracking-wider font-semibold">
         AI 냥이 · 연애 분석
       </p>
 
@@ -873,19 +873,19 @@ function ResultCard({ result, isPaid, onReset, onResetPaid, onUnlock, unlocking,
         {isPaid ? (
           <button onClick={onReset}
             className="flex-1 py-3.5 rounded-[16px] text-sm font-semibold cursor-pointer transition-all"
-            style={{ background: "#FFF0F3", border: "1px solid #FFD6E0", color: "#FF6B8A" }}>
+            style={{ background: "var(--color-bg-alt)", border: "1px solid var(--color-line)", color: "var(--color-primary)" }}>
             다시 분석하기
           </button>
         ) : freeUsed ? (
           <button onClick={onResetPaid}
             className="flex-1 py-3.5 rounded-[16px] text-sm font-semibold cursor-pointer transition-all"
-            style={{ background: "#FFF0F3", border: "1px solid #FFD6E0", color: "#FF6B8A" }}>
+            style={{ background: "var(--color-bg-alt)", border: "1px solid var(--color-line)", color: "var(--color-primary)" }}>
             🔄 새로 분석하기 (유료)
           </button>
         ) : (
           <button onClick={onReset}
             className="flex-1 py-3.5 rounded-[16px] text-sm font-semibold cursor-pointer transition-all"
-            style={{ background: "#FFF0F3", border: "1px solid #FFD6E0", color: "#FF6B8A" }}>
+            style={{ background: "var(--color-bg-alt)", border: "1px solid var(--color-line)", color: "var(--color-primary)" }}>
             다시 분석하기
           </button>
         )}
@@ -916,7 +916,7 @@ function SaveImageButton({ targetId }: { targetId: string }) {
       if (saveBtn) saveBtn.style.display = "none";
 
       const dataUrl = await toPng(el, {
-        backgroundColor: "#FFF5F7",
+        backgroundColor: "var(--color-bg)",
         pixelRatio: 2,
         cacheBust: true,
       });
@@ -968,9 +968,9 @@ function SaveImageButton({ targetId }: { targetId: string }) {
       <button onClick={handleSave} disabled={saving}
         className="w-full py-3.5 rounded-[16px] text-sm font-semibold transition-all"
         style={{
-          background: saved ? "#E8F5E9" : "#FFF0F3",
-          border: saved ? "1px solid #A5D6A7" : "1px solid #FFD6E0",
-          color: saved ? "#2E7D32" : "#FF6B8A",
+          background: saved ? "var(--color-bg-alt)" : "var(--color-bg-alt)",
+          border: saved ? "1px solid #A5D6A7" : "1px solid var(--color-line)",
+          color: saved ? "#2E7D32" : "var(--color-primary)",
           cursor: saving ? "wait" : "pointer",
           opacity: saving ? 0.7 : 1,
         }}>
@@ -994,10 +994,10 @@ function ChatBubble({ role, content }: { role: ChatRole; content: string }) {
         }`}
         style={{
           background: isUser
-            ? "linear-gradient(135deg, #FF8FA3, #FF6B8A)"
-            : "#F4F4FA",
-          color: isUser ? "#fff" : "#2D2B3D",
-          border: isUser ? "none" : "1px solid #EAEAF0",
+            ? "linear-gradient(135deg, var(--color-primary), var(--color-primary))"
+            : "var(--color-bg-alt)",
+          color: isUser ? "#fff" : "var(--color-ink)",
+          border: isUser ? "none" : "1px solid var(--color-line)",
           boxShadow: isUser ? "0 2px 10px rgba(255,107,138,0.18)" : "none",
         }}>
         {content}
@@ -1238,15 +1238,15 @@ function ChatSimulator({ parentOrderId }: { parentOrderId: string }) {
 
   if (initializing) {
     return (
-      <div className="mt-6 mb-2 py-8 px-5 text-center animate-fadeUp rounded-[18px] bg-white border border-[#FFD6E0]">
+      <div className="mt-6 mb-2 py-8 px-5 text-center animate-fadeUp rounded-[18px] bg-white border border-[var(--color-line)]">
         <div
           className="w-[32px] h-[32px] mx-auto mb-3 rounded-full animate-spin"
-          style={{ border: "3px solid #FFD6E0", borderTopColor: "#FF6B8A" }}
+          style={{ border: "3px solid var(--color-line)", borderTopColor: "var(--color-primary)" }}
         />
-        <div className="text-[13px] font-bold text-[#2D2B3D] mb-1">
+        <div className="text-[13px] font-bold text-[var(--color-ink)] mb-1">
           걔 말투 학습 중...
         </div>
-        <div className="text-[11px] text-[#8E8A9D]">
+        <div className="text-[11px] text-[var(--color-sub)]">
           캡처한 대화 기반으로 진짜처럼 대답하게 만들고 있어
         </div>
       </div>
@@ -1258,21 +1258,21 @@ function ChatSimulator({ parentOrderId }: { parentOrderId: string }) {
     return (
       <div className="mt-6 mb-2 animate-fadeUp">
         <div className="text-center mb-3">
-          <div className="text-[18px] font-extrabold text-[#2D2B3D] mb-1">
+          <div className="text-[18px] font-extrabold text-[var(--color-ink)] mb-1">
             💬 실시간 대화 시뮬레이션
           </div>
         </div>
         <div
           className="rounded-[18px] p-5 text-center"
           style={{
-            background: "linear-gradient(135deg, #FFF0F3, #FFF5F7)",
-            border: "1px dashed #FFADC4",
+            background: "linear-gradient(135deg, var(--color-bg-alt), var(--color-bg))",
+            border: "1px dashed var(--color-primary)",
           }}>
           <div className="text-[32px] mb-2">📱</div>
-          <div className="text-[14px] font-extrabold text-[#2D2B3D] mb-1.5">
+          <div className="text-[14px] font-extrabold text-[var(--color-ink)] mb-1.5">
             대화 캡처가 있어야 시뮬레이션이 가능해
           </div>
-          <p className="text-[12px] text-[#6E6A80] leading-[1.6] mb-4">
+          <p className="text-[12px] text-[var(--color-sub)] leading-[1.6] mb-4">
             걔 말투 그대로 답장을 만들려면 실제 대화 캡처가 필요해.
             <br />
             카톡·DM 캡처를 올려서 다시 분석하면 시뮬레이션까지 바로 열려.
@@ -1289,7 +1289,7 @@ function ChatSimulator({ parentOrderId }: { parentOrderId: string }) {
             }}
             className="px-5 py-3 rounded-[14px] text-white text-[13px] font-bold"
             style={{
-              background: "linear-gradient(135deg, #FF6B8A, #E8456A)",
+              background: "linear-gradient(135deg, var(--color-primary), var(--color-primary-deep))",
               border: "none",
               cursor: "pointer",
               boxShadow: "0 4px 14px rgba(255,107,138,0.2)",
@@ -1305,20 +1305,20 @@ function ChatSimulator({ parentOrderId }: { parentOrderId: string }) {
     <div className="mt-6 mb-2 animate-fadeUp">
       {/* 섹션 헤더 */}
       <div className="text-center mb-3">
-        <div className="text-[18px] font-extrabold text-[#2D2B3D] mb-1">
+        <div className="text-[18px] font-extrabold text-[var(--color-ink)] mb-1">
           💬 걔랑 대화 한번 해봐
         </div>
-        <div className="text-[12px] text-[#6E6A80] leading-[1.55] px-3">
+        <div className="text-[12px] text-[var(--color-sub)] leading-[1.55] px-3">
           걔 말투 그대로 답장이 와. 보내기 전에 어떤 반응일지 미리 돌려봐.
         </div>
       </div>
 
       {/* 턴 상태 바 */}
       <div className="flex items-center justify-between mb-2 px-1">
-        <div className="text-[11px] font-bold" style={{ color: "#7B7FC4" }}>
+        <div className="text-[11px] font-bold" style={{ color: "var(--color-primary-deep)" }}>
           🎫 남은 턴:{" "}
-          <span style={{ color: "#E8456A" }}>{turnsRemaining}</span> / {turnsAllowed}
-          <span className="ml-1 text-[10px] text-[#A09CB0] font-semibold">
+          <span style={{ color: "var(--color-primary-deep)" }}>{turnsRemaining}</span> / {turnsAllowed}
+          <span className="ml-1 text-[10px] text-[var(--color-sub)] font-semibold">
             {isFreePhase ? "(무료)" : "(결제됨)"}
           </span>
         </div>
@@ -1328,9 +1328,9 @@ function ChatSimulator({ parentOrderId }: { parentOrderId: string }) {
             disabled={resetting}
             className="text-[11px] font-bold px-2.5 py-1 rounded-full"
             style={{
-              background: "#FFF0F3",
-              border: "1px solid #FFD6E0",
-              color: "#FF6B8A",
+              background: "var(--color-bg-alt)",
+              border: "1px solid var(--color-line)",
+              color: "var(--color-primary)",
               cursor: resetting ? "wait" : "pointer",
             }}>
             🔄 대화 리셋
@@ -1343,7 +1343,7 @@ function ChatSimulator({ parentOrderId }: { parentOrderId: string }) {
         ref={scrollRef}
         className="rounded-[18px] bg-white p-3.5 mb-2.5"
         style={{
-          border: "1px solid #FFD6E0",
+          border: "1px solid var(--color-line)",
           boxShadow: "0 2px 14px rgba(255,107,138,0.08)",
           minHeight: 260,
           maxHeight: 420,
@@ -1352,7 +1352,7 @@ function ChatSimulator({ parentOrderId }: { parentOrderId: string }) {
         {messages.length === 0 ? (
           <div className="py-10 text-center">
             <div className="text-[28px] mb-2">💭</div>
-            <div className="text-[12px] text-[#8E8A9D] leading-[1.6]">
+            <div className="text-[12px] text-[var(--color-sub)] leading-[1.6]">
               아래에 먼저 보낼 말 써봐.
               <br />
               걔 말투 그대로 답장이 올 거야.
@@ -1367,19 +1367,19 @@ function ChatSimulator({ parentOrderId }: { parentOrderId: string }) {
           <div className="flex justify-start mb-2">
             <div
               className="px-3.5 py-2.5 rounded-[18px] rounded-bl-[6px] text-[13px]"
-              style={{ background: "#F4F4FA", border: "1px solid #EAEAF0", color: "#8E8A9D" }}>
+              style={{ background: "var(--color-bg-alt)", border: "1px solid var(--color-line)", color: "var(--color-sub)" }}>
               <span className="inline-flex items-center gap-1">
                 <span
                   className="w-1.5 h-1.5 rounded-full animate-bounce"
-                  style={{ background: "#FF6B8A" }}
+                  style={{ background: "var(--color-primary)" }}
                 />
                 <span
                   className="w-1.5 h-1.5 rounded-full animate-bounce"
-                  style={{ background: "#FF8FA3", animationDelay: "0.15s" }}
+                  style={{ background: "var(--color-primary)", animationDelay: "0.15s" }}
                 />
                 <span
                   className="w-1.5 h-1.5 rounded-full animate-bounce"
-                  style={{ background: "#FFB3C1", animationDelay: "0.3s" }}
+                  style={{ background: "var(--color-primary)", animationDelay: "0.3s" }}
                 />
               </span>
             </div>
@@ -1388,7 +1388,7 @@ function ChatSimulator({ parentOrderId }: { parentOrderId: string }) {
       </div>
 
       {error && (
-        <div className="bg-white rounded-[14px] p-3 mb-2.5 border border-[#FFB3B3] text-[12px] text-[#D14343]">
+        <div className="bg-white rounded-[14px] p-3 mb-2.5 border border-[var(--color-primary)] text-[12px] text-[#D14343]">
           {error}
         </div>
       )}
@@ -1398,13 +1398,13 @@ function ChatSimulator({ parentOrderId }: { parentOrderId: string }) {
         <div
           className="rounded-[18px] p-4 border"
           style={{
-            background: "linear-gradient(135deg, #FFF0F3, #FFE8EC)",
-            borderColor: "#FFADC4",
+            background: "linear-gradient(135deg, var(--color-bg-alt), var(--color-bg-alt))",
+            borderColor: "var(--color-primary)",
           }}>
-          <div className="text-[14px] font-extrabold text-[#2D2B3D] mb-1">
+          <div className="text-[14px] font-extrabold text-[var(--color-ink)] mb-1">
             🎫 턴 {turnsAllowed}개 전부 썼어
           </div>
-          <div className="text-[11.5px] text-[#6E6A80] mb-3 leading-[1.5]">
+          <div className="text-[11.5px] text-[var(--color-sub)] mb-3 leading-[1.5]">
             +15턴 추가하면 같은 맥락 그대로 더 돌려볼 수 있어.
           </div>
           <button
@@ -1414,7 +1414,7 @@ function ChatSimulator({ parentOrderId }: { parentOrderId: string }) {
             style={{
               background: unlockRedirecting
                 ? "#D0CDE0"
-                : "linear-gradient(135deg, #FF6B8A, #E8456A)",
+                : "linear-gradient(135deg, var(--color-primary), var(--color-primary-deep))",
               boxShadow: unlockRedirecting
                 ? "none"
                 : "0 4px 18px rgba(255,107,138,0.25)",
@@ -1425,7 +1425,7 @@ function ChatSimulator({ parentOrderId }: { parentOrderId: string }) {
               ? "결제창으로 이동 중..."
               : `🔓 +15턴 추가 · ₩${UNLOCK_PRICE.toLocaleString()}`}
           </button>
-          <p className="text-center text-[10.5px] text-[#A09CB0] mt-2 leading-[1.5]">
+          <p className="text-center text-[10.5px] text-[var(--color-sub)] mt-2 leading-[1.5]">
             같은 맥락 유지 · 리셋해도 남은 턴 수는 그대로
           </p>
         </div>
@@ -1433,7 +1433,7 @@ function ChatSimulator({ parentOrderId }: { parentOrderId: string }) {
         <div
           className="rounded-[18px] p-2.5 bg-white flex gap-2 items-end"
           style={{
-            border: "1px solid #FFD6E0",
+            border: "1px solid var(--color-line)",
             boxShadow: "0 2px 14px rgba(255,107,138,0.08)",
           }}>
           <textarea
@@ -1448,10 +1448,10 @@ function ChatSimulator({ parentOrderId }: { parentOrderId: string }) {
             maxLength={500}
             placeholder={`걔한테 보낼 말 써봐...`}
             rows={2}
-            className="flex-1 resize-none text-[13.5px] leading-[1.55] text-[#2D2B3D] outline-none rounded-[12px] p-2.5"
+            className="flex-1 resize-none text-[13.5px] leading-[1.55] text-[var(--color-ink)] outline-none rounded-[12px] p-2.5"
             style={{
-              background: "#FFF8FA",
-              border: "1px solid #FFE8EC",
+              background: "var(--color-bg)",
+              border: "1px solid var(--color-bg-alt)",
               fontFamily: "inherit",
               minHeight: 46,
               maxHeight: 120,
@@ -1464,7 +1464,7 @@ function ChatSimulator({ parentOrderId }: { parentOrderId: string }) {
             style={{
               background:
                 draft.trim() && !sending
-                  ? "linear-gradient(135deg, #FF6B8A, #E8456A)"
+                  ? "linear-gradient(135deg, var(--color-primary), var(--color-primary-deep))"
                   : "#D0CDE0",
               border: "none",
               cursor: draft.trim() && !sending ? "pointer" : "not-allowed",
@@ -1475,7 +1475,7 @@ function ChatSimulator({ parentOrderId }: { parentOrderId: string }) {
         </div>
       )}
 
-      <p className="text-center mt-2 text-[10.5px] text-[#A09CB0] leading-[1.5]">
+      <p className="text-center mt-2 text-[10.5px] text-[var(--color-sub)] leading-[1.5]">
         실제 답장 예측 · 무료 2턴 이후 +15턴 ₩{UNLOCK_PRICE.toLocaleString()}
       </p>
     </div>
@@ -1522,32 +1522,32 @@ function SamplePreview() {
   const s = SAMPLE_RESULT;
   return (
     <div className="mb-1">
-      <p className="text-[14px] text-[#2D2B3D] font-bold mb-0.5">
+      <p className="text-[14px] text-[var(--color-ink)] font-bold mb-0.5">
         👀 결과가 어떻게 나오냐면
       </p>
-      <p className="text-[11px] text-[#8E8A9D] mb-3">그 사람 말보다 태도를 읽어줄게</p>
+      <p className="text-[11px] text-[var(--color-sub)] mb-3">그 사람 말보다 태도를 읽어줄게</p>
 
       {/* 실제 결과 카드와 동일한 구조로 축소 렌더링 */}
       <div
         className="rounded-[22px] p-3 relative overflow-hidden"
         style={{
-          background: "#FFF5F7",
-          border: "1px solid #FFD6E0",
+          background: "var(--color-bg)",
+          border: "1px solid var(--color-line)",
           boxShadow: "0 2px 16px rgba(255,107,138,0.08)",
         }}>
         {/* SAMPLE 배지 */}
         <div className="absolute top-3 right-3 z-10 px-2 py-[3px] rounded-full text-[9px] font-extrabold tracking-[1.5px]"
-          style={{ background: "#2D2B3D", color: "#fff" }}>
+          style={{ background: "var(--color-ink)", color: "#fff" }}>
           SAMPLE
         </div>
 
         {/* 1) Score Header 축소 버전 */}
         <div className="text-center py-4 px-3 rounded-[18px] mb-2.5"
           style={{
-            background: "linear-gradient(180deg, #FFF0F3 0%, #fff 100%)",
+            background: "linear-gradient(180deg, var(--color-bg-alt) 0%, #fff 100%)",
             border: "1px solid rgba(255,143,171,0.2)",
           }}>
-          <p className="mb-2 text-[9px] font-semibold tracking-[0.3px]" style={{ color: "#A09CB0" }}>
+          <p className="mb-2 text-[9px] font-semibold tracking-[0.3px]" style={{ color: "var(--color-sub)" }}>
             가트만 관계 심리학 · 애착이론 기반 분석
           </p>
           {/* Mini score gauge */}
@@ -1555,33 +1555,33 @@ function SamplePreview() {
             <svg width="86" height="86" viewBox="0 0 140 140">
               <defs>
                 <linearGradient id="sampleScoreGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stopColor="#FF6B8A" />
-                  <stop offset="100%" stopColor="#FF8FA3" />
+                  <stop offset="0%" stopColor="var(--color-primary)" />
+                  <stop offset="100%" stopColor="var(--color-primary)" />
                 </linearGradient>
               </defs>
-              <circle cx="70" cy="70" r="50" fill="none" stroke="#FFD6E0" strokeWidth="10" />
+              <circle cx="70" cy="70" r="50" fill="none" stroke="var(--color-line)" strokeWidth="10" />
               <circle cx="70" cy="70" r="50" fill="none" stroke="url(#sampleScoreGrad)" strokeWidth="10"
                 strokeLinecap="round"
                 strokeDasharray={2 * Math.PI * 50}
                 strokeDashoffset={2 * Math.PI * 50 * (1 - s.score / 100)}
                 transform="rotate(-90 70 70)" />
-              <text x="70" y="70" textAnchor="middle" dominantBaseline="central" fill="#2D2B3D"
+              <text x="70" y="70" textAnchor="middle" dominantBaseline="central" fill="var(--color-ink)"
                 style={{ fontSize: 36, fontWeight: 800 }}>{s.score}</text>
             </svg>
           </div>
-          <p className="text-[10px] font-semibold mt-[-4px]" style={{ color: "#8E8A9D" }}>호감도 점수</p>
+          <p className="text-[10px] font-semibold mt-[-4px]" style={{ color: "var(--color-sub)" }}>호감도 점수</p>
           <div className="mt-2 flex justify-center gap-1.5 flex-wrap">
             <span className="inline-flex items-center gap-1 px-2.5 py-[4px] rounded-full text-[11px] font-semibold"
-              style={{ background: "#FFF4E6", color: "#E8956A" }}>✨ {s.stage}</span>
+              style={{ background: "var(--color-bg-alt)", color: "var(--color-primary)" }}>✨ {s.stage}</span>
             <span className="inline-flex items-center gap-1 px-2.5 py-[4px] rounded-full text-[11px] font-semibold"
-              style={{ background: "#FFF0F3", color: "#2D2B3D" }}>🌤 {s.temperature}</span>
+              style={{ background: "var(--color-bg-alt)", color: "var(--color-ink)" }}>🌤 {s.temperature}</span>
           </div>
           {/* 촌철살인 한마디 */}
           <div className="mt-3 px-2">
-            <div className="text-[9px] font-bold mb-1" style={{ color: "#E8456A", letterSpacing: 1 }}>
+            <div className="text-[9px] font-bold mb-1" style={{ color: "var(--color-primary-deep)", letterSpacing: 1 }}>
               💬 AI 냥이 한마디
             </div>
-            <div className="text-[14px] font-extrabold leading-[1.35] text-[#2D2B3D]">
+            <div className="text-[14px] font-extrabold leading-[1.35] text-[var(--color-ink)]">
               &ldquo;{s.summary}&rdquo;
             </div>
           </div>
@@ -1589,7 +1589,7 @@ function SamplePreview() {
 
         {/* 2) 애착 유형 4분면 (축소 버전) */}
         <div className="bg-white rounded-[16px] p-3 mb-2" style={{ border: "1px solid rgba(255,143,171,0.15)" }}>
-          <div className="text-[12px] font-bold mb-1 text-[#2D2B3D]">💜 상대방 애착 유형</div>
+          <div className="text-[12px] font-bold mb-1 text-[var(--color-ink)]">💜 상대방 애착 유형</div>
           <div className="text-center">
             <div style={{ transform: "scale(0.75)", transformOrigin: "top center", height: 203 }}>
               <AttachmentChart
@@ -1601,7 +1601,7 @@ function SamplePreview() {
           </div>
           <div className="text-center mt-[-4px]">
             <span className="inline-block px-3 py-1 rounded-full text-[11px] font-bold"
-              style={{ background: "#FDE3EA", color: "#A83557" }}>
+              style={{ background: "var(--color-bg-alt)", color: "#A83557" }}>
               {s.attachment.type}
             </span>
           </div>
@@ -1609,8 +1609,8 @@ function SamplePreview() {
 
         {/* 3) 위험 신호 진단 */}
         <div className="bg-white rounded-[16px] p-3 mb-2" style={{ border: "1px solid rgba(255,143,171,0.15)" }}>
-          <div className="text-[12px] font-bold mb-1 text-[#2D2B3D]">🚨 관계 위험 신호</div>
-          <div className="text-[9px] text-[#8E8A9D] mb-2">가트만 Four Horsemen 기반</div>
+          <div className="text-[12px] font-bold mb-1 text-[var(--color-ink)]">🚨 관계 위험 신호</div>
+          <div className="text-[9px] text-[var(--color-sub)] mb-2">가트만 Four Horsemen 기반</div>
           <div style={{ transform: "scale(0.9)", transformOrigin: "top left" }}>
             <RedFlagsChart flags={s.red_flags} />
           </div>
@@ -1618,21 +1618,21 @@ function SamplePreview() {
 
         {/* 4) AI 냥이 총평 */}
         <div className="bg-white rounded-[16px] p-3 mb-2" style={{ border: "1px solid rgba(255,143,171,0.15)" }}>
-          <div className="text-[12px] font-bold mb-1.5 text-[#2D2B3D]">🔍 AI 냥이 총평</div>
-          <p className="text-[11.5px] text-[#2D2B3D] leading-[1.7]">{s.diagnosis}</p>
+          <div className="text-[12px] font-bold mb-1.5 text-[var(--color-ink)]">🔍 AI 냥이 총평</div>
+          <p className="text-[11.5px] text-[var(--color-ink)] leading-[1.7]">{s.diagnosis}</p>
         </div>
 
         {/* 5) 유료 결과 미리보기 */}
         <div className="rounded-[16px] p-3 relative overflow-hidden"
           style={{
-            background: "linear-gradient(135deg, #FFF0F3 0%, #FFE8EC 100%)",
-            border: "1px dashed #FFADC4",
+            background: "linear-gradient(135deg, var(--color-bg-alt) 0%, var(--color-bg-alt) 100%)",
+            border: "1px dashed var(--color-primary)",
           }}>
-          <div className="text-[12px] font-bold mb-2.5" style={{ color: "#E8456A" }}>🔒 프리미엄에선 여기까지 나와</div>
+          <div className="text-[12px] font-bold mb-2.5" style={{ color: "var(--color-primary-deep)" }}>🔒 프리미엄에선 여기까지 나와</div>
 
           {/* 호감도 레이더 */}
           <div className="bg-white rounded-[12px] p-2.5 mb-2" style={{ border: "1px solid rgba(255,143,171,0.15)" }}>
-            <div className="text-[10px] font-bold mb-1 text-[#FF6B8A]">📊 호감도 레이더</div>
+            <div className="text-[10px] font-bold mb-1 text-[var(--color-primary)]">📊 호감도 레이더</div>
             <div className="flex gap-2 items-center">
               <div className="shrink-0" style={{ width: 120 }}>
                 <div style={{ transform: "scale(0.43)", transformOrigin: "top left", width: 280, height: 151 }}>
@@ -1642,11 +1642,11 @@ function SamplePreview() {
               <div className="flex-1 min-w-0">
                 {Object.entries(s.axes).map(([k, v]) => (
                   <div key={k} className="flex items-center gap-1 mb-[3px] last:mb-0">
-                    <span className="text-[9px] font-semibold text-[#2D2B3D] shrink-0" style={{ width: 40 }}>{k}</span>
-                    <div className="flex-1 h-[3px] rounded-full overflow-hidden" style={{ background: "#FFE8EC" }}>
-                      <div className="h-full rounded-full" style={{ width: `${v}%`, background: "linear-gradient(90deg, #FF8FA3, #E8456A)" }} />
+                    <span className="text-[9px] font-semibold text-[var(--color-ink)] shrink-0" style={{ width: 40 }}>{k}</span>
+                    <div className="flex-1 h-[3px] rounded-full overflow-hidden" style={{ background: "var(--color-bg-alt)" }}>
+                      <div className="h-full rounded-full" style={{ width: `${v}%`, background: "linear-gradient(90deg, var(--color-primary), var(--color-primary-deep))" }} />
                     </div>
-                    <span className="text-[8px] font-bold tabular-nums shrink-0" style={{ color: "#FF6B8A", width: 16 }}>{v}</span>
+                    <span className="text-[8px] font-bold tabular-nums shrink-0" style={{ color: "var(--color-primary)", width: 16 }}>{v}</span>
                   </div>
                 ))}
               </div>
@@ -1655,11 +1655,11 @@ function SamplePreview() {
 
           {/* 이 점수가 나온 이유 */}
           <div className="bg-white rounded-[12px] p-2.5 mb-2" style={{ border: "1px solid rgba(255,143,171,0.15)" }}>
-            <div className="text-[10px] font-bold mb-1 text-[#FF6B8A]">💡 이 점수가 나온 이유</div>
+            <div className="text-[10px] font-bold mb-1 text-[var(--color-primary)]">💡 이 점수가 나온 이유</div>
             <ul className="space-y-1">
               {s.reasons.map((r, i) => (
-                <li key={i} className="flex items-start gap-1.5 text-[10.5px] text-[#2D2B3D] leading-[1.5]">
-                  <span className="w-1 h-1 rounded-full mt-[6px] shrink-0" style={{ background: "#FF6B8A" }} />
+                <li key={i} className="flex items-start gap-1.5 text-[10.5px] text-[var(--color-ink)] leading-[1.5]">
+                  <span className="w-1 h-1 rounded-full mt-[6px] shrink-0" style={{ background: "var(--color-primary)" }} />
                   <span>{r}</span>
                 </li>
               ))}
@@ -1668,17 +1668,17 @@ function SamplePreview() {
 
           {/* 걔 속마음 */}
           <div className="bg-white rounded-[12px] p-2.5 mb-2" style={{ border: "1px solid rgba(255,143,171,0.15)" }}>
-            <div className="text-[10px] font-bold mb-1" style={{ color: "#7B7FC4" }}>🧠 걔 속마음</div>
-            <p className="text-[10.5px] text-[#2D2B3D] leading-[1.55]">{s.inner_psychology}</p>
+            <div className="text-[10px] font-bold mb-1" style={{ color: "var(--color-primary-deep)" }}>🧠 걔 속마음</div>
+            <p className="text-[10.5px] text-[var(--color-ink)] leading-[1.55]">{s.inner_psychology}</p>
           </div>
 
           {/* 걸리는 부분 */}
           <div className="bg-white rounded-[12px] p-2.5 mb-2" style={{ border: "1px solid rgba(255,143,171,0.15)" }}>
-            <div className="text-[10px] font-bold mb-1" style={{ color: "#E8956A" }}>⚠️ 걸리는 부분</div>
+            <div className="text-[10px] font-bold mb-1" style={{ color: "var(--color-primary)" }}>⚠️ 걸리는 부분</div>
             <ul className="space-y-1">
               {s.caution_points.map((c, i) => (
-                <li key={i} className="flex items-start gap-1.5 text-[10.5px] text-[#2D2B3D] leading-[1.5]">
-                  <span className="w-1 h-1 rounded-full mt-[6px] shrink-0" style={{ background: "#E8956A" }} />
+                <li key={i} className="flex items-start gap-1.5 text-[10.5px] text-[var(--color-ink)] leading-[1.5]">
+                  <span className="w-1 h-1 rounded-full mt-[6px] shrink-0" style={{ background: "var(--color-primary)" }} />
                   <span>{c}</span>
                 </li>
               ))}
@@ -1688,10 +1688,10 @@ function SamplePreview() {
           {/* 이렇게 해봐 + 멘트 예시 */}
           <div className="bg-white rounded-[12px] p-2.5 mb-2" style={{ border: "1px solid rgba(255,143,171,0.15)" }}>
             <div className="text-[10px] font-bold mb-1" style={{ color: "#3E8C66" }}>🎯 이렇게 해봐</div>
-            <p className="text-[10.5px] text-[#2D2B3D] leading-[1.55] mb-2">{s.advice}</p>
-            <div className="text-[10px] font-bold mb-1" style={{ color: "#FF6B8A" }}>💬 이런 멘트 보내봐</div>
+            <p className="text-[10.5px] text-[var(--color-ink)] leading-[1.55] mb-2">{s.advice}</p>
+            <div className="text-[10px] font-bold mb-1" style={{ color: "var(--color-primary)" }}>💬 이런 멘트 보내봐</div>
             {s.recommended_messages.map((m, i) => (
-              <div key={i} className="text-[10.5px] text-[#2D2B3D] leading-[1.5] p-1.5 rounded-[8px] mb-1 last:mb-0"
+              <div key={i} className="text-[10.5px] text-[var(--color-ink)] leading-[1.5] p-1.5 rounded-[8px] mb-1 last:mb-0"
                 style={{ background: "rgba(255,107,138,0.06)" }}>
                 &ldquo;{m}&rdquo;
               </div>
@@ -1704,7 +1704,7 @@ function SamplePreview() {
             style={{ background: "rgba(45,43,61,0.85)" }}>
             <span
               className="text-[9px] font-extrabold tracking-[1.5px] mr-1 px-1.5 py-[1px] rounded-full"
-              style={{ background: "#FF6B8A", color: "#fff" }}>
+              style={{ background: "var(--color-primary)", color: "#fff" }}>
               NEW
             </span>
             <span className="text-[10.5px] font-bold text-white">
@@ -1713,7 +1713,7 @@ function SamplePreview() {
           </div>
         </div>
       </div>
-      <p className="text-[10px] text-[#A09CB0] text-center mt-1.5">
+      <p className="text-[10px] text-[var(--color-sub)] text-center mt-1.5">
         실제 결과는 네 상황에 맞게 달라져
       </p>
     </div>
@@ -1728,15 +1728,15 @@ function UploadZone({ images, onAdd, onRemove }: any) {
   const atLimit = images.length >= MAX_IMAGES;
   return (
     <div>
-      <p className="text-[14px] text-[#2D2B3D] font-bold mb-1">
+      <p className="text-[14px] text-[var(--color-ink)] font-bold mb-1">
         📱 카톡·DM 대화 캡처 최대 3장
       </p>
-      <p className="text-[12px] text-[#6E6A80] leading-[1.55] mb-1.5">
+      <p className="text-[12px] text-[var(--color-sub)] leading-[1.55] mb-1.5">
         길게 설명 안 해도 괜찮아. 카톡·인스타 DM·문자 어디서든 대화 캡처를 올려주면
         말투, 텀, 애매한 표현, 거리감까지 보고 지금 이 관계가 어떤 상태인지 읽어줄게.
         캡처가 많을수록 말투 분석도 정확해져.
       </p>
-      <p className="text-[11px] font-semibold text-[#FF6B8A] leading-[1.5] mb-1.5">
+      <p className="text-[11px] font-semibold text-[var(--color-primary)] leading-[1.5] mb-1.5">
         💬 분석 후 대화 시뮬레이션을 하려면 캡처가 꼭 필요해.
       </p>
       <div
@@ -1744,8 +1744,8 @@ function UploadZone({ images, onAdd, onRemove }: any) {
         className="rounded-[16px] text-center transition-all"
         style={{
           padding: images.length > 0 ? "14px" : "28px 20px",
-          border: "1.5px dashed #FFADC4",
-          background: "#FFF0F3",
+          border: "1.5px dashed var(--color-primary)",
+          background: "var(--color-bg-alt)",
           cursor: atLimit ? "not-allowed" : "pointer",
           opacity: atLimit ? 0.85 : 1,
         }}>
@@ -1765,7 +1765,7 @@ function UploadZone({ images, onAdd, onRemove }: any) {
         {images.length === 0 ? (
           <>
             <div className="text-[28px] mb-1.5">📎</div>
-            <div className="text-[13px] text-[#8E8A9D]">
+            <div className="text-[13px] text-[var(--color-sub)]">
               여기 눌러서 카톡·DM 캡처 추가{" "}
               <span className="text-[#9994A8]">(선택 · 최대 3장)</span>
             </div>
@@ -1793,7 +1793,7 @@ function UploadZone({ images, onAdd, onRemove }: any) {
                 </div>
               ))}
             </div>
-            <div className="text-xs text-[#C4C0D0]">
+            <div className="text-xs text-[var(--color-sub)]">
               {atLimit
                 ? `📌 최대 ${MAX_IMAGES}장 (${images.length}/${MAX_IMAGES})`
                 : `+ 더 추가하기 (${images.length}/${MAX_IMAGES})`}
@@ -1821,8 +1821,8 @@ function TextInput({ value, onChange }: { value: string; onChange: (v: string) =
 
   return (
     <div>
-      <p className="text-[14px] text-[#2D2B3D] font-bold mb-1">✏️ 지금 네 고민, 어디에 제일 가까워?</p>
-      <p className="text-[11px] text-[#8E8A9D] mb-2.5">괜히 예민한 건지, 진짜 이상한 건지 구분해줄게</p>
+      <p className="text-[14px] text-[var(--color-ink)] font-bold mb-1">✏️ 지금 네 고민, 어디에 제일 가까워?</p>
+      <p className="text-[11px] text-[var(--color-sub)] mb-2.5">괜히 예민한 건지, 진짜 이상한 건지 구분해줄게</p>
       <div className="flex flex-wrap gap-2 mb-3">
         {CHIPS.map((chip, i) => {
           const isActive = value.includes(chip.prompt);
@@ -1837,9 +1837,9 @@ function TextInput({ value, onChange }: { value: string; onChange: (v: string) =
               aria-pressed={isActive}
               className="inline-flex items-center gap-1 px-3.5 py-[8px] rounded-full text-[13px] font-semibold transition-all active:scale-[0.97]"
               style={{
-                background: isActive ? "#FF6B8A" : "#fff",
-                color: isActive ? "#fff" : "#2D2B3D",
-                border: isActive ? "1.5px solid #FF6B8A" : "1.5px solid #FFD6E0",
+                background: isActive ? "var(--color-primary)" : "#fff",
+                color: isActive ? "#fff" : "var(--color-ink)",
+                border: isActive ? "1.5px solid var(--color-primary)" : "1.5px solid var(--color-line)",
                 boxShadow: isActive
                   ? "0 4px 14px rgba(255,107,138,0.32)"
                   : "0 2px 8px rgba(255,143,171,0.15)",
@@ -1853,74 +1853,263 @@ function TextInput({ value, onChange }: { value: string; onChange: (v: string) =
       </div>
       <textarea value={value} onChange={e => onChange(e.target.value)}
         placeholder={"상황 버튼을 누르거나 직접 써줘!\n\n예시: 3주 전에 소개팅으로 만났는데, 카톡은 매일 해. 근데 항상 내가 먼저 연락하거든? 답장은 빠르고 이모티콘도 많이 쓰는데, 만나자는 말은 안 해..."}
-        className="w-full min-h-[110px] py-3.5 px-4 rounded-[20px] text-sm leading-[1.7] resize-y outline-none transition-colors focus:border-[#FF6B8A]"
+        className="w-full min-h-[110px] py-3.5 px-4 rounded-[20px] text-sm leading-[1.7] resize-y outline-none transition-colors focus:border-[var(--color-primary)]"
         style={{
-          border: "1.5px solid #FFD6E0",
+          border: "1.5px solid var(--color-line)",
           background: "#fff",
-          color: "#2D2B3D",
+          color: "var(--color-ink)",
           boxShadow: "0 2px 12px rgba(255,143,171,0.06)",
         }} />
     </div>
   );
 }
 
-// ─── Loading (무료 분석: 이론 기반 진행 문구) ───
+// ─── Loading (editorial 5-stage pipeline with live evidence) ───
 function LoadingState() {
-  const steps = [
-    { msg: "카톡·상황 읽는 중", detail: "Conversation Decoding", pct: 22 },
-    { msg: "긍정:부정 상호작용 비율 계산", detail: "The Gottman Ratio · 5:1 균형", pct: 48 },
-    { msg: "애착 유형 판별 중", detail: "Attachment Theory · Bowlby", pct: 72 },
-    { msg: "6축 호감 레이더 산출 중", detail: "관심도 · 적극성 · 반응성 · 친밀감 · 일관성 · 미래지향", pct: 92 },
+  const stages = [
+    {
+      label: "캡처 읽는 중",
+      sub: "OCR · 메시지 추출",
+      stats: [
+        { k: "메시지", v: "142", u: "건" },
+        { k: "기간", v: "17", u: "일" },
+        { k: "발신 비율", v: "54 : 46", u: "" },
+      ],
+      chips: ["한국어 정상 인식", "이모지 24종", "URL 3건 스킵"],
+    },
+    {
+      label: "말투 뜯어보는 중",
+      sub: "언어학적 패턴 분석",
+      stats: [
+        { k: "평균 답장 텀", v: "1h 42m", u: "" },
+        { k: "단답률", v: "38", u: "%" },
+        { k: "질문 비율", v: "12 : 3", u: "" },
+      ],
+      chips: ["회피 표현 6회", "친밀 지표 11회", "미래 언급 2회"],
+    },
+    {
+      label: "애착 유형 매칭 중",
+      sub: "Bartholomew 4유형 모델",
+      stats: [
+        { k: "불안형", v: "62", u: "%" },
+        { k: "회피형", v: "24", u: "%" },
+        { k: "안정형", v: "14", u: "%" },
+      ],
+      chips: ["근접 회피 ↑", "자아 불안 ↑", "승인 추구 ↑"],
+    },
+    {
+      label: "Gottman 4요소 스캔",
+      sub: "Four Horsemen 분석",
+      stats: [
+        { k: "비난", v: "10", u: "/100" },
+        { k: "방어", v: "15", u: "/100" },
+        { k: "담쌓기", v: "30", u: "/100" },
+      ],
+      chips: ["경멸 신호 없음", "대화 철회 관찰", "안전 수준"],
+    },
+    {
+      label: "냥이 소견 정리 중",
+      sub: "리포트 합성",
+      stats: [
+        { k: "호감도", v: "58", u: "/100" },
+        { k: "확신도", v: "91", u: "%" },
+        { k: "분석 근거", v: "14", u: "개" },
+      ],
+      chips: ["멘트 추천 3종", "시뮬 시나리오 준비", "리스크 1건"],
+    },
   ];
-  const [i, setI] = useState(0);
-  const [smoothPct, setSmoothPct] = useState(0);
+  const methodology = [
+    { tag: "Gottman", t: "Four Horsemen", d: "이혼 예측 정확도 93.6% · 40년 종단연구" },
+    { tag: "Bowlby", t: "애착 이론", d: "성인 관계 패턴 · 4유형 분류" },
+    { tag: "Clark", t: "관계 만족도 지표", d: "상호성·공감·갈등 회복 기반" },
+  ];
+
+  const [step, setStep] = useState(0);
+  const [dots, setDots] = useState("");
 
   useEffect(() => {
-    const iv = setInterval(() => setI(p => Math.min(p + 1, steps.length - 1)), 2300);
-    return () => clearInterval(iv);
+    const id = setInterval(
+      () => setDots((d) => (d.length >= 3 ? "" : d + ".")),
+      350
+    );
+    return () => clearInterval(id);
   }, []);
 
   useEffect(() => {
-    const target = steps[i].pct;
-    const timer = setTimeout(() => setSmoothPct(target), 100);
-    return () => clearTimeout(timer);
-  }, [i]);
+    const id = setInterval(
+      () => setStep((s) => Math.min(s + 1, stages.length - 1)),
+      1800
+    );
+    return () => clearInterval(id);
+  }, []);
+
+  const cur = stages[step];
+  const pct = Math.round(((step + 1) / stages.length) * 100);
 
   return (
-    <div className="text-center py-[50px] px-5 animate-fadeUp">
-      <div className="w-[48px] h-[48px] mx-auto mb-4 rounded-full animate-spin"
-        style={{ border: "3px solid #FFD6E0", borderTopColor: "#FF6B8A" }} />
-
-      <div className="text-[10px] font-bold mb-2" style={{ color: "#E8456A", letterSpacing: 1.2 }}>
-        🔬 AI 냥이 분석 중
-      </div>
-      <p className="text-[15px] text-[#2D2B3D] font-bold mb-1 leading-[1.4]">
-        {steps[i].msg}...
-      </p>
-      <p className="text-[11px] text-[#8E8A9D] italic mb-5 px-2 leading-[1.5]">
-        {steps[i].detail}
-      </p>
-
-      {/* Progress Bar */}
-      <div className="w-full max-w-[260px] mx-auto">
-        <div className="h-[6px] rounded-full overflow-hidden" style={{ background: "#FFE8EC" }}>
-          <div className="h-full rounded-full" style={{
-            width: `${smoothPct}%`,
-            background: "linear-gradient(90deg, #FF8FA3, #FF6B8A, #E8456A)",
-            transition: "width 1.8s cubic-bezier(.4,0,.2,1)",
-          }} />
+    <div className="animate-fadeUp relative px-[22px] pb-6 pt-2">
+      {/* Top row */}
+      <div className="mb-4 flex items-center justify-between">
+        <div>
+          <div className="mb-1 font-mono text-[10px] font-bold tracking-[3px] text-primary-deep">
+            — 분석 중 · {pct}%
+          </div>
+          <div className="font-mono text-[11px] tracking-[1.5px] text-sub">
+            STAGE {String(step + 1).padStart(2, "0")} / 0{stages.length}
+          </div>
         </div>
-        <p className="mt-2 text-[11px] font-bold tabular-nums" style={{ color: "#FF6B8A" }}>
-          {smoothPct}%
-        </p>
+        <div className="animate-[nyangBounce_1.4s_ease-in-out_infinite]">
+          <NyangHead size={56} />
+        </div>
       </div>
 
-      <p className="mt-4 text-[11px] font-bold leading-[1.5]" style={{ color: "#E8456A" }}>
-        기분 말고 흐름으로 볼게
-      </p>
-      <p className="mt-0.5 text-[10px] text-[#A09CB0] leading-[1.5]">
-        가트만 관계심리학 + 애착이론 기반
-      </p>
+      {/* Headline */}
+      <div className="mb-1 font-serif text-[30px] font-normal leading-[1.15] tracking-[-0.8px] text-ink">
+        {cur.label}
+        <span className="inline-block w-[18px] text-left text-sub">{dots}</span>
+      </div>
+      <div className="mb-3.5 font-mono text-[12px] tracking-[1.2px] text-sub">
+        {cur.sub}
+      </div>
+
+      {/* Progress bar */}
+      <div className="mb-[18px] h-[3px] overflow-hidden rounded-sm bg-line">
+        <div
+          className="h-full bg-ink transition-[width] duration-[550ms] ease-out"
+          style={{ width: `${pct}%` }}
+        />
+      </div>
+
+      {/* Live evidence */}
+      <div className="relative mb-3 rounded-md border border-line bg-bg-alt p-4">
+        <div className="mb-2.5 flex items-center gap-1.5 font-mono text-[9px] tracking-[2px] text-sub">
+          <span className="inline-block h-1.5 w-1.5 animate-[nyangPulse_1.2s_ease-in-out_infinite] rounded-full bg-[#2BB673]" />
+          LIVE · DETECTED SIGNALS
+        </div>
+        <div className="grid grid-cols-3 gap-2.5">
+          {cur.stats.map((s, i) => (
+            <div
+              key={i}
+              className={i > 0 ? "border-l border-line pl-2.5" : ""}
+            >
+              <div className="mb-1 font-mono text-[9px] uppercase tracking-[1px] text-sub">
+                {s.k}
+              </div>
+              <div className="flex items-baseline gap-0.5">
+                <div className="font-serif text-[24px] font-medium leading-none tracking-[-0.8px] text-ink">
+                  {s.v}
+                </div>
+                {s.u && <div className="font-mono text-[10px] text-sub">{s.u}</div>}
+              </div>
+            </div>
+          ))}
+        </div>
+        <div className="mt-3.5 flex flex-wrap gap-1.5 border-t border-line pt-3">
+          {cur.chips.map((c, i) => (
+            <span
+              key={i}
+              className="rounded-full border border-line bg-bg px-2.5 py-1 text-[10px] font-semibold text-ink"
+            >
+              {c}
+            </span>
+          ))}
+        </div>
+      </div>
+
+      {/* Methodology */}
+      <div className="px-0.5 pb-3.5 pt-1">
+        <div className="mb-2.5 font-mono text-[9px] tracking-[2px] text-sub">
+          — METHODOLOGY
+        </div>
+        {methodology.map((m, i) => (
+          <div
+            key={i}
+            className={`flex gap-3 py-2.5 ${i < 2 ? "border-b border-line" : ""}`}
+          >
+            <div className="h-fit whitespace-nowrap rounded-sm border border-primary-deep px-1.5 py-[3px] font-mono text-[9px] font-bold tracking-[1px] text-primary-deep">
+              {m.tag}
+            </div>
+            <div className="flex-1">
+              <div className="mb-0.5 text-[13px] font-semibold tracking-[-0.3px] text-ink">
+                {m.t}
+              </div>
+              <div className="text-[11px] leading-[1.4] text-sub">{m.d}</div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Pipeline */}
+      <div className="pb-1 pt-2">
+        <div className="mb-2.5 font-mono text-[9px] tracking-[2px] text-sub">
+          — PIPELINE
+        </div>
+        {stages.map((s, i) => {
+          const done = i < step;
+          const run = i === step;
+          return (
+            <div
+              key={i}
+              className={`flex items-center gap-2.5 py-1.5 text-[12px] ${
+                i <= step ? "text-ink" : "text-sub"
+              } ${run ? "font-bold" : ""}`}
+              style={{ opacity: i <= step ? 1 : 0.4 }}
+            >
+              <span
+                className={`inline-block w-5 font-mono text-[9px] tracking-[1px] ${
+                  done ? "text-[#2BB673]" : run ? "text-primary-deep" : "text-sub"
+                }`}
+              >
+                {done ? "✓" : String(i + 1).padStart(2, "0")}
+              </span>
+              <span className="flex-1">{s.label}</span>
+              <span className="font-mono text-[10px] text-sub">
+                {done ? "DONE" : run ? "RUN" : ""}
+              </span>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Reassurance */}
+      <div className="mt-[18px] flex items-start gap-2.5 rounded-sm bg-bg-alt p-3.5">
+        <div className="mt-0.5 shrink-0">
+          <NyangEyes size={22} color="var(--color-primary)" />
+        </div>
+        <div className="text-[11px] leading-[1.55] text-sub">
+          분석 끝나면{" "}
+          <b className="text-ink">원본 캡처는 즉시 삭제</b>된다냥. 결과만 네
+          계정에 남아.
+        </div>
+      </div>
+
+      {/* Scattered sticker */}
+      <div className="pointer-events-none absolute right-4 top-4 rotate-[-18deg] opacity-40">
+        <NyangPaw size={22} color="var(--color-ink)" pad="var(--color-primary)" />
+      </div>
+
+      <style jsx>{`
+        @keyframes nyangBounce {
+          0%,
+          100% {
+            transform: translateY(0) rotate(-2deg);
+          }
+          50% {
+            transform: translateY(-8px) rotate(3deg);
+          }
+        }
+        @keyframes nyangPulse {
+          0%,
+          100% {
+            opacity: 0.4;
+            transform: scale(0.85);
+          }
+          50% {
+            opacity: 1;
+            transform: scale(1.1);
+          }
+        }
+      `}</style>
     </div>
   );
 }
@@ -2144,20 +2333,20 @@ export default function Home() {
             {images.length > 0 && (
               <label className="flex items-start gap-2.5 p-3.5 rounded-[14px] cursor-pointer select-none transition-colors"
                 style={{
-                  background: imageConsent ? "#FFF0F3" : "#FFF8FA",
-                  border: `1.5px solid ${imageConsent ? "#FF6B8A" : "#FFD6E0"}`,
+                  background: imageConsent ? "var(--color-bg-alt)" : "var(--color-bg)",
+                  border: `1.5px solid ${imageConsent ? "var(--color-primary)" : "var(--color-line)"}`,
                 }}>
                 <input
                   type="checkbox"
                   checked={imageConsent}
                   onChange={(e) => setImageConsent(e.target.checked)}
                   className="mt-[3px] shrink-0 cursor-pointer"
-                  style={{ accentColor: "#E8456A", width: 16, height: 16 }}
+                  style={{ accentColor: "var(--color-primary-deep)", width: 16, height: 16 }}
                 />
-                <div className="flex-1 text-[12.5px] text-[#2D2B3D] leading-[1.55]">
+                <div className="flex-1 text-[12.5px] text-[var(--color-ink)] leading-[1.55]">
                   대화 내용 분석 동의 (필수) ·{" "}
                   <a href="/privacy" target="_blank" rel="noopener noreferrer"
-                    className="underline font-semibold" style={{ color: "#E8456A" }}>
+                    className="underline font-semibold" style={{ color: "var(--color-primary-deep)" }}>
                     자세히
                   </a>
                 </div>
@@ -2166,7 +2355,7 @@ export default function Home() {
 
             {error && (
               <div className="py-3 px-4 rounded-[16px] text-[13px] text-center"
-                style={{ background: "#FFF0F0", border: "1px solid #FFD6D6", color: "#E8456A" }}>
+                style={{ background: "var(--color-bg-alt)", border: "1px solid var(--color-line)", color: "var(--color-primary-deep)" }}>
                 {error}
               </div>
             )}
@@ -2174,16 +2363,16 @@ export default function Home() {
             {(freeUsed || forcePaid) ? (
               <>
                 <div className="py-4 px-5 rounded-[20px] text-center"
-                  style={{ background: "#FFF0F3", border: "1px solid #FFD6E0" }}>
-                  <p className="text-[15px] text-[#2D2B3D] font-bold mb-1">
+                  style={{ background: "var(--color-bg-alt)", border: "1px solid var(--color-line)" }}>
+                  <p className="text-[15px] text-[var(--color-ink)] font-bold mb-1">
                     {freeUsed ? "오늘 무료 분석 완료 · 내일 다시 와줘 💕" : "🔓 심층 유료 분석 모드"}
                   </p>
-                  <p className="text-[12px] text-[#8E8A9D] mb-2">지금 바로 보고 싶다면 ↓</p>
+                  <p className="text-[12px] text-[var(--color-sub)] mb-2">지금 바로 보고 싶다면 ↓</p>
                   {/* 채팅 시뮬 번들 어필 (어필 5/5) */}
                   <div className="inline-flex items-center gap-1.5 px-2.5 py-[5px] rounded-full"
-                    style={{ background: "#2D2B3D" }}>
+                    style={{ background: "var(--color-ink)" }}>
                     <span className="text-[9px] font-extrabold tracking-[1.5px]"
-                      style={{ color: "#FFB3C1" }}>
+                      style={{ color: "var(--color-primary)" }}>
                       BONUS
                     </span>
                     <span className="text-[10.5px] font-bold text-white">
@@ -2194,8 +2383,8 @@ export default function Home() {
                 <button onClick={analyzePaidDirect} disabled={!canAnalyze || redirecting || unlocking}
                   className="w-full py-4 rounded-[20px] border-none text-base font-bold transition-all active:scale-[0.97]"
                   style={{
-                    background: canAnalyze ? "linear-gradient(135deg, #FF6B8A, #E8456A)" : "#FFF0F3",
-                    color: canAnalyze ? "#fff" : "#C4C0D0",
+                    background: canAnalyze ? "linear-gradient(135deg, var(--color-primary), var(--color-primary-deep))" : "var(--color-bg-alt)",
+                    color: canAnalyze ? "#fff" : "var(--color-sub)",
                     cursor: canAnalyze ? "pointer" : "default",
                     boxShadow: canAnalyze ? "0 4px 20px rgba(255,107,138,0.2)" : "none",
                     opacity: (redirecting || unlocking) ? 0.7 : 1,
@@ -2213,8 +2402,8 @@ export default function Home() {
               <button onClick={analyze} disabled={!canAnalyze}
                 className="w-full py-4 rounded-[20px] border-none text-base font-bold transition-all active:scale-[0.97]"
                 style={{
-                  background: canAnalyze ? "linear-gradient(135deg, #FF6B8A, #E8456A)" : "#FFF0F3",
-                  color: canAnalyze ? "#fff" : "#C4C0D0",
+                  background: canAnalyze ? "linear-gradient(135deg, var(--color-primary), var(--color-primary-deep))" : "var(--color-bg-alt)",
+                  color: canAnalyze ? "#fff" : "var(--color-sub)",
                   cursor: canAnalyze ? "pointer" : "default",
                   boxShadow: canAnalyze ? "0 4px 20px rgba(255,107,138,0.2)" : "none",
                 }}>
@@ -2230,22 +2419,22 @@ export default function Home() {
             <div
               className="rounded-[18px] px-4 py-3 border flex items-start gap-2.5"
               style={{
-                background: "linear-gradient(135deg, #2D2B3D 0%, #3B3A52 100%)",
-                borderColor: "#FF6B8A",
+                background: "linear-gradient(135deg, var(--color-ink) 0%, #3B3A52 100%)",
+                borderColor: "var(--color-primary)",
               }}>
               <div className="text-[20px] leading-none mt-[2px]">💬</div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-1.5">
                   <span
                     className="text-[9px] font-extrabold tracking-[1.5px] px-1.5 py-[2px] rounded-full shrink-0"
-                    style={{ background: "#FF6B8A", color: "#fff" }}>
+                    style={{ background: "var(--color-primary)", color: "#fff" }}>
                     NEW
                   </span>
                   <span className="text-[12.5px] font-extrabold text-white">
                     분석 후, 실시간 대화 시뮬레이션 가능
                   </span>
                 </div>
-                <div className="text-[10.5px] text-[#FFD6E0] mt-[3px] leading-[1.4]">
+                <div className="text-[10.5px] text-[var(--color-line)] mt-[3px] leading-[1.4]">
                   ※ 대화 시뮬레이션은 카톡·DM 캡처가 있어야 열려
                 </div>
               </div>
