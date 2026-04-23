@@ -10,7 +10,6 @@ import {
   PremiumCTA,
   GottmanCard,
   AttachmentQuadrant,
-  MethodologyCard,
   ResultFooter,
 } from "./ResultCards";
 
@@ -772,11 +771,6 @@ function ResultCard({ result, isPaid, onReset, onResetPaid, onUnlock, unlocking,
         </div>
       </div>
       <div className="mx-[22px] mb-4 h-px bg-ink opacity-[0.28]" />
-
-      {/* Methodology — 왜 이 조합이 강력한가 */}
-      <div className="mb-4">
-        <MethodologyCard />
-      </div>
 
       {/* 애착 유형 4분면 — 무료/유료 둘 다 표시 */}
       {result.attachment && typeof result.attachment.avoidance === "number" && typeof result.attachment.anxiety === "number" && (

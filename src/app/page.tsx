@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Masthead } from "@/components/layout/Masthead";
 import { BtnPrimary } from "@/components/ui/BtnPrimary";
 import { NyangHead, NyangEyes } from "@/components/nyang-icons";
+import { MethodologyCard } from "@/app/analyze/ResultCards";
 
 export default function Home() {
   return (
@@ -10,6 +11,10 @@ export default function Home() {
       <main className="min-h-screen bg-bg text-ink">
         <div className="mx-auto max-w-[420px]">
           <HeroSection />
+          <DashedDivider />
+          <section className="px-[22px] py-6">
+            <MethodologyCard />
+          </section>
           <DashedDivider />
           <HowItWorksSection />
           <DashedDivider />
