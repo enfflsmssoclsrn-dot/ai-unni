@@ -2086,9 +2086,9 @@ function LoadingState() {
           <NyangEyes size={22} color="var(--color-primary)" />
         </div>
         <div className="text-[11px] leading-[1.55] text-sub">
-          분석 끝나면{" "}
-          <b className="text-ink">원본 캡처는 즉시 삭제</b>된다냥. 결과만 네
-          계정에 남아.
+          업로드한 캡처는{" "}
+          <b className="text-ink">30일 후 자동 파기</b>된다냥. 무료 분석은 DB에
+          저장도 안 해.
         </div>
       </div>
 
