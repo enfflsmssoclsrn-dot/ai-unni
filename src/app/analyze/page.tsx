@@ -1750,20 +1750,52 @@ function UploadZone({ images, onAdd, onRemove }: any) {
         <button
           type="button"
           onClick={() => ref.current?.click()}
-          className="flex w-full items-center gap-[14px] rounded-[6px] border border-dashed border-ink bg-transparent p-5 text-left transition-colors hover:bg-ink/5 active:scale-[0.99]"
+          className="flex w-full items-center gap-[14px] border border-dashed border-ink bg-transparent p-[18px_20px] text-left transition-colors hover:bg-ink/5 active:scale-[0.99]"
         >
-          <div className="flex h-[42px] w-[42px] shrink-0 items-center justify-center rounded-full border border-line text-[18px]">
-            📎
+          <div
+            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-line"
+            style={{ background: "#EDE6D8" }}
+          >
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth={1.5}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="text-ink"
+              aria-hidden
+            >
+              <path d="M21 12.5 12.5 21a5.5 5.5 0 0 1-7.8-7.8L13 5a3.5 3.5 0 0 1 5 5L9.5 18.5a1.5 1.5 0 0 1-2.1-2.1L15 8.9" />
+            </svg>
           </div>
           <div className="flex-1">
-            <div className="text-[14px] font-bold tracking-[-0.3px] text-ink">
+            <div
+              className="text-[14px] font-medium tracking-[-0.3px] text-ink"
+              style={{ fontFamily: "var(--font-serif)" }}
+            >
               여기 눌러서 캡처 추가
             </div>
             <div className="mt-0.5 text-[11px] leading-[1.4] text-sub">
               선택 · 최대 3장 · 많을수록 정확하다냥
             </div>
           </div>
-          <div className="shrink-0 text-[22px] font-light text-ink">+</div>
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth={1.5}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className="shrink-0 text-ink"
+            aria-hidden
+          >
+            <path d="M12 5v14M5 12h14" />
+          </svg>
         </button>
       ) : (
         <div>
@@ -1831,7 +1863,7 @@ function TextInput({ value, onChange }: { value: string; onChange: (v: string) =
 
   return (
     <div>
-      <div className="mb-3 flex flex-wrap gap-1.5">
+      <div className="mb-5 flex flex-wrap gap-[7px]">
         {CHIPS.map((chip, i) => {
           const isActive = value.includes(chip.prompt);
           return (
@@ -1846,11 +1878,26 @@ function TextInput({ value, onChange }: { value: string; onChange: (v: string) =
               type="button"
               className={
                 isActive
-                  ? "inline-flex cursor-default items-center gap-1 rounded-full bg-ink px-3 py-1.5 text-[13px] font-semibold text-bg"
-                  : "inline-flex items-center gap-1 rounded-full border border-ink/60 bg-transparent px-3 py-1.5 text-[13px] font-medium text-ink transition-colors hover:border-ink hover:bg-ink hover:text-bg active:scale-[0.97]"
+                  ? "inline-flex cursor-default items-center gap-1.5 rounded-full border border-ink bg-ink px-3.5 py-2 text-[12.5px] font-medium text-bg"
+                  : "inline-flex items-center gap-1.5 rounded-full border border-line bg-transparent px-3.5 py-2 text-[12.5px] font-medium text-ink transition-colors hover:border-ink hover:bg-ink hover:text-bg active:scale-[0.97]"
               }
             >
-              {isActive ? "✓" : chip.emoji} {chip.label}
+              {isActive && (
+                <svg
+                  width="12"
+                  height="12"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth={2.2}
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-hidden
+                >
+                  <path d="m5 12 4 4 10-10" />
+                </svg>
+              )}
+              <span>{chip.label}</span>
             </button>
           );
         })}
@@ -1858,8 +1905,9 @@ function TextInput({ value, onChange }: { value: string; onChange: (v: string) =
       <textarea
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        placeholder={"상황 버튼을 누르거나 직접 풀어써줘.\n\n예) 3주 전에 소개팅으로 만났는데, 카톡은 매일 해. 근데 항상 내가 먼저 연락해. 답장은 빠른데 만나자는 말은 없어."}
-        className="w-full min-h-[120px] resize-y rounded-[12px] border border-line bg-bg/60 px-4 py-3.5 text-[14px] leading-[1.7] text-ink outline-none transition-colors placeholder:text-sub/70 focus:border-ink focus:bg-bg"
+        placeholder="또는 직접 풀어쓰기…"
+        className="w-full min-h-[110px] resize-y border border-line px-4 py-3.5 text-[13.5px] leading-[1.5] text-ink outline-none transition-colors placeholder:text-sub/70 focus:border-ink"
+        style={{ background: "#FAF6EC", borderRadius: 0 }}
       />
     </div>
   );
@@ -2115,6 +2163,25 @@ function LoadingState() {
   );
 }
 
+// ─── Small inline icon helper ───
+function ArrowRightIcon({ color = "currentColor", size = 16 }: { color?: string; size?: number }) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke={color}
+      strokeWidth={1.5}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden
+    >
+      <path d="M5 12h14M13 6l6 6-6 6" />
+    </svg>
+  );
+}
+
 // ─── Main Page ───
 export default function Home() {
   const [text, setText] = useState("");
@@ -2343,24 +2410,32 @@ export default function Home() {
           <div className="animate-fadeUp flex flex-col gap-4">
             <UploadZone images={images} onAdd={addImages} onRemove={removeImage} />
 
-            {/* 캡처 업로드 시 개인정보 동의 — 제3자(상대방) 정보 포함되므로 명시 동의 필수 */}
+            {/* 캡처 업로드 시 개인정보 동의 */}
             {images.length > 0 && (
-              <label className="flex items-start gap-2.5 p-3.5 rounded-[14px] cursor-pointer select-none transition-colors"
+              <label
+                className="flex cursor-pointer select-none items-start gap-2.5 p-3.5 transition-colors"
                 style={{
-                  background: imageConsent ? "var(--color-bg-alt)" : "var(--color-bg)",
-                  border: `1.5px solid ${imageConsent ? "var(--color-primary)" : "var(--color-line)"}`,
-                }}>
+                  background: imageConsent ? "#FAF6EC" : "transparent",
+                  border: `1px solid ${imageConsent ? "var(--color-ink)" : "var(--color-line)"}`,
+                  borderRadius: 0,
+                }}
+              >
                 <input
                   type="checkbox"
                   checked={imageConsent}
                   onChange={(e) => setImageConsent(e.target.checked)}
                   className="mt-[3px] shrink-0 cursor-pointer"
-                  style={{ accentColor: "var(--color-primary-deep)", width: 16, height: 16 }}
+                  style={{ accentColor: "var(--color-ink)", width: 16, height: 16 }}
                 />
-                <div className="flex-1 text-[12.5px] text-[var(--color-ink)] leading-[1.55]">
-                  대화 내용 분석 동의 (필수) ·{" "}
-                  <a href="/privacy" target="_blank" rel="noopener noreferrer"
-                    className="underline font-semibold" style={{ color: "var(--color-primary-deep)" }}>
+                <div className="flex-1 text-[12.5px] leading-[1.55] text-ink">
+                  <span className="font-semibold text-primary-deep">[필수]</span>{" "}
+                  대화 내용 분석 동의 ·{" "}
+                  <a
+                    href="/privacy"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="font-semibold underline"
+                  >
                     자세히
                   </a>
                 </div>
@@ -2368,92 +2443,171 @@ export default function Home() {
             )}
 
             {error && (
-              <div className="py-3 px-4 rounded-[16px] text-[13px] text-center"
-                style={{ background: "var(--color-bg-alt)", border: "1px solid var(--color-line)", color: "var(--color-primary-deep)" }}>
+              <div
+                className="px-4 py-3 text-[13px]"
+                style={{
+                  background: "#FAF6EC",
+                  borderLeft: "2px solid var(--color-primary-deep)",
+                  color: "var(--color-ink)",
+                }}
+              >
                 {error}
               </div>
             )}
 
-            {(freeUsed || forcePaid) ? (
-              <>
-                <div className="py-4 px-5 rounded-[20px] text-center"
-                  style={{ background: "var(--color-bg-alt)", border: "1px solid var(--color-line)" }}>
-                  <p className="text-[15px] text-[var(--color-ink)] font-bold mb-1">
-                    {freeUsed ? "오늘 무료 분석 완료 · 내일 다시 와줘 💕" : "🔓 심층 유료 분석 모드"}
-                  </p>
-                  <p className="text-[12px] text-[var(--color-sub)] mb-2">지금 바로 보고 싶다면 ↓</p>
-                  {/* 채팅 시뮬 번들 어필 (어필 5/5) */}
-                  <div className="inline-flex items-center gap-1.5 px-2.5 py-[5px] rounded-full"
-                    style={{ background: "var(--color-ink)" }}>
-                    <span className="text-[9px] font-extrabold tracking-[1.5px]"
-                      style={{ color: "var(--color-primary)" }}>
-                      BONUS
-                    </span>
-                    <span className="text-[10.5px] font-bold text-white">
-                      💬 결제하면 걔랑 대화 시뮬레이션까지 2턴 무료
-                    </span>
-                  </div>
+            {(freeUsed || forcePaid) && (
+              <div
+                className="p-4"
+                style={{
+                  background: "#FAF6EC",
+                  border: "1px solid var(--color-line)",
+                  borderRadius: 0,
+                }}
+              >
+                <div
+                  className="mb-1 font-mono text-[10px] font-bold tracking-[0.3em] text-sub"
+                >
+                  {freeUsed ? "— FREE USED —" : "— PREMIUM MODE —"}
                 </div>
-                <button onClick={analyzePaidDirect} disabled={!canAnalyze || redirecting || unlocking}
-                  className="w-full py-4 rounded-[20px] border-none text-base font-bold transition-all active:scale-[0.97]"
-                  style={{
-                    background: canAnalyze ? "linear-gradient(135deg, var(--color-primary), var(--color-primary-deep))" : "var(--color-bg-alt)",
-                    color: canAnalyze ? "#fff" : "var(--color-sub)",
-                    cursor: canAnalyze ? "pointer" : "default",
-                    boxShadow: canAnalyze ? "0 4px 20px rgba(217,117,87,0.2)" : "none",
-                    opacity: (redirecting || unlocking) ? 0.7 : 1,
-                  }}>
+                <div
+                  className="mb-2 text-[14px] text-ink"
+                  style={{ fontFamily: "var(--font-serif)", fontWeight: 500 }}
+                >
+                  {freeUsed
+                    ? "오늘 무료 분석 완료 · 내일 다시 와줘"
+                    : "심층 유료 분석 모드"}
+                </div>
+                <div className="inline-flex items-center gap-1.5">
+                  <span
+                    className="px-1.5 py-[2px] font-mono text-[9px] font-bold tracking-[0.15em] text-ink"
+                    style={{ background: "#C9A961" }}
+                  >
+                    BONUS
+                  </span>
+                  <span className="text-[11px] text-sub">
+                    결제하면 걔랑 대화 시뮬 2턴 무료
+                  </span>
+                </div>
+              </div>
+            )}
+
+            {(freeUsed || forcePaid) ? (
+              <button
+                onClick={analyzePaidDirect}
+                disabled={!canAnalyze || redirecting || unlocking}
+                type="button"
+                style={{
+                  width: "100%",
+                  padding: "18px",
+                  border: "none",
+                  background: canAnalyze ? "var(--color-ink)" : "#EDE6D8",
+                  color: canAnalyze ? "var(--color-bg)" : "var(--color-sub)",
+                  fontFamily: "var(--font-serif)",
+                  fontWeight: 500,
+                  fontSize: 16,
+                  cursor: canAnalyze ? "pointer" : "default",
+                  letterSpacing: "0.02em",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: 8,
+                  opacity: redirecting || unlocking ? 0.7 : 1,
+                }}
+              >
+                <span>
                   {redirecting
                     ? "결제창으로 이동 중..."
                     : !hasInput
-                      ? "먼저 상황을 알려줘! 💬"
+                      ? "먼저 상황을 알려줘"
                       : !consentOk
-                        ? "캡처 이용 동의에 체크해줘 ☝️"
-                        : "🔓 바로 심층 분석 보기 · ₩2,900"}
-                </button>
-              </>
+                        ? "캡처 이용 동의에 체크해줘"
+                        : "바로 심층 분석 · ₩2,900"}
+                </span>
+                {canAnalyze && !redirecting && (
+                  <ArrowRightIcon color="var(--color-bg)" />
+                )}
+              </button>
             ) : (
-              <button onClick={analyze} disabled={!canAnalyze}
-                className="w-full py-4 rounded-[20px] border-none text-base font-bold transition-all active:scale-[0.97]"
+              <button
+                onClick={analyze}
+                disabled={!canAnalyze}
+                type="button"
                 style={{
-                  background: canAnalyze ? "linear-gradient(135deg, var(--color-primary), var(--color-primary-deep))" : "var(--color-bg-alt)",
-                  color: canAnalyze ? "#fff" : "var(--color-sub)",
+                  width: "100%",
+                  padding: "18px",
+                  border: "none",
+                  background: canAnalyze ? "var(--color-ink)" : "#EDE6D8",
+                  color: canAnalyze ? "var(--color-bg)" : "var(--color-sub)",
+                  fontFamily: "var(--font-serif)",
+                  fontWeight: 500,
+                  fontSize: 16,
                   cursor: canAnalyze ? "pointer" : "default",
-                  boxShadow: canAnalyze ? "0 4px 20px rgba(217,117,87,0.2)" : "none",
-                }}>
-                {!hasInput
-                  ? "먼저 상황을 알려줘! 💬"
-                  : !consentOk
-                    ? "캡처 이용 동의에 체크해줘 ☝️"
-                    : "무료로 분석해보기 →"}
+                  letterSpacing: "0.02em",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: 8,
+                }}
+              >
+                <span>
+                  {!hasInput
+                    ? "먼저 상황을 알려줘"
+                    : !consentOk
+                      ? "캡처 이용 동의에 체크해줘"
+                      : "무료로 분석해보기"}
+                </span>
+                {canAnalyze && <ArrowRightIcon color="var(--color-bg)" />}
               </button>
             )}
 
-            {/* 채팅 시뮬 티저 카드 (단가 없음 · 단순) */}
+            {/* NEW 대화 시뮬 배너 */}
             <div
-              className="rounded-[18px] px-4 py-3 border flex items-start gap-2.5"
+              className="flex items-center gap-2.5 p-[12px_16px]"
               style={{
-                background: "linear-gradient(135deg, var(--color-ink) 0%, #3B3A52 100%)",
-                borderColor: "var(--color-primary)",
-              }}>
-              <div className="text-[20px] leading-none mt-[2px]">💬</div>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-1.5">
-                  <span
-                    className="text-[9px] font-extrabold tracking-[1.5px] px-1.5 py-[2px] rounded-full shrink-0"
-                    style={{ background: "var(--color-primary)", color: "#fff" }}>
-                    NEW
-                  </span>
-                  <span className="text-[12.5px] font-extrabold text-white">
-                    분석 후, 실시간 대화 시뮬레이션 가능
-                  </span>
-                </div>
-                <div className="text-[10.5px] text-[var(--color-line)] mt-[3px] leading-[1.4]">
-                  ※ 대화 시뮬레이션은 카톡·DM 캡처가 있어야 열려
-                </div>
+                background: "#FAF6EC",
+                border: "1px solid var(--color-line)",
+              }}
+            >
+              <div
+                className="flex h-7 w-7 shrink-0 items-center justify-center"
+                style={{ background: "var(--color-ink)" }}
+              >
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="var(--color-bg)"
+                  strokeWidth={1.5}
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-hidden
+                >
+                  <path d="M21 12a8 8 0 0 1-11.6 7.1L4 21l1.8-5.2A8 8 0 1 1 21 12z" />
+                </svg>
               </div>
+              <span
+                className="shrink-0 px-[7px] py-[3px] font-mono text-[9px] font-bold tracking-[0.2em] text-ink"
+                style={{ background: "#C9A961" }}
+              >
+                NEW
+              </span>
+              <span className="flex-1 text-[12.5px] text-ink">
+                분석 후, 실시간 대화 시뮬레이션 가능
+              </span>
             </div>
 
+            {/* 데이터 파기 안내 */}
+            <p
+              className="text-center text-[11px] text-sub"
+              style={{
+                fontFamily: "var(--font-serif)",
+                fontStyle: "italic",
+                marginTop: 4,
+              }}
+            >
+              · 첨부한 대화는 30일 후 자동 파기 ·
+            </p>
           </div>
         )}
 

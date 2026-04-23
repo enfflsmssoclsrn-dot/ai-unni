@@ -22,22 +22,22 @@ export default function RefundPage() {
         <div className="overflow-x-auto">
           <table className="w-full text-[13px] border-collapse">
             <thead>
-              <tr className="bg-[#FFF0F3]">
-                <th className="border border-[#FFD6E0] px-2 py-1.5 text-left">상품</th>
-                <th className="border border-[#FFD6E0] px-2 py-1.5 text-left">금액</th>
-                <th className="border border-[#FFD6E0] px-2 py-1.5 text-left">내용</th>
+              <tr className="bg-[#FAF6EC]">
+                <th className="border border-[var(--color-line)] px-2 py-1.5 text-left">상품</th>
+                <th className="border border-[var(--color-line)] px-2 py-1.5 text-left">금액</th>
+                <th className="border border-[var(--color-line)] px-2 py-1.5 text-left">내용</th>
               </tr>
             </thead>
             <tbody>
               <tr>
-                <td className="border border-[#FFD6E0] px-2 py-1.5">심층 분석 리포트</td>
-                <td className="border border-[#FFD6E0] px-2 py-1.5">₩2,900 / 1회</td>
-                <td className="border border-[#FFD6E0] px-2 py-1.5">AI가 생성한 호감 근거, 주의 포인트, 상대방 심리 해석, 행동 전략 등 확장 분석 결과 제공</td>
+                <td className="border border-[var(--color-line)] px-2 py-1.5">심층 분석 리포트</td>
+                <td className="border border-[var(--color-line)] px-2 py-1.5">₩2,900 / 1회</td>
+                <td className="border border-[var(--color-line)] px-2 py-1.5">AI가 생성한 호감 근거, 주의 포인트, 상대방 심리 해석, 행동 전략 등 확장 분석 결과 제공</td>
               </tr>
               <tr>
-                <td className="border border-[#FFD6E0] px-2 py-1.5">대화 시뮬레이션 턴 추가</td>
-                <td className="border border-[#FFD6E0] px-2 py-1.5">₩990 / 15턴</td>
-                <td className="border border-[#FFD6E0] px-2 py-1.5">AI가 상대방 말투를 학습하여 진행하는 대화 시뮬레이션의 추가 이용권</td>
+                <td className="border border-[var(--color-line)] px-2 py-1.5">대화 시뮬레이션 턴 추가</td>
+                <td className="border border-[var(--color-line)] px-2 py-1.5">₩990 / 15턴</td>
+                <td className="border border-[var(--color-line)] px-2 py-1.5">AI가 상대방 말투를 학습하여 진행하는 대화 시뮬레이션의 추가 이용권</td>
               </tr>
             </tbody>
           </table>
@@ -96,7 +96,7 @@ export default function RefundPage() {
 
       <section className="mb-6">
         <h2 className="text-[16px] font-bold mb-2">4. 고객센터</h2>
-        <div className="rounded-[12px] bg-[#FFF8FA] border border-[#FFE8EC] p-4">
+        <div className="rounded-[12px] bg-[var(--color-bg)] border border-[#FAF6EC] p-4">
           <ul className="space-y-1">
             <li>이메일: junilabstudio@gmail.com</li>
             <li>운영 시간: 평일 10:00 ~ 18:00 (주말·공휴일 제외)</li>

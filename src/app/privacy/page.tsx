@@ -24,32 +24,32 @@ export default function PrivacyPage() {
         <div className="overflow-x-auto">
           <table className="w-full text-[13px] border-collapse">
             <thead>
-              <tr className="bg-[#FFF0F3]">
-                <th className="border border-[#FFD6E0] px-2 py-1.5 text-left">구분</th>
-                <th className="border border-[#FFD6E0] px-2 py-1.5 text-left">항목</th>
-                <th className="border border-[#FFD6E0] px-2 py-1.5 text-left">수집 시점</th>
+              <tr className="bg-[#FAF6EC]">
+                <th className="border border-[var(--color-line)] px-2 py-1.5 text-left">구분</th>
+                <th className="border border-[var(--color-line)] px-2 py-1.5 text-left">항목</th>
+                <th className="border border-[var(--color-line)] px-2 py-1.5 text-left">수집 시점</th>
               </tr>
             </thead>
             <tbody>
               <tr>
-                <td className="border border-[#FFD6E0] px-2 py-1.5">이용 기록</td>
-                <td className="border border-[#FFD6E0] px-2 py-1.5">브라우저 식별자(localStorage 토큰), 접속 IP, 접속 일시, 이용 페이지, User-Agent</td>
-                <td className="border border-[#FFD6E0] px-2 py-1.5">서비스 접속 시 자동 수집</td>
+                <td className="border border-[var(--color-line)] px-2 py-1.5">이용 기록</td>
+                <td className="border border-[var(--color-line)] px-2 py-1.5">브라우저 식별자(localStorage 토큰), 접속 IP, 접속 일시, 이용 페이지, User-Agent</td>
+                <td className="border border-[var(--color-line)] px-2 py-1.5">서비스 접속 시 자동 수집</td>
               </tr>
               <tr>
-                <td className="border border-[#FFD6E0] px-2 py-1.5">이용자 입력 콘텐츠</td>
-                <td className="border border-[#FFD6E0] px-2 py-1.5">텍스트 상황 설명, 업로드한 대화 캡처 이미지(카톡·DM 등)</td>
-                <td className="border border-[#FFD6E0] px-2 py-1.5">분석 요청 시</td>
+                <td className="border border-[var(--color-line)] px-2 py-1.5">이용자 입력 콘텐츠</td>
+                <td className="border border-[var(--color-line)] px-2 py-1.5">텍스트 상황 설명, 업로드한 대화 캡처 이미지(카톡·DM 등)</td>
+                <td className="border border-[var(--color-line)] px-2 py-1.5">분석 요청 시</td>
               </tr>
               <tr>
-                <td className="border border-[#FFD6E0] px-2 py-1.5">결제 정보</td>
-                <td className="border border-[#FFD6E0] px-2 py-1.5">주문 번호, 결제 금액, 결제 수단, 결제 일시 (카드번호 등 민감 정보는 토스페이먼츠가 직접 처리, 운영자 서버에는 저장되지 않음)</td>
-                <td className="border border-[#FFD6E0] px-2 py-1.5">유료 결제 시</td>
+                <td className="border border-[var(--color-line)] px-2 py-1.5">결제 정보</td>
+                <td className="border border-[var(--color-line)] px-2 py-1.5">주문 번호, 결제 금액, 결제 수단, 결제 일시 (카드번호 등 민감 정보는 토스페이먼츠가 직접 처리, 운영자 서버에는 저장되지 않음)</td>
+                <td className="border border-[var(--color-line)] px-2 py-1.5">유료 결제 시</td>
               </tr>
               <tr>
-                <td className="border border-[#FFD6E0] px-2 py-1.5">선택 항목</td>
-                <td className="border border-[#FFD6E0] px-2 py-1.5">이메일(결제/문의 응답용, 선택 입력 시)</td>
-                <td className="border border-[#FFD6E0] px-2 py-1.5">이용자가 직접 입력 시</td>
+                <td className="border border-[var(--color-line)] px-2 py-1.5">선택 항목</td>
+                <td className="border border-[var(--color-line)] px-2 py-1.5">이메일(결제/문의 응답용, 선택 입력 시)</td>
+                <td className="border border-[var(--color-line)] px-2 py-1.5">이용자가 직접 입력 시</td>
               </tr>
             </tbody>
           </table>
@@ -87,37 +87,37 @@ export default function PrivacyPage() {
         <div className="overflow-x-auto">
           <table className="w-full text-[13px] border-collapse">
             <thead>
-              <tr className="bg-[#FFF0F3]">
-                <th className="border border-[#FFD6E0] px-2 py-1.5 text-left">수탁자</th>
-                <th className="border border-[#FFD6E0] px-2 py-1.5 text-left">위탁 업무</th>
-                <th className="border border-[#FFD6E0] px-2 py-1.5 text-left">제공 항목</th>
+              <tr className="bg-[#FAF6EC]">
+                <th className="border border-[var(--color-line)] px-2 py-1.5 text-left">수탁자</th>
+                <th className="border border-[var(--color-line)] px-2 py-1.5 text-left">위탁 업무</th>
+                <th className="border border-[var(--color-line)] px-2 py-1.5 text-left">제공 항목</th>
               </tr>
             </thead>
             <tbody>
               <tr>
-                <td className="border border-[#FFD6E0] px-2 py-1.5">Anthropic, PBC (미국)</td>
-                <td className="border border-[#FFD6E0] px-2 py-1.5">AI 분석 처리 (Claude API)</td>
-                <td className="border border-[#FFD6E0] px-2 py-1.5">이용자가 입력한 텍스트·이미지</td>
+                <td className="border border-[var(--color-line)] px-2 py-1.5">Anthropic, PBC (미국)</td>
+                <td className="border border-[var(--color-line)] px-2 py-1.5">AI 분석 처리 (Claude API)</td>
+                <td className="border border-[var(--color-line)] px-2 py-1.5">이용자가 입력한 텍스트·이미지</td>
               </tr>
               <tr>
-                <td className="border border-[#FFD6E0] px-2 py-1.5">(주)비바리퍼블리카 (토스페이먼츠)</td>
-                <td className="border border-[#FFD6E0] px-2 py-1.5">전자결제 처리</td>
-                <td className="border border-[#FFD6E0] px-2 py-1.5">주문 번호, 결제 금액, 결제 수단</td>
+                <td className="border border-[var(--color-line)] px-2 py-1.5">(주)비바리퍼블리카 (토스페이먼츠)</td>
+                <td className="border border-[var(--color-line)] px-2 py-1.5">전자결제 처리</td>
+                <td className="border border-[var(--color-line)] px-2 py-1.5">주문 번호, 결제 금액, 결제 수단</td>
               </tr>
               <tr>
-                <td className="border border-[#FFD6E0] px-2 py-1.5">Supabase Inc. (미국)</td>
-                <td className="border border-[#FFD6E0] px-2 py-1.5">데이터베이스 호스팅</td>
-                <td className="border border-[#FFD6E0] px-2 py-1.5">주문 정보, 분석 결과, 이용자 입력 콘텐츠</td>
+                <td className="border border-[var(--color-line)] px-2 py-1.5">Supabase Inc. (미국)</td>
+                <td className="border border-[var(--color-line)] px-2 py-1.5">데이터베이스 호스팅</td>
+                <td className="border border-[var(--color-line)] px-2 py-1.5">주문 정보, 분석 결과, 이용자 입력 콘텐츠</td>
               </tr>
               <tr>
-                <td className="border border-[#FFD6E0] px-2 py-1.5">Vercel Inc. (미국)</td>
-                <td className="border border-[#FFD6E0] px-2 py-1.5">웹 호스팅 및 트래픽 처리</td>
-                <td className="border border-[#FFD6E0] px-2 py-1.5">접속 로그, 요청 데이터</td>
+                <td className="border border-[var(--color-line)] px-2 py-1.5">Vercel Inc. (미국)</td>
+                <td className="border border-[var(--color-line)] px-2 py-1.5">웹 호스팅 및 트래픽 처리</td>
+                <td className="border border-[var(--color-line)] px-2 py-1.5">접속 로그, 요청 데이터</td>
               </tr>
             </tbody>
           </table>
         </div>
-        <p className="mt-2 text-[12.5px] text-[#6E6A80]">
+        <p className="mt-2 text-[12.5px] text-[var(--color-sub)]">
           ※ 일부 수탁자는 해외에 소재하므로 개인정보가 국외로 이전될 수 있습니다.
           이용자가 서비스를 이용함으로써 국외 이전에 동의한 것으로 간주됩니다.
         </p>
@@ -154,7 +154,7 @@ export default function PrivacyPage() {
 
       <section className="mb-6">
         <h2 className="text-[16px] font-bold mb-2">8. 개인정보 보호책임자</h2>
-        <div className="rounded-[12px] bg-[#FFF8FA] border border-[#FFE8EC] p-4">
+        <div className="rounded-[12px] bg-[var(--color-bg)] border border-[#FAF6EC] p-4">
           <ul className="space-y-1">
             <li>성명: 김경은</li>
             <li>직책: 대표</li>
