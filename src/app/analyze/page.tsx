@@ -994,19 +994,14 @@ const UNLOCK_PRICE = 990;
 function ChatBubble({ role, content }: { role: ChatRole; content: string }) {
   const isUser = role === "user";
   return (
-    <div className={`flex mb-2 ${isUser ? "justify-end" : "justify-start"}`}>
+    <div className={`mb-2 flex ${isUser ? "justify-end" : "justify-start"}`}>
       <div
-        className={`max-w-[78%] px-3.5 py-2.5 text-[13.5px] leading-[1.6] whitespace-pre-wrap ${
-          isUser ? "rounded-[18px] rounded-br-[6px]" : "rounded-[18px] rounded-bl-[6px]"
+        className={`max-w-[78%] px-4 py-3 text-[14px] leading-[1.55] whitespace-pre-wrap ${
+          isUser
+            ? "rounded-[18px] rounded-br-[4px] bg-ink text-bg"
+            : "rounded-[18px] rounded-bl-[4px] border border-line bg-bg-alt text-ink"
         }`}
-        style={{
-          background: isUser
-            ? "linear-gradient(135deg, var(--color-primary), var(--color-primary))"
-            : "var(--color-bg-alt)",
-          color: isUser ? "#fff" : "var(--color-ink)",
-          border: isUser ? "none" : "1px solid var(--color-line)",
-          boxShadow: isUser ? "0 2px 10px rgba(217,117,87,0.18)" : "none",
-        }}>
+      >
         {content}
       </div>
     </div>
@@ -1310,13 +1305,21 @@ function ChatSimulator({ parentOrderId }: { parentOrderId: string }) {
 
   return (
     <div className="mt-6 mb-2 animate-fadeUp">
-      {/* 섹션 헤더 */}
-      <div className="text-center mb-3">
-        <div className="text-[18px] font-extrabold text-[var(--color-ink)] mb-1">
-          💬 걔랑 대화 한번 해봐
+      {/* 섹션 헤더 — editorial */}
+      <div className="mb-4 border-t border-line pt-5">
+        <div className="mb-2 font-mono text-[9px] font-bold tracking-[2.5px] text-sub">
+          LIVE SIMULATION · NEW
         </div>
-        <div className="text-[12px] text-[var(--color-sub)] leading-[1.55] px-3">
-          걔 말투 그대로 답장이 와. 보내기 전에 어떤 반응일지 미리 돌려봐.
+        <div className="flex items-center gap-3">
+          <NyangHead size={34} />
+          <div className="flex-1">
+            <div className="font-serif text-[22px] font-medium leading-tight tracking-[-0.5px] text-ink">
+              걔랑 대화 연습
+            </div>
+            <div className="mt-0.5 text-[11px] leading-[1.4] text-sub">
+              걔 말투 그대로 답장이 와 · 냥이가 옆에서 코칭한다냥
+            </div>
+          </div>
         </div>
       </div>
 
