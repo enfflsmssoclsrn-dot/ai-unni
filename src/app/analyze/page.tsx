@@ -803,6 +803,59 @@ function ResultCard({ result, isPaid, onReset, onResetPaid, onUnlock, unlocking,
 
   return (
     <div id="result-card" className="w-full animate-fadeUp flex flex-col gap-5">
+      {/* 호감도 점수 요약 카드 — reveal에서 짠 후 스크롤 돌아왔을 때 재확인용 */}
+      <div
+        style={{
+          background: "#FAF6EC",
+          border: "1px solid #E5DCC9",
+          padding: "20px 22px",
+          fontFamily: "var(--font-sans)",
+          color: "#2B2420",
+        }}
+      >
+        <div
+          style={{
+            fontSize: 10,
+            letterSpacing: "0.3em",
+            color: "#8A7F75",
+            fontWeight: 500,
+            marginBottom: 10,
+          }}
+        >
+          — HOGAM SCORE · 00 —
+        </div>
+        <div style={{ display: "flex", alignItems: "baseline", gap: 12 }}>
+          <div
+            style={{
+              fontFamily: "var(--font-serif)",
+              fontSize: 64,
+              fontWeight: 300,
+              lineHeight: 0.95,
+              letterSpacing: "-0.04em",
+              color: "#2B2420",
+            }}
+          >
+            {result.score ?? 0}
+          </div>
+          <div
+            style={{
+              fontFamily: "var(--font-serif)",
+              fontStyle: "italic",
+              fontSize: 18,
+              color: "#8A7F75",
+            }}
+          >
+            / 100
+          </div>
+        </div>
+        {(result.stage || result.temperature) && (
+          <div className="mt-3 flex flex-wrap gap-1.5">
+            {result.stage && <StageBadge stage={result.stage} />}
+            {result.temperature && <TempBadge temperature={result.temperature} />}
+          </div>
+        )}
+      </div>
+
       {/* 냥이가 해주고 싶은 말 (무료+유료) */}
       <NyangMessage message={nyangMessage} />
 
