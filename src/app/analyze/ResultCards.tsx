@@ -1476,11 +1476,36 @@ export function GottmanCard({
     stonewalling: number;
   };
 }) {
-  const items: { icon: IconType; label: string; value: number }[] = [
-    { icon: "alert", label: "비난", value: flags.criticism ?? 0 },
-    { icon: "lock", label: "방어", value: flags.defensiveness ?? 0 },
-    { icon: "bolt", label: "경멸", value: flags.contempt ?? 0 },
-    { icon: "chat", label: "담쌓기", value: flags.stonewalling ?? 0 },
+  const items: {
+    icon: IconType;
+    label: string;
+    sub: string;
+    value: number;
+  }[] = [
+    {
+      icon: "alert",
+      label: "비난",
+      sub: "성격·인격 공격",
+      value: flags.criticism ?? 0,
+    },
+    {
+      icon: "lock",
+      label: "방어",
+      sub: "책임 회피 · 역공격",
+      value: flags.defensiveness ?? 0,
+    },
+    {
+      icon: "bolt",
+      label: "경멸",
+      sub: "깔보거나 비꼬기",
+      value: flags.contempt ?? 0,
+    },
+    {
+      icon: "chat",
+      label: "담쌓기",
+      sub: "대화 철회 · 무반응",
+      value: flags.stonewalling ?? 0,
+    },
   ];
   const max = Math.max(...items.map((i) => i.value));
   const summary =
@@ -1578,20 +1603,41 @@ export function GottmanCard({
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "space-between",
+                gap: 12,
                 marginBottom: 8,
               }}
             >
-              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 10,
+                  minWidth: 0,
+                }}
+              >
                 <LineIcon type={it.icon} size={16} color={R_DARK} />
-                <span
-                  style={{
-                    fontFamily: "var(--font-serif)",
-                    fontWeight: 500,
-                    fontSize: 15,
-                  }}
-                >
-                  {it.label}
-                </span>
+                <div style={{ minWidth: 0 }}>
+                  <span
+                    style={{
+                      fontFamily: "var(--font-serif)",
+                      fontWeight: 500,
+                      fontSize: 15,
+                      color: R_DARK,
+                      marginRight: 8,
+                    }}
+                  >
+                    {it.label}
+                  </span>
+                  <span
+                    style={{
+                      fontSize: 11,
+                      color: R_MUTED,
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    {it.sub}
+                  </span>
+                </div>
               </div>
               <span
                 style={{
@@ -1599,6 +1645,7 @@ export function GottmanCard({
                   fontSize: 18,
                   color: R_DARK,
                   fontWeight: 400,
+                  flexShrink: 0,
                 }}
               >
                 {it.value}
