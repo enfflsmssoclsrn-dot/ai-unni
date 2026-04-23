@@ -2131,7 +2131,6 @@ export default function Home() {
   const [simSessionId, setSimSessionId] = useState<string | null>(null);  // 채팅 시뮬 세션 ID (holder)
   const [imageConsent, setImageConsent] = useState(false);                // 캡처 업로드 시 개인정보 동의
   const [situation, setSituation] = useState<string | null>(null);        // 랜딩 01에서 고른 상황
-  const [revealDone, setRevealDone] = useState(false);                    // 결과 도착 reveal 완료 여부
   const inputRef = useRef({ text: "", imageData: [] as any[] });
 
   // Check free usage + restore paid result on mount
@@ -2154,7 +2153,6 @@ export default function Home() {
       setPaidResult(saved);
       setPaidOrderId(loadPaidOrderId());
       setSimSessionId(loadSimSessionId());
-      setRevealDone(true); // 저장된 결과 복원 시에는 reveal 재생 안 함
     }
   }, []);
 
@@ -2191,7 +2189,6 @@ export default function Home() {
       inputRef.current = { text, imageData };
 
       const result = await analyzeAPI(text, imageData, "free");
-      setRevealDone(false);      // 새 결과 들어오면 reveal 연출 재생
       setFreeResult(result);
       markFreeUsed();
       setFreeUsed(true);
@@ -2287,25 +2284,19 @@ export default function Home() {
     return forcePaid ? <LoadingFinal /> : <LoadingFree />;
   }
 
-  // 결과 도착 직후 reveal 연출 (1회, 클릭·4.2s 후 자동 해제)
-  if (result && !revealDone) {
-    const tags = [result.stage, result.temperature].filter(
-      (t): t is string => Boolean(t)
-    );
-    return (
-      <ResultReveal
-        score={result.score || 0}
-        tags={tags}
-        quote={result.summary || ""}
-        onDone={() => setRevealDone(true)}
-      />
-    );
-  }
-
   return (
     <>
       <Masthead />
       <main className="min-h-screen bg-bg text-ink">
+        {result && (
+          <ResultReveal
+            score={result.score || 0}
+            tags={[result.stage, result.temperature].filter(
+              (t): t is string => Boolean(t)
+            )}
+            quote={result.summary || ""}
+          />
+        )}
         <div className="mx-auto max-w-[420px]">
           {!result && !loading && (
             <>

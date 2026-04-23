@@ -78,12 +78,8 @@ export function ResultReveal({
     const timers = schedule.map(([t, s]) =>
       setTimeout(() => setStage(s), t)
     );
-    const doneTimer = setTimeout(() => onDone?.(), 4200);
-    return () => {
-      timers.forEach(clearTimeout);
-      clearTimeout(doneTimer);
-    };
-  }, [onDone]);
+    return () => timers.forEach(clearTimeout);
+  }, []);
 
   useEffect(() => {
     if (stage < 2) return;
@@ -104,12 +100,6 @@ export function ResultReveal({
 
   return (
     <div
-      role="button"
-      tabIndex={0}
-      onClick={() => onDone?.()}
-      onKeyDown={(e) => {
-        if (e.key === "Enter" || e.key === " ") onDone?.();
-      }}
       style={{
         width: "100%",
         minHeight: "100vh",
@@ -123,7 +113,6 @@ export function ResultReveal({
         boxSizing: "border-box",
         position: "relative",
         overflow: "hidden",
-        cursor: "pointer",
       }}
     >
       <div style={{ marginBottom: 20, position: "relative" }}>
