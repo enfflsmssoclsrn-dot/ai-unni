@@ -2,7 +2,7 @@
 import { useState, useRef, useCallback, useEffect } from "react";
 import { Masthead } from "@/components/layout/Masthead";
 import { BtnPrimary } from "@/components/ui/BtnPrimary";
-import { NyangHead, NyangEyes } from "@/components/nyang-icons";
+import { NyangHead, NyangEyes, NyangPaw } from "@/components/nyang-icons";
 
 // ─── Free Usage Limit (1/day, localStorage) ───
 const FREE_LIMIT_KEY = "ai-unni-free-used";
@@ -2095,7 +2095,18 @@ export default function Home() {
         <div className="mx-auto max-w-[420px]">
           {!result && <HeroSection />}
           {!result && <DashedDivider />}
+          {!result && <SituationPickerSection />}
+          {!result && <DashedDivider />}
           <div id="analyze" className="px-[22px] pt-6 pb-10 scroll-mt-16">
+            {!result && !loading && (
+              <div className="mb-4">
+                <SectionHeader
+                  num="02"
+                  label="대화 업로드"
+                  title="카톡·DM 캡처 올리기다냥"
+                />
+              </div>
+            )}
 
 
         {result ? (
@@ -2296,14 +2307,14 @@ function HeroSection() {
         </span>
         <span className="font-script text-[18px] leading-none text-sub">no.026</span>
       </div>
-      <h1 className="relative m-0 font-serif text-[44px] font-light leading-[1.0] tracking-[-1.7px] text-ink">
+      <h1 className="relative m-0 font-serif text-[46px] font-light leading-[1.0] tracking-[-1.7px] text-ink">
         대화 캡쳐
         <br />
         한 장이면
         <br />
         <em className="font-medium not-italic">걔 속마음</em>이
         <br />
-        보여.
+        보인다냥.
         <span className="absolute -top-2 right-[6px] rotate-[12deg]">
           <NyangHead size={46} />
         </span>
@@ -2334,6 +2345,68 @@ function HeroSection() {
   );
 }
 
+function SectionHeader({
+  num,
+  label,
+  title,
+}: {
+  num: string;
+  label: string;
+  title: string;
+}) {
+  return (
+    <>
+      <div className="mb-2 font-mono text-[11px] font-bold tracking-[2.5px] text-sub">
+        {num} · {label}
+      </div>
+      <div className="font-serif text-[30px] font-medium leading-[1.1] tracking-[-0.6px] text-ink">
+        {title}
+      </div>
+    </>
+  );
+}
+
+function SituationPickerSection() {
+  const situations = [
+    "썸인데 나만 진심인 것 같아",
+    "사귀는 중인데 자꾸 불안해",
+    "헤어졌는데 다시 가능성 있는지 모르겠어",
+    "이 사람이 날 좋아하는지 모르겠어",
+    "부부 사이가 너무 멀어진 느낌이야",
+  ];
+  return (
+    <section className="relative">
+      <div className="relative px-[22px] pt-[22px] pb-3">
+        <SectionHeader num="01" label="지금 네 고민" title="어디에 제일 가깝다냥?" />
+        <div className="mt-2 text-[13px] leading-[1.5] text-sub">
+          괜히 예민한 건지, 진짜 이상한 건지 구분해줄게.
+        </div>
+        <div className="pointer-events-none absolute right-4 top-3 rotate-[-8deg]">
+          <NyangPaw size={30} color="var(--color-ink)" pad="var(--color-primary)" />
+        </div>
+      </div>
+      <div className="px-[22px] pb-4">
+        {situations.map((s, i) => (
+          <button
+            key={i}
+            onClick={() => scrollToId("analyze")}
+            type="button"
+            className="flex w-full items-center gap-[14px] border-b border-line bg-transparent py-[14px] text-left transition-colors hover:bg-bg-alt"
+          >
+            <span className="w-6 font-mono text-[10px] tracking-[1px] text-primary-deep">
+              {String(i + 1).padStart(2, "0")}
+            </span>
+            <span className="flex-1 text-[15px] font-medium tracking-[-0.3px] text-ink">
+              {s}
+            </span>
+            <span className="text-[13px] text-sub">→</span>
+          </button>
+        ))}
+      </div>
+    </section>
+  );
+}
+
 function HowItWorksSection() {
   const steps = [
     { n: "01", t: "캡처 업로드", d: "카톡·DM·문자 — 형식 상관없어" },
@@ -2343,14 +2416,9 @@ function HowItWorksSection() {
   ];
   return (
     <section className="relative">
-      <div className="relative px-[22px] pt-6 pb-2">
-        <div className="mb-1 font-mono text-[10px] font-bold tracking-[2.5px] text-sub">
-          03 · 작동 방식
-        </div>
-        <div className="font-serif text-[22px] font-normal tracking-[-0.5px]">
-          이렇게 분석해
-        </div>
-        <div className="absolute right-5 top-10 rotate-[8deg]">
+      <div className="relative px-[22px] pt-6 pb-3">
+        <SectionHeader num="03" label="작동 방식" title="이렇게 분석한다냥" />
+        <div className="absolute right-5 top-12 rotate-[8deg]">
           <NyangEyes size={30} color="var(--color-primary)" />
         </div>
       </div>
@@ -2358,16 +2426,16 @@ function HowItWorksSection() {
         {steps.map((s, i) => (
           <div
             key={s.n}
-            className={`flex gap-[14px] py-3 ${i < 3 ? "border-b border-line" : ""}`}
+            className={`flex gap-[14px] py-[14px] ${i < 3 ? "border-b border-line" : ""}`}
           >
-            <div className="w-6 shrink-0 pt-[3px] font-mono text-[10px] tracking-[1px] text-primary-deep">
+            <div className="w-7 shrink-0 pt-1 font-mono text-[11px] tracking-[1px] text-primary-deep">
               {s.n}
             </div>
             <div className="flex-1">
-              <div className="mb-0.5 text-[14px] font-semibold tracking-[-0.3px]">
+              <div className="mb-1 text-[15px] font-semibold tracking-[-0.3px] text-ink">
                 {s.t}
               </div>
-              <div className="text-[12px] leading-[1.5] text-sub">{s.d}</div>
+              <div className="text-[13px] leading-[1.5] text-sub">{s.d}</div>
             </div>
           </div>
         ))}
@@ -2377,36 +2445,120 @@ function HowItWorksSection() {
 }
 
 function SampleReportSection() {
+  const horsemen = [
+    { k: "비난", v: 10, s: "안전" },
+    { k: "방어", v: 15, s: "안전" },
+    { k: "경멸", v: 5, s: "안전" },
+    { k: "담쌓기", v: 30, s: "양호" },
+  ];
+  const attach = ["회피형", "혼합형", "안정형", "불안형"];
   return (
-    <section className="relative px-[22px] pt-6 pb-3">
-      <div className="mb-1 font-mono text-[10px] font-bold tracking-[2.5px] text-sub">
-        04 · 샘플 리포트
+    <section className="relative px-[22px] pt-6 pb-4">
+      <div className="mb-3">
+        <SectionHeader num="04" label="샘플 리포트" title="이렇게 나온다냥" />
       </div>
-      <div className="mb-3 font-serif text-[22px] font-normal tracking-[-0.5px]">
-        이렇게 나와
-      </div>
-      <div className="relative overflow-hidden rounded-lg border border-line bg-bg-alt p-[18px]">
+      <div className="relative overflow-hidden rounded-[14px] border border-line bg-bg-alt p-5 shadow-[0_4px_24px_rgba(26,23,20,0.06)]">
+        {/* Score hero */}
         <div className="flex items-baseline justify-between">
           <div className="font-mono text-[10px] tracking-[2px] text-sub">
             호감도 점수
           </div>
-          <div className="text-[10px] font-bold tracking-[1.5px] text-primary-deep">
+          <div className="rounded-full bg-primary/15 px-2 py-0.5 font-mono text-[10px] font-bold tracking-[1.5px] text-primary-deep">
             SAMPLE
           </div>
         </div>
         <div className="mt-0.5 flex items-baseline gap-1.5">
-          <div className="font-serif text-[72px] font-light leading-none tracking-[-3px]">
+          <div className="font-serif text-[80px] font-light leading-none tracking-[-3px] text-ink">
             58
           </div>
           <div className="font-mono text-[11px] tracking-[1.5px] text-sub">
             / 100
           </div>
         </div>
-        <div className="mt-2.5 font-serif text-[16px] italic leading-[1.35] text-ink">
-          &ldquo;걔 발만 살짝 걸쳐놨어.&rdquo;
+
+        {/* Tags */}
+        <div className="mt-3 flex flex-wrap gap-1.5">
+          <span className="rounded-full bg-ink px-3 py-1 text-[11px] font-bold text-bg">
+            ✨ 호감
+          </span>
+          <span className="rounded-full border border-ink px-3 py-1 text-[11px] font-bold text-ink">
+            🌤 미지근
+          </span>
         </div>
-        <div className="absolute -bottom-2 -right-2 rotate-[14deg]">
-          <NyangHead size={42} />
+
+        {/* Pull quote */}
+        <div className="mt-3 font-serif text-[17px] italic leading-[1.35] text-ink">
+          &ldquo;걔 발만 살짝 걸쳐놨다냥.&rdquo;
+        </div>
+
+        <div className="my-5 h-px bg-ink/15" />
+
+        {/* Four Horsemen */}
+        <div className="mb-2 font-mono text-[10px] font-bold tracking-[2px] text-sub">
+          관계 위험 신호 · Gottman 4
+        </div>
+        <div className="grid grid-cols-2 gap-1.5">
+          {horsemen.map((h) => (
+            <div
+              key={h.k}
+              className="rounded-md border border-line bg-bg px-3 py-2.5"
+            >
+              <div className="text-[10px] font-semibold tracking-[0.5px] text-sub">
+                {h.s}
+              </div>
+              <div className="mt-0.5 flex items-baseline gap-1.5">
+                <span className="font-serif text-[22px] font-medium tracking-[-0.5px] text-ink">
+                  {h.v}
+                </span>
+                <span className="text-[12px] font-semibold text-ink">{h.k}</span>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <div className="my-5 h-px bg-ink/15" />
+
+        {/* Attachment */}
+        <div className="mb-2 font-mono text-[10px] font-bold tracking-[2px] text-sub">
+          상대방 애착 유형
+        </div>
+        <div className="mb-2.5 flex flex-wrap gap-1.5">
+          {attach.map((n, i) => (
+            <span
+              key={n}
+              className={
+                i === 3
+                  ? "rounded-full bg-ink px-3 py-0.5 text-[11px] font-semibold text-bg"
+                  : "rounded-full border border-line px-3 py-0.5 text-[11px] font-semibold text-sub"
+              }
+            >
+              {n}
+            </span>
+          ))}
+        </div>
+        <div className="font-serif text-[24px] font-medium leading-tight tracking-[-0.5px] text-ink">
+          불안형{" "}
+          <span className="font-mono text-[11px] font-bold tracking-[1px] text-primary-deep">
+            회피 ↑
+          </span>
+        </div>
+
+        {/* Premium teaser */}
+        <div className="relative mt-5 overflow-hidden rounded-[10px] bg-ink p-4 text-bg">
+          <div className="font-mono text-[9px] tracking-[2px] text-bg/60">
+            🔒 프리미엄에서 풀려
+          </div>
+          <div className="mt-1.5 font-serif text-[15px] leading-[1.4]">
+            호감도 레이더 6축 · 속마음 번역 · 답장 멘트 추천까지 전부 다냥.
+          </div>
+          <div className="pointer-events-none absolute -right-2 -top-2 rotate-[18deg] opacity-90">
+            <NyangHead size={40} eyeColor="var(--color-primary)" />
+          </div>
+        </div>
+
+        {/* Corner cat */}
+        <div className="pointer-events-none absolute -bottom-3 -right-3 rotate-[14deg]">
+          <NyangHead size={48} />
         </div>
       </div>
     </section>
@@ -2420,13 +2572,13 @@ function TestimonialsSection() {
     { q: "멘트 추천 그대로 썼는데 답장 퀄이 달라졌다;", a: "나연, 24" },
   ];
   return (
-    <section className="px-[22px] pt-4 pb-2">
-      <div className="mb-3 font-mono text-[10px] font-bold tracking-[2.5px] text-sub">
-        05 · 먼저 써본 사람들
+    <section className="px-[22px] pt-6 pb-3">
+      <div className="mb-3">
+        <SectionHeader num="05" label="먼저 써본 사람들" title="써본 사람들 한마디" />
       </div>
       {items.map((r, i) => (
-        <div key={i} className="border-t border-line py-[14px]">
-          <div className="mb-1.5 font-serif text-[15px] italic leading-[1.5] text-ink">
+        <div key={i} className="border-t border-line py-[16px]">
+          <div className="mb-1.5 font-serif text-[16px] italic leading-[1.5] text-ink">
             &ldquo;{r.q}&rdquo;
           </div>
           <div className="font-mono text-[11px] tracking-[1px] text-sub">— {r.a}</div>
@@ -2438,18 +2590,18 @@ function TestimonialsSection() {
 
 function LandingFaqSection() {
   const items = [
-    { q: "내 대화가 저장돼?", a: "분석 후 즉시 삭제돼. 걱정 ㄴㄴ." },
+    { q: "내 대화가 저장돼?", a: "분석 후 즉시 삭제된다냥. 걱정 ㄴㄴ." },
     { q: "결과 정확해?", a: "애착이론 + Gottman + AI. 단, 참고용이야." },
-    { q: "꼭 카톡이어야 해?", a: "DM · 문자 · 노션 메모 다 돼." },
+    { q: "꼭 카톡이어야 해?", a: "DM · 문자 · 노션 메모 다 된다냥." },
   ];
   return (
-    <section className="mt-2 border-t border-line px-[22px] pt-4 pb-2">
-      <div className="mb-2.5 font-mono text-[10px] font-bold tracking-[2.5px] text-sub">
-        06 · FAQ
+    <section className="mt-2 border-t border-line px-[22px] pt-6 pb-3">
+      <div className="mb-3">
+        <SectionHeader num="06" label="FAQ" title="자주 묻는 질문" />
       </div>
       {items.map((f, i) => (
-        <details key={i} className="border-b border-line py-3">
-          <summary className="flex cursor-pointer list-none items-center justify-between text-[14px] font-semibold tracking-[-0.3px]">
+        <details key={i} className="border-b border-line py-[14px]">
+          <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-[15px] font-semibold tracking-[-0.3px] text-ink">
             <span>{f.q}</span>
             <span className="text-sub">+</span>
           </summary>
@@ -2467,8 +2619,8 @@ function FinalCTASection() {
         <div className="mb-2 font-mono text-[10px] tracking-[2px] opacity-60">
           — READY?
         </div>
-        <div className="mb-4 max-w-[240px] font-serif text-[24px] font-normal leading-[1.25] tracking-[-0.6px]">
-          혼자 고민하지 말자.
+        <div className="mb-4 max-w-[260px] font-serif text-[28px] font-medium leading-[1.2] tracking-[-0.6px]">
+          혼자 고민하지 말라냥.
         </div>
         <button
           onClick={() => scrollToId("analyze")}
