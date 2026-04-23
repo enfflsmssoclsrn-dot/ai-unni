@@ -1272,49 +1272,126 @@ function ChatSimulator({ parentOrderId }: { parentOrderId: string }) {
     );
   }
 
-  // 캡처 없이 분석한 경우 — 시뮬 불가 안내
+  // 캡처 없이 분석한 경우 — 시뮬 불가 안내 (editorial)
   if (needImages) {
     return (
-      <div className="mt-6 mb-2 animate-fadeUp">
-        <div className="text-center mb-3">
-          <div className="text-[18px] font-extrabold text-[var(--color-ink)] mb-1">
-            💬 실시간 대화 시뮬레이션
+      <div className="animate-fadeUp mt-6">
+        <div className="mb-4 border-t border-line pt-5">
+          <div className="mb-2 font-mono text-[9px] font-bold tracking-[2.5px] text-sub">
+            LIVE SIMULATION · LOCKED
+          </div>
+          <div className="flex items-center gap-3">
+            <NyangHead size={34} />
+            <div className="flex-1">
+              <div
+                className="text-[22px] font-medium leading-tight tracking-[-0.5px] text-ink"
+                style={{ fontFamily: "var(--font-serif)" }}
+              >
+                대화 연습은 캡처가 있어야 열린다냥
+              </div>
+              <div className="mt-0.5 text-[11px] leading-[1.4] text-sub">
+                Realtime chat · needs KakaoTalk / DM screenshot
+              </div>
+            </div>
           </div>
         </div>
+
         <div
-          className="rounded-[18px] p-5 text-center"
           style={{
-            background: "linear-gradient(135deg, var(--color-bg-alt), var(--color-bg))",
-            border: "1px dashed var(--color-primary)",
-          }}>
-          <div className="text-[32px] mb-2">📱</div>
-          <div className="text-[14px] font-extrabold text-[var(--color-ink)] mb-1.5">
-            대화 캡처가 있어야 시뮬레이션이 가능해
-          </div>
-          <p className="text-[12px] text-[var(--color-sub)] leading-[1.6] mb-4">
-            걔 말투 그대로 답장을 만들려면 실제 대화 캡처가 필요해.
-            <br />
-            카톡·DM 캡처를 올려서 다시 분석하면 시뮬레이션까지 바로 열려.
-          </p>
-          <button
-            onClick={() => {
-              clearSimAndOrder();
-              clearPaidResult();
-              try {
-                localStorage.removeItem(PAID_KEY);
-              } catch {}
-              if (typeof window !== "undefined") window.scrollTo({ top: 0 });
-              window.location.href = "/";
-            }}
-            className="px-5 py-3 rounded-[14px] text-white text-[13px] font-bold"
+            background: "#FAF6EC",
+            border: "1px solid #E5DCC9",
+            padding: "22px 24px",
+          }}
+        >
+          <div
             style={{
-              background: "linear-gradient(135deg, var(--color-primary), var(--color-primary-deep))",
-              border: "none",
-              cursor: "pointer",
-              boxShadow: "0 4px 14px rgba(217,117,87,0.2)",
-            }}>
-            📎 캡처 올려서 다시 분석
-          </button>
+              fontFamily: "var(--font-serif)",
+              fontStyle: "italic",
+              fontSize: 11,
+              letterSpacing: "0.2em",
+              color: "#8A7F75",
+              marginBottom: 10,
+            }}
+          >
+            WHY IT MATTERS
+          </div>
+          <p
+            style={{
+              fontSize: 14,
+              lineHeight: 1.75,
+              color: "#2B2420",
+              margin: "0 0 8px",
+            }}
+          >
+            걔 말투 그대로 답장을 만들려면 실제 대화 캡처가 필요하다냥.
+          </p>
+          <p
+            style={{
+              fontSize: 12.5,
+              lineHeight: 1.7,
+              color: "#8A7F75",
+              margin: 0,
+            }}
+          >
+            카톡·DM 캡처를 올리고 다시 분석하면 대화 시뮬도 바로 열려.
+          </p>
+        </div>
+
+        <button
+          onClick={() => {
+            clearSimAndOrder();
+            clearPaidResult();
+            try {
+              localStorage.removeItem(PAID_KEY);
+            } catch {}
+            if (typeof window !== "undefined") window.scrollTo({ top: 0 });
+            window.location.href = "/analyze";
+          }}
+          type="button"
+          style={{
+            marginTop: 12,
+            width: "100%",
+            padding: "16px",
+            background: "#2B2420",
+            color: "#F4EFE6",
+            border: "none",
+            fontFamily: "var(--font-serif)",
+            fontWeight: 500,
+            fontSize: 15,
+            cursor: "pointer",
+            letterSpacing: "0.02em",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: 8,
+          }}
+        >
+          <svg
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="#F4EFE6"
+            strokeWidth={1.5}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden
+          >
+            <path d="M21 12.5 12.5 21a5.5 5.5 0 0 1-7.8-7.8L13 5a3.5 3.5 0 0 1 5 5L9.5 18.5a1.5 1.5 0 0 1-2.1-2.1L15 8.9" />
+          </svg>
+          <span>캡처 올려서 다시 분석</span>
+        </button>
+        <div
+          style={{
+            fontFamily: "var(--font-serif)",
+            fontStyle: "italic",
+            fontSize: 11,
+            color: "#8A7F75",
+            textAlign: "center",
+            marginTop: 10,
+          }}
+        >
+          · 새 분석도 무료 ·
         </div>
       </div>
     );
