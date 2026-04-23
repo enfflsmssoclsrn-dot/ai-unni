@@ -1738,88 +1738,93 @@ function UploadZone({ images, onAdd, onRemove }: any) {
   const atLimit = images.length >= MAX_IMAGES;
   return (
     <div>
-      <p className="text-[14px] text-[var(--color-ink)] font-bold mb-1">
-        📱 카톡·DM 대화 캡처 최대 3장
-      </p>
-      <p className="text-[12px] text-[var(--color-sub)] leading-[1.55] mb-1.5">
-        길게 설명 안 해도 괜찮아. 카톡·인스타 DM·문자 어디서든 대화 캡처를 올려주면
-        말투, 텀, 애매한 표현, 거리감까지 보고 지금 이 관계가 어떤 상태인지 읽어줄게.
-        캡처가 많을수록 말투 분석도 정확해져.
-      </p>
-      <p className="text-[11px] font-semibold text-[var(--color-primary)] leading-[1.5] mb-1.5">
-        💬 분석 후 대화 시뮬레이션을 하려면 캡처가 꼭 필요해.
-      </p>
-      <div
-        onClick={() => !atLimit && ref.current?.click()}
-        className="rounded-[16px] text-center transition-all"
-        style={{
-          padding: images.length > 0 ? "14px" : "28px 20px",
-          border: "1.5px dashed var(--color-primary)",
-          background: "var(--color-bg-alt)",
-          cursor: atLimit ? "not-allowed" : "pointer",
-          opacity: atLimit ? 0.85 : 1,
-        }}>
-        <input
-          ref={ref}
-          type="file"
-          accept="image/*"
-          multiple
-          className="hidden"
-          onChange={(e) => {
-            const files = Array.from(e.target.files || []);
-            const slots = MAX_IMAGES - images.length;
-            onAdd(files.slice(0, Math.max(0, slots)));
-            e.target.value = "";
-          }}
-        />
-        {images.length === 0 ? (
-          <>
-            <div className="text-[28px] mb-1.5">📎</div>
-            <div className="text-[13px] text-[var(--color-sub)]">
-              여기 눌러서 카톡·DM 캡처 추가{" "}
-              <span className="text-[#9994A8]">(선택 · 최대 3장)</span>
+      <input
+        ref={ref}
+        type="file"
+        accept="image/*"
+        multiple
+        className="hidden"
+        onChange={(e) => {
+          const files = Array.from(e.target.files || []);
+          const slots = MAX_IMAGES - images.length;
+          onAdd(files.slice(0, Math.max(0, slots)));
+          e.target.value = "";
+        }}
+      />
+      {images.length === 0 ? (
+        <button
+          type="button"
+          onClick={() => ref.current?.click()}
+          className="flex w-full items-center gap-[14px] rounded-[6px] border border-dashed border-ink bg-transparent p-5 text-left transition-colors hover:bg-ink/5 active:scale-[0.99]"
+        >
+          <div className="flex h-[42px] w-[42px] shrink-0 items-center justify-center rounded-full border border-line text-[18px]">
+            📎
+          </div>
+          <div className="flex-1">
+            <div className="text-[14px] font-bold tracking-[-0.3px] text-ink">
+              여기 눌러서 캡처 추가
             </div>
-          </>
-        ) : (
-          <>
-            <div
-              className="grid gap-2 mb-2"
-              style={{ gridTemplateColumns: `repeat(${Math.min(images.length, 3)}, 1fr)` }}>
-              {images.map((img: any, i: number) => (
-                <div key={i} className="relative rounded-[10px] overflow-hidden">
-                  <img
-                    src={img.preview}
-                    alt=""
-                    className="w-full h-[100px] object-cover block"
-                  />
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onRemove(i);
-                    }}
-                    className="absolute top-1 right-1 w-5 h-5 rounded-full bg-black/50 border-none text-white text-xs cursor-pointer flex items-center justify-center">
-                    ×
-                  </button>
-                </div>
-              ))}
+            <div className="mt-0.5 text-[11px] leading-[1.4] text-sub">
+              선택 · 최대 3장 · 많을수록 정확하다냥
             </div>
-            <div className="text-xs text-[var(--color-sub)]">
-              {atLimit
-                ? `📌 최대 ${MAX_IMAGES}장 (${images.length}/${MAX_IMAGES})`
-                : `+ 더 추가하기 (${images.length}/${MAX_IMAGES})`}
-            </div>
-          </>
-        )}
-      </div>
+          </div>
+          <div className="shrink-0 text-[22px] font-light text-ink">+</div>
+        </button>
+      ) : (
+        <div>
+          <div
+            className="mb-2 grid gap-2"
+            style={{
+              gridTemplateColumns: `repeat(${Math.min(images.length, 3)}, 1fr)`,
+            }}
+          >
+            {images.map((img: any, i: number) => (
+              <div
+                key={i}
+                className="relative overflow-hidden rounded-[8px] border border-line"
+              >
+                <img
+                  src={img.preview}
+                  alt=""
+                  className="block h-[110px] w-full object-cover"
+                />
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onRemove(i);
+                  }}
+                  type="button"
+                  className="absolute right-1 top-1 flex h-5 w-5 cursor-pointer items-center justify-center rounded-full border-none bg-ink/70 text-xs text-bg"
+                >
+                  ×
+                </button>
+              </div>
+            ))}
+          </div>
+          <button
+            type="button"
+            onClick={() => !atLimit && ref.current?.click()}
+            disabled={atLimit}
+            className={
+              atLimit
+                ? "w-full rounded-[6px] border border-dashed border-line bg-transparent px-4 py-3 text-[12px] text-sub"
+                : "w-full rounded-[6px] border border-dashed border-ink bg-transparent px-4 py-3 text-[12px] font-semibold text-ink transition-colors hover:bg-ink/5"
+            }
+          >
+            {atLimit
+              ? `최대 ${MAX_IMAGES}장까지 (${images.length}/${MAX_IMAGES})`
+              : `+ 더 추가하기 (${images.length}/${MAX_IMAGES})`}
+          </button>
+        </div>
+      )}
     </div>
   );
 }
 
 // ─── Text Input ───
 function TextInput({ value, onChange }: { value: string; onChange: (v: string) => void }) {
-  // 단일 선택: 새 칩을 누르면 다른 활성 칩의 프롬프트는 전부 제거 후 새 프롬프트만 prepend
   const handleChip = (prompt: string) => {
-    if (value.includes(prompt)) return; // 이미 같은 칩 활성 — 무시
+    if (value.includes(prompt)) return;
     let next = value;
     for (const c of CHIPS) {
       if (c.prompt !== prompt && next.includes(c.prompt)) {
@@ -1831,45 +1836,36 @@ function TextInput({ value, onChange }: { value: string; onChange: (v: string) =
 
   return (
     <div>
-      <p className="text-[14px] text-[var(--color-ink)] font-bold mb-1">✏️ 지금 네 고민, 어디에 제일 가까워?</p>
-      <p className="text-[11px] text-[var(--color-sub)] mb-2.5">괜히 예민한 건지, 진짜 이상한 건지 구분해줄게</p>
-      <div className="flex flex-wrap gap-2 mb-3">
+      <div className="mb-3 flex flex-wrap gap-1.5">
         {CHIPS.map((chip, i) => {
           const isActive = value.includes(chip.prompt);
           return (
             <button
               key={i}
               onClick={() => {
-                if (isActive) return;        // 이미 추가된 칩은 중복 클릭 차단
+                if (isActive) return;
                 handleChip(chip.prompt);
               }}
               disabled={isActive}
               aria-pressed={isActive}
-              className="inline-flex items-center gap-1 px-3.5 py-[8px] rounded-full text-[13px] font-semibold transition-all active:scale-[0.97]"
-              style={{
-                background: isActive ? "var(--color-primary)" : "#fff",
-                color: isActive ? "#fff" : "var(--color-ink)",
-                border: isActive ? "1.5px solid var(--color-primary)" : "1.5px solid var(--color-line)",
-                boxShadow: isActive
-                  ? "0 4px 14px rgba(217,117,87,0.32)"
-                  : "0 2px 8px rgba(26,23,20,0.14)",
-                cursor: isActive ? "default" : "pointer",
-                opacity: isActive ? 0.95 : 1,
-              }}>
-              {chip.emoji} {chip.label}
+              type="button"
+              className={
+                isActive
+                  ? "inline-flex cursor-default items-center gap-1 rounded-full bg-ink px-3 py-1.5 text-[13px] font-semibold text-bg"
+                  : "inline-flex items-center gap-1 rounded-full border border-ink/60 bg-transparent px-3 py-1.5 text-[13px] font-medium text-ink transition-colors hover:border-ink hover:bg-ink hover:text-bg active:scale-[0.97]"
+              }
+            >
+              {isActive ? "✓" : chip.emoji} {chip.label}
             </button>
           );
         })}
       </div>
-      <textarea value={value} onChange={e => onChange(e.target.value)}
-        placeholder={"상황 버튼을 누르거나 직접 써줘!\n\n예시: 3주 전에 소개팅으로 만났는데, 카톡은 매일 해. 근데 항상 내가 먼저 연락하거든? 답장은 빠르고 이모티콘도 많이 쓰는데, 만나자는 말은 안 해..."}
-        className="w-full min-h-[110px] py-3.5 px-4 rounded-[20px] text-sm leading-[1.7] resize-y outline-none transition-colors focus:border-[var(--color-primary)]"
-        style={{
-          border: "1.5px solid var(--color-line)",
-          background: "#fff",
-          color: "var(--color-ink)",
-          boxShadow: "0 2px 12px rgba(26,23,20,0.06)",
-        }} />
+      <textarea
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder={"상황 버튼을 누르거나 직접 풀어써줘.\n\n예) 3주 전에 소개팅으로 만났는데, 카톡은 매일 해. 근데 항상 내가 먼저 연락해. 답장은 빠른데 만나자는 말은 없어."}
+        className="w-full min-h-[120px] resize-y rounded-[12px] border border-line bg-bg/60 px-4 py-3.5 text-[14px] leading-[1.7] text-ink outline-none transition-colors placeholder:text-sub/70 focus:border-ink focus:bg-bg"
+      />
     </div>
   );
 }
@@ -2295,18 +2291,17 @@ export default function Home() {
         <div className="mx-auto max-w-[420px]">
           {!result && !loading && (
             <>
-              <SituationPickerSection
-                selected={situation}
-                onPick={(s) => {
-                  setSituation(s);
-                  const prefix = `[상황] ${s}\n\n`;
-                  setText((prev) =>
-                    prev.startsWith("[상황]")
-                      ? prev.replace(/^\[상황\].*\n\n/, prefix)
-                      : prefix + prev
-                  );
-                }}
-              />
+              <section className="px-[22px] pt-[22px] pb-5">
+                <SectionHeader
+                  num="01"
+                  label="지금 네 고민"
+                  title="어디에 제일 가깝다냥?"
+                />
+                <p className="mb-4 mt-2 text-[13px] leading-[1.5] text-sub">
+                  상황 골라두거나 직접 풀어써줘. 길게 안 써도 돼.
+                </p>
+                <TextInput value={text} onChange={setText} />
+              </section>
               <DashedDivider />
             </>
           )}
@@ -2316,8 +2311,11 @@ export default function Home() {
                 <SectionHeader
                   num="02"
                   label="대화 업로드"
-                  title="카톡·DM 캡처 올리기다냥"
+                  title="카톡 · DM 캡처 최대 3장"
                 />
+                <p className="mt-2 text-[13px] leading-[1.5] text-sub">
+                  많을수록 말투 분석이 정확해져. 대화 시뮬하려면 꼭 필요해.
+                </p>
               </div>
             )}
 
@@ -2336,7 +2334,6 @@ export default function Home() {
           <LoadingState />
         ) : (
           <div className="animate-fadeUp flex flex-col gap-4">
-            <TextInput value={text} onChange={setText} />
             <UploadZone images={images} onAdd={addImages} onRemove={removeImage} />
 
             {/* 캡처 업로드 시 개인정보 동의 — 제3자(상대방) 정보 포함되므로 명시 동의 필수 */}
