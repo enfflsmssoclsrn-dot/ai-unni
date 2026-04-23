@@ -248,7 +248,7 @@ function TempBadge({ temperature }: { temperature: string }) {
 // ─── Section Cards ───
 function SectionCard({ title, icon, accent, children }: { title: string; icon: string; accent?: string; children: React.ReactNode }) {
   return (
-    <div className="bg-white rounded-[20px] border border-[rgba(255,143,171,0.15)] shadow-[0_2px_20px_rgba(255,143,171,0.08)] p-5 mb-3">
+    <div className="bg-white rounded-[20px] border border-[rgba(26,23,20,0.14)] shadow-[0_2px_20px_rgba(26,23,20,0.08)] p-5 mb-3">
       <div className="text-sm font-bold mb-3" style={{ color: accent || "var(--color-ink)" }}>{icon} {title}</div>
       {children}
     </div>
@@ -653,7 +653,7 @@ function PremiumPreview({ onUnlock, unlocking, redirecting }: { onUnlock: () => 
       <div className="mb-3.5">
         {items.map((it, i) => (
           <div key={i} className="flex items-start gap-2.5 py-2 border-b last:border-b-0"
-            style={{ borderColor: "rgba(255,214,224,0.6)" }}>
+            style={{ borderColor: "rgba(26,23,20,0.06)" }}>
             <div className="text-[16px] leading-none mt-0.5">{it.icon}</div>
             <div className="flex-1">
               <div className="text-[13px] font-bold text-[var(--color-ink)] leading-[1.4]">{it.title}</div>
@@ -671,7 +671,7 @@ function PremiumPreview({ onUnlock, unlocking, redirecting }: { onUnlock: () => 
           background: (redirecting || unlocking)
             ? "#D0CDE0"
             : "linear-gradient(135deg, var(--color-primary), var(--color-primary-deep))",
-          boxShadow: (redirecting || unlocking) ? "none" : "0 4px 20px rgba(255,107,138,0.2)",
+          boxShadow: (redirecting || unlocking) ? "none" : "0 4px 20px rgba(217,117,87,0.2)",
           cursor: (redirecting || unlocking) ? "not-allowed" : "pointer",
         }}>
         {redirecting ? "결제창으로 이동 중..." : "걔 속마음 열어보기 · ₩2,900"}
@@ -729,32 +729,39 @@ function UnlockingProgress() {
 // ─── Result Card ───
 function ResultCard({ result, isPaid, onReset, onResetPaid, onUnlock, unlocking, redirecting, freeUsed }: any) {
   return (
-    <div id="result-card" className="w-full max-w-[400px] mx-auto animate-fadeUp">
-      {/* Score Header */}
-      <div className="text-center mb-5 py-7 px-5 rounded-[24px] border border-[rgba(255,143,171,0.15)] shadow-[0_2px_20px_rgba(255,143,171,0.08)]"
-        style={{ background: "linear-gradient(180deg, var(--color-bg-alt) 0%, #fff 100%)" }}>
-        <p className="mb-3" style={{ fontSize: 11, color: "var(--color-sub)", letterSpacing: 0.3, fontWeight: 600 }}>
-          가트만 관계 심리학 · 애착이론 기반 분석
-        </p>
-        <ScoreGauge score={result.score} />
-        <div className="mt-2.5 flex justify-center gap-2 flex-wrap">
+    <div id="result-card" className="w-full animate-fadeUp">
+      {/* Score hero — editorial */}
+      <div className="relative pt-4 pb-5 text-center">
+        <div className="mb-2 font-mono text-[10px] font-bold tracking-[3px] text-primary-deep">
+          — 분석 결과
+        </div>
+        <div className="mb-1 font-mono text-[11px] tracking-[2.5px] text-sub">
+          호감도 점수
+        </div>
+        <div className="relative inline-block">
+          <div className="font-serif font-light leading-[0.9] tracking-[-6px] text-ink text-[140px]">
+            {result.score}
+          </div>
+          <div className="pointer-events-none absolute -right-3 bottom-3 rotate-[10deg]">
+            <NyangHead size={40} eyeColor="var(--color-primary)" />
+          </div>
+        </div>
+        <div className="-mt-1 font-mono text-[11px] tracking-[3px] text-sub">/ 100</div>
+        <div className="mt-4 flex flex-wrap justify-center gap-1.5">
           {result.stage && <StageBadge stage={result.stage} />}
           <TempBadge temperature={result.temperature} />
         </div>
-        {/* 촌철살인 한마디 — AI 냥이의 팩폭 */}
-        <div className="mt-5 mb-1 px-3">
-          <div className="text-[10px] font-bold mb-1.5" style={{ color: "var(--color-primary-deep)", letterSpacing: 1.2 }}>
-            💬 AI 냥이 한마디
+        <div className="mx-auto mt-6 max-w-[320px] px-2">
+          <div className="mb-2 inline-flex items-center gap-1.5 font-mono text-[10px] font-bold tracking-[2px] text-primary-deep">
+            <NyangHead size={18} />
+            AI 냥이 한마디
           </div>
-          <div className="text-[19px] font-extrabold leading-[1.4]"
-            style={{
-              color: "var(--color-ink)",
-              textShadow: "0 1px 0 rgba(255,255,255,0.5)",
-            }}>
+          <div className="font-serif text-[22px] font-normal italic leading-[1.3] tracking-[-0.5px] text-ink">
             &ldquo;{result.summary}&rdquo;
           </div>
         </div>
       </div>
+      <div className="mx-[22px] mb-4 h-px bg-ink opacity-[0.28]" />
 
       {/* 애착 유형 4분면 — 무료/유료 둘 다 표시 (무료에선 단독, 유료에선 육각형과 함께) */}
       {result.attachment && typeof result.attachment.avoidance === "number" && typeof result.attachment.anxiety === "number" && (
@@ -998,7 +1005,7 @@ function ChatBubble({ role, content }: { role: ChatRole; content: string }) {
             : "var(--color-bg-alt)",
           color: isUser ? "#fff" : "var(--color-ink)",
           border: isUser ? "none" : "1px solid var(--color-line)",
-          boxShadow: isUser ? "0 2px 10px rgba(255,107,138,0.18)" : "none",
+          boxShadow: isUser ? "0 2px 10px rgba(217,117,87,0.18)" : "none",
         }}>
         {content}
       </div>
@@ -1292,7 +1299,7 @@ function ChatSimulator({ parentOrderId }: { parentOrderId: string }) {
               background: "linear-gradient(135deg, var(--color-primary), var(--color-primary-deep))",
               border: "none",
               cursor: "pointer",
-              boxShadow: "0 4px 14px rgba(255,107,138,0.2)",
+              boxShadow: "0 4px 14px rgba(217,117,87,0.2)",
             }}>
             📎 캡처 올려서 다시 분석
           </button>
@@ -1344,7 +1351,7 @@ function ChatSimulator({ parentOrderId }: { parentOrderId: string }) {
         className="rounded-[18px] bg-white p-3.5 mb-2.5"
         style={{
           border: "1px solid var(--color-line)",
-          boxShadow: "0 2px 14px rgba(255,107,138,0.08)",
+          boxShadow: "0 2px 14px rgba(26,23,20,0.08)",
           minHeight: 260,
           maxHeight: 420,
           overflowY: "auto",
@@ -1417,7 +1424,7 @@ function ChatSimulator({ parentOrderId }: { parentOrderId: string }) {
                 : "linear-gradient(135deg, var(--color-primary), var(--color-primary-deep))",
               boxShadow: unlockRedirecting
                 ? "none"
-                : "0 4px 18px rgba(255,107,138,0.25)",
+                : "0 4px 18px rgba(217,117,87,0.25)",
               border: "none",
               cursor: unlockRedirecting ? "not-allowed" : "pointer",
             }}>
@@ -1434,7 +1441,7 @@ function ChatSimulator({ parentOrderId }: { parentOrderId: string }) {
           className="rounded-[18px] p-2.5 bg-white flex gap-2 items-end"
           style={{
             border: "1px solid var(--color-line)",
-            boxShadow: "0 2px 14px rgba(255,107,138,0.08)",
+            boxShadow: "0 2px 14px rgba(26,23,20,0.08)",
           }}>
           <textarea
             value={draft}
@@ -1533,7 +1540,7 @@ function SamplePreview() {
         style={{
           background: "var(--color-bg)",
           border: "1px solid var(--color-line)",
-          boxShadow: "0 2px 16px rgba(255,107,138,0.08)",
+          boxShadow: "0 2px 16px rgba(26,23,20,0.08)",
         }}>
         {/* SAMPLE 배지 */}
         <div className="absolute top-3 right-3 z-10 px-2 py-[3px] rounded-full text-[9px] font-extrabold tracking-[1.5px]"
@@ -1545,7 +1552,7 @@ function SamplePreview() {
         <div className="text-center py-4 px-3 rounded-[18px] mb-2.5"
           style={{
             background: "linear-gradient(180deg, var(--color-bg-alt) 0%, #fff 100%)",
-            border: "1px solid rgba(255,143,171,0.2)",
+            border: "1px solid rgba(26,23,20,0.14)",
           }}>
           <p className="mb-2 text-[9px] font-semibold tracking-[0.3px]" style={{ color: "var(--color-sub)" }}>
             가트만 관계 심리학 · 애착이론 기반 분석
@@ -1588,7 +1595,7 @@ function SamplePreview() {
         </div>
 
         {/* 2) 애착 유형 4분면 (축소 버전) */}
-        <div className="bg-white rounded-[16px] p-3 mb-2" style={{ border: "1px solid rgba(255,143,171,0.15)" }}>
+        <div className="bg-white rounded-[16px] p-3 mb-2" style={{ border: "1px solid rgba(26,23,20,0.14)" }}>
           <div className="text-[12px] font-bold mb-1 text-[var(--color-ink)]">💜 상대방 애착 유형</div>
           <div className="text-center">
             <div style={{ transform: "scale(0.75)", transformOrigin: "top center", height: 203 }}>
@@ -1608,7 +1615,7 @@ function SamplePreview() {
         </div>
 
         {/* 3) 위험 신호 진단 */}
-        <div className="bg-white rounded-[16px] p-3 mb-2" style={{ border: "1px solid rgba(255,143,171,0.15)" }}>
+        <div className="bg-white rounded-[16px] p-3 mb-2" style={{ border: "1px solid rgba(26,23,20,0.14)" }}>
           <div className="text-[12px] font-bold mb-1 text-[var(--color-ink)]">🚨 관계 위험 신호</div>
           <div className="text-[9px] text-[var(--color-sub)] mb-2">가트만 Four Horsemen 기반</div>
           <div style={{ transform: "scale(0.9)", transformOrigin: "top left" }}>
@@ -1617,7 +1624,7 @@ function SamplePreview() {
         </div>
 
         {/* 4) AI 냥이 총평 */}
-        <div className="bg-white rounded-[16px] p-3 mb-2" style={{ border: "1px solid rgba(255,143,171,0.15)" }}>
+        <div className="bg-white rounded-[16px] p-3 mb-2" style={{ border: "1px solid rgba(26,23,20,0.14)" }}>
           <div className="text-[12px] font-bold mb-1.5 text-[var(--color-ink)]">🔍 AI 냥이 총평</div>
           <p className="text-[11.5px] text-[var(--color-ink)] leading-[1.7]">{s.diagnosis}</p>
         </div>
@@ -1631,7 +1638,7 @@ function SamplePreview() {
           <div className="text-[12px] font-bold mb-2.5" style={{ color: "var(--color-primary-deep)" }}>🔒 프리미엄에선 여기까지 나와</div>
 
           {/* 호감도 레이더 */}
-          <div className="bg-white rounded-[12px] p-2.5 mb-2" style={{ border: "1px solid rgba(255,143,171,0.15)" }}>
+          <div className="bg-white rounded-[12px] p-2.5 mb-2" style={{ border: "1px solid rgba(26,23,20,0.14)" }}>
             <div className="text-[10px] font-bold mb-1 text-[var(--color-primary)]">📊 호감도 레이더</div>
             <div className="flex gap-2 items-center">
               <div className="shrink-0" style={{ width: 120 }}>
@@ -1654,7 +1661,7 @@ function SamplePreview() {
           </div>
 
           {/* 이 점수가 나온 이유 */}
-          <div className="bg-white rounded-[12px] p-2.5 mb-2" style={{ border: "1px solid rgba(255,143,171,0.15)" }}>
+          <div className="bg-white rounded-[12px] p-2.5 mb-2" style={{ border: "1px solid rgba(26,23,20,0.14)" }}>
             <div className="text-[10px] font-bold mb-1 text-[var(--color-primary)]">💡 이 점수가 나온 이유</div>
             <ul className="space-y-1">
               {s.reasons.map((r, i) => (
@@ -1667,13 +1674,13 @@ function SamplePreview() {
           </div>
 
           {/* 걔 속마음 */}
-          <div className="bg-white rounded-[12px] p-2.5 mb-2" style={{ border: "1px solid rgba(255,143,171,0.15)" }}>
+          <div className="bg-white rounded-[12px] p-2.5 mb-2" style={{ border: "1px solid rgba(26,23,20,0.14)" }}>
             <div className="text-[10px] font-bold mb-1" style={{ color: "var(--color-primary-deep)" }}>🧠 걔 속마음</div>
             <p className="text-[10.5px] text-[var(--color-ink)] leading-[1.55]">{s.inner_psychology}</p>
           </div>
 
           {/* 걸리는 부분 */}
-          <div className="bg-white rounded-[12px] p-2.5 mb-2" style={{ border: "1px solid rgba(255,143,171,0.15)" }}>
+          <div className="bg-white rounded-[12px] p-2.5 mb-2" style={{ border: "1px solid rgba(26,23,20,0.14)" }}>
             <div className="text-[10px] font-bold mb-1" style={{ color: "var(--color-primary)" }}>⚠️ 걸리는 부분</div>
             <ul className="space-y-1">
               {s.caution_points.map((c, i) => (
@@ -1686,13 +1693,13 @@ function SamplePreview() {
           </div>
 
           {/* 이렇게 해봐 + 멘트 예시 */}
-          <div className="bg-white rounded-[12px] p-2.5 mb-2" style={{ border: "1px solid rgba(255,143,171,0.15)" }}>
+          <div className="bg-white rounded-[12px] p-2.5 mb-2" style={{ border: "1px solid rgba(26,23,20,0.14)" }}>
             <div className="text-[10px] font-bold mb-1" style={{ color: "#3E8C66" }}>🎯 이렇게 해봐</div>
             <p className="text-[10.5px] text-[var(--color-ink)] leading-[1.55] mb-2">{s.advice}</p>
             <div className="text-[10px] font-bold mb-1" style={{ color: "var(--color-primary)" }}>💬 이런 멘트 보내봐</div>
             {s.recommended_messages.map((m, i) => (
               <div key={i} className="text-[10.5px] text-[var(--color-ink)] leading-[1.5] p-1.5 rounded-[8px] mb-1 last:mb-0"
-                style={{ background: "rgba(255,107,138,0.06)" }}>
+                style={{ background: "rgba(26,23,20,0.05)" }}>
                 &ldquo;{m}&rdquo;
               </div>
             ))}
@@ -1841,8 +1848,8 @@ function TextInput({ value, onChange }: { value: string; onChange: (v: string) =
                 color: isActive ? "#fff" : "var(--color-ink)",
                 border: isActive ? "1.5px solid var(--color-primary)" : "1.5px solid var(--color-line)",
                 boxShadow: isActive
-                  ? "0 4px 14px rgba(255,107,138,0.32)"
-                  : "0 2px 8px rgba(255,143,171,0.15)",
+                  ? "0 4px 14px rgba(217,117,87,0.32)"
+                  : "0 2px 8px rgba(26,23,20,0.14)",
                 cursor: isActive ? "default" : "pointer",
                 opacity: isActive ? 0.95 : 1,
               }}>
@@ -1858,7 +1865,7 @@ function TextInput({ value, onChange }: { value: string; onChange: (v: string) =
           border: "1.5px solid var(--color-line)",
           background: "#fff",
           color: "var(--color-ink)",
-          boxShadow: "0 2px 12px rgba(255,143,171,0.06)",
+          boxShadow: "0 2px 12px rgba(26,23,20,0.06)",
         }} />
     </div>
   );
@@ -2386,7 +2393,7 @@ export default function Home() {
                     background: canAnalyze ? "linear-gradient(135deg, var(--color-primary), var(--color-primary-deep))" : "var(--color-bg-alt)",
                     color: canAnalyze ? "#fff" : "var(--color-sub)",
                     cursor: canAnalyze ? "pointer" : "default",
-                    boxShadow: canAnalyze ? "0 4px 20px rgba(255,107,138,0.2)" : "none",
+                    boxShadow: canAnalyze ? "0 4px 20px rgba(217,117,87,0.2)" : "none",
                     opacity: (redirecting || unlocking) ? 0.7 : 1,
                   }}>
                   {redirecting
@@ -2405,7 +2412,7 @@ export default function Home() {
                   background: canAnalyze ? "linear-gradient(135deg, var(--color-primary), var(--color-primary-deep))" : "var(--color-bg-alt)",
                   color: canAnalyze ? "#fff" : "var(--color-sub)",
                   cursor: canAnalyze ? "pointer" : "default",
-                  boxShadow: canAnalyze ? "0 4px 20px rgba(255,107,138,0.2)" : "none",
+                  boxShadow: canAnalyze ? "0 4px 20px rgba(217,117,87,0.2)" : "none",
                 }}>
                 {!hasInput
                   ? "먼저 상황을 알려줘! 💬"
