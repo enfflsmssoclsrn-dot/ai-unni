@@ -7,10 +7,15 @@ import { LoadingFree } from "./LoadingFree";
 import { LoadingFinal } from "./LoadingFinal";
 import { ResultReveal } from "./ResultReveal";
 import {
+  NyangMessage,
+  HisMindCard,
+  NyangPrescription,
+  ScoreReason,
+  WarningCard,
+  NyangVerdict,
+  AffectionRadar,
+  NyangFooter,
   PremiumCTA,
-  GottmanCard,
-  AttachmentQuadrant,
-  ResultFooter,
 } from "./ResultCards";
 
 // ─── Free Usage Limit (1/day, localStorage) ───
@@ -737,140 +742,109 @@ function UnlockingProgress() {
 
 // ─── Result Card ───
 function ResultCard({ result, isPaid, onReset, onResetPaid, onUnlock, unlocking, redirecting, freeUsed }: any) {
+  const prescriptionItems = isPaid && Array.isArray(result.actions)
+    ? result.actions.slice(0, 3).map((body: string, i: number) => ({
+        tag: ["현실 진단", "그래도 해보고 싶다면", "이렇게 말해봐"][i] || "냥이 한마디",
+        body,
+      }))
+    : undefined;
+
+  // NyangMessage: 유료 → actions[3] ("언니가 해주고 싶은 말"), 없으면 summary 보강
+  const nyangMessage = isPaid
+    ? (result.actions?.[3] || result.summary)
+    : result.summary;
+
+  const handleSave = async () => {
+    try {
+      const el = document.getElementById("result-card");
+      if (!el) return;
+      const { toPng } = await import("html-to-image");
+      const btns = el.querySelectorAll<HTMLElement>("[data-footer-btn]");
+      btns.forEach((b) => (b.style.display = "none"));
+      const dataUrl = await toPng(el, {
+        backgroundColor: "#F4EFE6",
+        pixelRatio: 2,
+        cacheBust: true,
+      });
+      btns.forEach((b) => (b.style.display = ""));
+
+      const isMobile = /iPhone|iPad|Android/i.test(navigator.userAgent);
+      if (isMobile && navigator.share) {
+        try {
+          const blob = await (await fetch(dataUrl)).blob();
+          const file = new File([blob], `AI 냥이-분석리포트.png`, {
+            type: "image/png",
+          });
+          await navigator.share({ files: [file], title: "AI 냥이 분석 리포트" });
+          return;
+        } catch {}
+      }
+      if (isMobile) {
+        const w = window.open();
+        if (w) {
+          w.document.write(
+            `<img src="${dataUrl}" style="width:100%;"/><p style="text-align:center;color:#888;font-size:14px;">이미지를 길게 눌러서 저장해줘!</p>`
+          );
+        }
+        return;
+      }
+      const link = document.createElement("a");
+      link.download = "AI 냥이-분석리포트.png";
+      link.href = dataUrl;
+      link.click();
+    } catch (e) {
+      console.error("save image failed", e);
+    }
+  };
+
+  const resetHandler = freeUsed && !isPaid ? onResetPaid : onReset;
+
   return (
-    <div id="result-card" className="w-full animate-fadeUp">
-      {/* Score hero — editorial */}
-      <div className="relative pt-4 pb-5 text-center">
-        <div className="mb-2 font-mono text-[10px] font-bold tracking-[3px] text-primary-deep">
-          — 분석 결과
-        </div>
-        <div className="mb-1 font-mono text-[11px] tracking-[2.5px] text-sub">
-          호감도 점수
-        </div>
-        <div className="relative inline-block">
-          <div className="font-serif font-light leading-[0.9] tracking-[-6px] text-ink text-[140px]">
-            {result.score}
-          </div>
-          <div className="pointer-events-none absolute -right-3 bottom-3 rotate-[10deg]">
-            <NyangHead size={40} eyeColor="var(--color-primary)" />
-          </div>
-        </div>
-        <div className="-mt-1 font-mono text-[11px] tracking-[3px] text-sub">/ 100</div>
-        <div className="mt-4 flex flex-wrap justify-center gap-1.5">
-          {result.stage && <StageBadge stage={result.stage} />}
-          <TempBadge temperature={result.temperature} />
-        </div>
-        <div className="mx-auto mt-6 max-w-[320px] px-2">
-          <div className="mb-2 inline-flex items-center gap-1.5 font-mono text-[10px] font-bold tracking-[2px] text-primary-deep">
-            <NyangHead size={18} />
-            AI 냥이 한마디
-          </div>
-          <div className="font-serif text-[22px] font-normal italic leading-[1.3] tracking-[-0.5px] text-ink">
-            &ldquo;{result.summary}&rdquo;
-          </div>
-        </div>
+    <div id="result-card" className="w-full animate-fadeUp flex flex-col gap-5">
+      {/* ① 냥이가 해주고 싶은 말 */}
+      <NyangMessage message={nyangMessage} />
+
+      {/* ② 걔 속마음 — 유료만 */}
+      {isPaid && result.psychology && <HisMindCard psychology={result.psychology} />}
+
+      {/* ③ 냥이 처방 — 유료만 */}
+      {prescriptionItems && prescriptionItems.length > 0 && (
+        <NyangPrescription items={prescriptionItems} />
+      )}
+
+      {/* ④ 왜 이 점수냐면 — 유료만 */}
+      {isPaid && Array.isArray(result.reasons) && result.reasons.length > 0 && (
+        <ScoreReason items={result.reasons} />
+      )}
+
+      {/* ⑤ 냥이가 걱정되는 거 — 유료만 (warnings 있을 때) */}
+      {isPaid &&
+        Array.isArray(result.warnings) &&
+        result.warnings.length > 0 &&
+        result.warnings[0] && <WarningCard items={result.warnings} />}
+
+      {/* ⑥ AI 냥이 총평 */}
+      <NyangVerdict diagnosis={result.diagnosis} />
+
+      {/* ⑦ 호감도 레이더 — 유료만 */}
+      {isPaid && result.axes && <AffectionRadar axes={result.axes} />}
+
+      {/* 무료 유저: 프리미엄 업셀 CTA */}
+      {!isPaid && (
+        <PremiumCTA
+          onUnlock={onUnlock}
+          disabled={unlocking || redirecting}
+          redirecting={redirecting}
+        />
+      )}
+
+      {/* ⑧ 페이지 푸터 — 다시 분석 + 리포트 저장 (유료만 저장 활성) */}
+      <div data-footer-btn>
+        <NyangFooter
+          onReset={resetHandler}
+          onSave={isPaid ? handleSave : undefined}
+        />
       </div>
-      <div className="mx-[22px] mb-4 h-px bg-ink opacity-[0.28]" />
-
-      {/* 애착 유형 4분면 — 무료/유료 둘 다 표시 */}
-      {result.attachment && typeof result.attachment.avoidance === "number" && typeof result.attachment.anxiety === "number" && (
-        <div className="mb-4">
-          <AttachmentQuadrant
-            avoidance={result.attachment.avoidance}
-            anxiety={result.attachment.anxiety}
-            type={result.attachment.type || ""}
-            comment={result.attachment.comment || ""}
-          />
-        </div>
-      )}
-      {/* 위험 신호 진단 (가트만 Four Horsemen) */}
-      {result.red_flags && typeof result.red_flags === "object" && (
-        <div className="mb-4">
-          <GottmanCard flags={result.red_flags} />
-        </div>
-      )}
-
-      {/* 유료 추가: 6축 호감도 레이더 (육각형) */}
-      {isPaid && result.axes && (
-        <SectionCard title="호감도 레이더" icon="📊">
-          <div className="mb-3 rounded-[8px] border-l-2 border-ink bg-bg-alt px-3.5 py-3 text-[12px] leading-[1.6] text-ink">
-            <div className="mb-1 font-serif text-[10px] italic uppercase tracking-[0.15em] text-sub">
-              Why it matters
-            </div>
-            호감도를 하나로 퉁치면 놓치는 게 많아. 관심 · 반응 · 적극 · 일관 ·
-            친밀 · 미래 6축으로 쪼개야 어디가 약한지, 왜 애매한지 보인다냥.
-          </div>
-          <RadarChart axes={result.axes} />
-          <AxesList axes={result.axes} />
-        </SectionCard>
-      )}
-
-      {/* AI 냥이 총평 */}
-      <SectionCard title="AI 냥이 총평" icon="🔍">
-        <div className="text-sm text-[var(--color-ink)] leading-[1.8]">{result.diagnosis}</div>
-      </SectionCard>
-
-      {isPaid ? (
-        <>
-          <SectionCard title="이 점수가 나온 이유" icon="💡" accent="var(--color-primary)">
-            {result.reasons?.map((r: string, i: number) => <BulletItem key={i} text={r} color="var(--color-primary)" />)}
-          </SectionCard>
-
-          {result.warnings?.length > 0 && result.warnings[0] && (
-            <SectionCard title="솔직히 좀 걸리는 부분" icon="⚠️" accent="var(--color-accent-c)">
-              {result.warnings.map((w: string, i: number) => <BulletItem key={i} text={w} color="var(--color-accent-c)" />)}
-            </SectionCard>
-          )}
-
-          <SectionCard title="걔는 지금 이런 마음이야" icon="🧠" accent="var(--color-primary-deep)">
-            <div className="text-sm text-[var(--color-ink)] leading-[1.8]">{result.psychology}</div>
-          </SectionCard>
-
-          <div className="p-5 rounded-[20px] mb-4 border border-[var(--color-line)]"
-            style={{ background: "linear-gradient(135deg, var(--color-bg-alt), var(--color-bg))" }}>
-            <div className="text-sm font-bold mb-3 text-[var(--color-primary)]">🎯 언니 말 들어, 이렇게 해봐</div>
-            {result.actions?.slice(0, 3).map((a: string, i: number) => {
-              const labels = ["📋 현실 진단", "💪 그래도 해보고 싶다면", "💬 이렇게 말해봐"];
-              const colors = ["var(--color-sub)", "var(--color-primary)", "var(--color-primary-deep)"];
-              return (
-                <div key={i} className="mb-3">
-                  <div className="text-[11px] font-bold mb-1" style={{ color: colors[i] }}>{labels[i]}</div>
-                  <div className="flex gap-2.5 items-start">
-                    <div className="w-[22px] h-[22px] rounded-full shrink-0 flex items-center justify-center text-[11px] font-bold text-white"
-                      style={{ background: colors[i] }}>
-                      {i + 1}
-                    </div>
-                    <div className="text-sm text-[var(--color-ink)] leading-[1.7]">{a}</div>
-                  </div>
-                </div>
-              );
-            })}
-            {result.actions?.[3] && (
-              <div className="mt-3 pt-3" style={{ borderTop: "1px dashed var(--color-line)" }}>
-                <div className="text-[11px] font-bold mb-1" style={{ color: "var(--color-primary)" }}>🤗 언니가 해주고 싶은 말</div>
-                <div className="text-sm leading-[1.8] p-3 rounded-[14px]"
-                  style={{ background: "rgba(255,255,255,0.7)", color: "var(--color-ink)" }}>
-                  {result.actions[3]}
-                </div>
-              </div>
-            )}
-          </div>
-        </>
-      ) : (
-        <div className="mb-4">
-          <PremiumCTA
-            onUnlock={onUnlock}
-            disabled={unlocking || redirecting}
-            redirecting={redirecting}
-          />
-        </div>
-      )}
-
-      {/* 에디토리얼 푸터 — fin. 콜로폰 + 리셋 outline 버튼 */}
-      <ResultFooter onReset={freeUsed && !isPaid ? onResetPaid : onReset} />
-
-      {/* Save as Image — 유료에서만 */}
-      {isPaid && <SaveImageButton targetId="result-card" />}
     </div>
   );
 }
