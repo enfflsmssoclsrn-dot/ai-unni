@@ -756,14 +756,64 @@ export function NyangVerdict({ diagnosis }: { diagnosis?: string }) {
 // ═════════════════════════════════════════════════════════════
 // SECTION 7 — AffectionRadar (6축 · 냥이 한줄 코멘트)
 // ═════════════════════════════════════════════════════════════
-const AXIS_META: { key: string; label: string; sub: string }[] = [
-  { key: "interest", label: "관심도", sub: "너한테 얼마나 호기심 있는지" },
-  { key: "proactivity", label: "적극성", sub: "먼저 다가오는 정도" },
-  { key: "responsiveness", label: "반응성", sub: "답장·리액션 퀄리티" },
-  { key: "intimacy", label: "친밀감", sub: "속마음 공유하는 정도" },
-  { key: "consistency", label: "일관성", sub: "행동이 안정적인지" },
-  { key: "future", label: "미래지향", sub: "같이 뭐 하자는 의사" },
+// 서버 result.axes 는 한글 key로 내려옴 (관심도/적극성/반응성/친밀감/일관성/미래지향)
+// 영문 key도 들어오면 수용하도록 alias 포함.
+const AXIS_META: {
+  key: string;
+  aliases: string[];
+  label: string;
+  sub: string;
+}[] = [
+  {
+    key: "관심도",
+    aliases: ["interest"],
+    label: "관심도",
+    sub: "너한테 얼마나 호기심 있는지",
+  },
+  {
+    key: "적극성",
+    aliases: ["proactivity"],
+    label: "적극성",
+    sub: "먼저 다가오는 정도",
+  },
+  {
+    key: "반응성",
+    aliases: ["responsiveness"],
+    label: "반응성",
+    sub: "답장·리액션 퀄리티",
+  },
+  {
+    key: "친밀감",
+    aliases: ["intimacy"],
+    label: "친밀감",
+    sub: "속마음 공유하는 정도",
+  },
+  {
+    key: "일관성",
+    aliases: ["consistency"],
+    label: "일관성",
+    sub: "행동이 안정적인지",
+  },
+  {
+    key: "미래지향",
+    aliases: ["future", "future_orientation"],
+    label: "미래지향",
+    sub: "같이 뭐 하자는 의사",
+  },
 ];
+
+function readAxisValue(
+  axes: Record<string, number> | null | undefined,
+  meta: { key: string; aliases: string[] }
+): number | null {
+  if (!axes) return null;
+  const candidates = [meta.key, ...meta.aliases];
+  for (const c of candidates) {
+    const v = axes[c];
+    if (typeof v === "number" && Number.isFinite(v)) return v;
+  }
+  return null;
+}
 
 function commentFor(label: string, v: number) {
   if (v >= 75) return `${label} 강해. 확실한 신호다냥.`;
@@ -778,14 +828,14 @@ export function AffectionRadar({
 }: {
   axes?: Record<string, number> | null;
 }) {
-  // Accept either keyed object (interest/proactivity/...) or array fallback
+  // 한글 key 우선, 영문 alias 폴백
   const values = AXIS_META.map((m) => {
-    const raw = axes?.[m.key];
-    const v = typeof raw === "number" ? raw : 50;
+    const raw = readAxisValue(axes, m);
+    const v = raw == null ? 50 : Math.max(0, Math.min(100, raw));
     return {
       ...m,
-      value: Math.max(0, Math.min(100, v)),
-      comment: commentFor(m.label, typeof raw === "number" ? raw : 50),
+      value: v,
+      comment: commentFor(m.label, v),
     };
   });
 
