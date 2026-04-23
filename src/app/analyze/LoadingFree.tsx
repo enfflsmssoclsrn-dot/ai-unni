@@ -106,7 +106,7 @@ export function LoadingFree() {
 
   useEffect(() => {
     const t = setInterval(
-      () => setProgress((p) => (p >= 100 ? 0 : p + 1)),
+      () => setProgress((p) => (p >= 100 ? 100 : p + 1)),
       120
     );
     return () => clearInterval(t);

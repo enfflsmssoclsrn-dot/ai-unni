@@ -1149,6 +1149,457 @@ export function NyangFooter({
 }
 
 // ═════════════════════════════════════════════════════════════
+// 복원: AttachmentQuadrant (무료+유료 · 원래 순서 유지)
+// ═════════════════════════════════════════════════════════════
+
+export function AttachmentQuadrant({
+  avoidance = 50,
+  anxiety = 50,
+  type = "혼합형",
+  comment = "",
+}: {
+  avoidance?: number;
+  anxiety?: number;
+  type?: string;
+  comment?: string;
+}) {
+  const anxClamp = Math.min(100, Math.max(0, anxiety));
+  const avoClamp = Math.min(100, Math.max(0, avoidance));
+  const pointX = anxClamp;
+  const pointY = 100 - avoClamp;
+
+  const cell = (
+    pos: string,
+    kor: string,
+    eng: string,
+    extra: CSSProperties
+  ) => {
+    const active = type === kor;
+    return (
+      <div
+        style={{
+          ...extra,
+          padding: 10,
+          background: active ? R_CREAM_SUB : undefined,
+          position: "relative",
+        }}
+      >
+        <div
+          style={{
+            fontSize: 10,
+            color: active ? "#D94F4F" : R_MUTED,
+            letterSpacing: "0.2em",
+            marginBottom: 2,
+            fontWeight: active ? 600 : 400,
+          }}
+        >
+          {active ? "● ACTIVE" : pos}
+        </div>
+        <div
+          style={{
+            fontFamily: "var(--font-serif)",
+            fontSize: 14,
+            fontWeight: active ? 600 : 500,
+            color: R_DARK,
+          }}
+        >
+          {kor}
+        </div>
+        <div
+          style={{
+            fontFamily: "var(--font-serif)",
+            fontStyle: "italic",
+            fontSize: 10,
+            color: active ? R_DARK : R_MUTED,
+          }}
+        >
+          {eng}
+        </div>
+      </div>
+    );
+  };
+
+  return (
+    <div
+      style={{
+        background: R_CREAM_CARD,
+        border: `1px solid ${R_BORDER}`,
+        padding: 26,
+        fontFamily: "var(--font-sans)",
+        color: R_DARK,
+      }}
+    >
+      <div
+        style={{
+          fontSize: 10,
+          letterSpacing: "0.3em",
+          color: R_MUTED,
+          marginBottom: 10,
+          fontWeight: 500,
+        }}
+      >
+        — ATTACHMENT · 01 —
+      </div>
+      <h3
+        style={{
+          fontFamily: "var(--font-serif)",
+          fontWeight: 500,
+          fontSize: 20,
+          margin: "0 0 6px",
+        }}
+      >
+        걔 애착 유형
+      </h3>
+      <p
+        style={{
+          fontFamily: "var(--font-serif)",
+          fontStyle: "italic",
+          fontWeight: 300,
+          fontSize: 13,
+          color: R_MUTED,
+          margin: "0 0 18px",
+        }}
+      >
+        Bartholomew-Horowitz Attachment Model
+      </p>
+
+      <div
+        style={{
+          padding: "12px 14px",
+          background: R_CREAM_SUB,
+          borderLeft: `2px solid ${R_DARK}`,
+          fontSize: 12,
+          color: R_DARK,
+          lineHeight: 1.65,
+          marginBottom: 24,
+        }}
+      >
+        <div
+          style={{
+            fontFamily: "var(--font-serif)",
+            fontStyle: "italic",
+            fontSize: 10,
+            letterSpacing: "0.15em",
+            textTransform: "uppercase",
+            color: R_MUTED,
+            marginBottom: 4,
+          }}
+        >
+          Why it matters
+        </div>
+        애착 유형을 알면 상대 행동의 이유가 보여. &ldquo;왜 자꾸 거리를 두지?&rdquo; 같은 혼란이 정리된다냥.
+      </div>
+
+      <div style={{ position: "relative", aspectRatio: "1 / 1", marginBottom: 20 }}>
+        <div
+          style={{
+            position: "absolute",
+            top: -4,
+            left: "50%",
+            transform: "translate(-50%, -100%)",
+            fontFamily: "var(--font-serif)",
+            fontStyle: "italic",
+            fontSize: 11,
+            color: R_MUTED,
+            letterSpacing: "0.1em",
+          }}
+        >
+          avoidance ↑
+        </div>
+        <div
+          style={{
+            position: "absolute",
+            top: "50%",
+            right: -4,
+            transform: "translate(100%, -50%)",
+            fontFamily: "var(--font-serif)",
+            fontStyle: "italic",
+            fontSize: 11,
+            color: R_MUTED,
+            letterSpacing: "0.1em",
+          }}
+        >
+          anxiety →
+        </div>
+
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            display: "grid",
+            gridTemplateColumns: "1fr 1fr",
+            gridTemplateRows: "1fr 1fr",
+            border: `1px solid ${R_BORDER}`,
+          }}
+        >
+          {cell("TL", "회피형", "dismissive", {
+            borderRight: `1px dashed ${R_BORDER}`,
+            borderBottom: `1px dashed ${R_BORDER}`,
+          })}
+          {cell("TR", "혼합형", "fearful-avoidant", {
+            borderBottom: `1px dashed ${R_BORDER}`,
+          })}
+          {cell("BL", "안정형", "secure", {
+            borderRight: `1px dashed ${R_BORDER}`,
+          })}
+          {cell("BR", "불안형", "anxious", {})}
+        </div>
+
+        <div
+          style={{
+            position: "absolute",
+            left: `${pointX}%`,
+            top: `${pointY}%`,
+            transform: "translate(-50%, -50%)",
+          }}
+        >
+          <div
+            style={{
+              position: "absolute",
+              inset: -18,
+              borderRadius: "50%",
+              border: `1px solid #D94F4F`,
+              animation: "q-pulse 2s ease-out infinite",
+              opacity: 0.5,
+            }}
+          />
+          <div
+            style={{
+              width: 14,
+              height: 14,
+              borderRadius: "50%",
+              background: "#D94F4F",
+              border: `2px solid ${R_CREAM}`,
+              boxShadow: `0 0 0 1px ${R_DARK}`,
+            }}
+          />
+        </div>
+      </div>
+
+      {comment && (
+        <div
+          style={{
+            padding: "14px 16px",
+            background: R_CREAM_SUB,
+            borderLeft: `2px solid ${R_DARK}`,
+          }}
+        >
+          <div
+            style={{
+              fontFamily: "var(--font-serif)",
+              fontStyle: "italic",
+              fontSize: 11,
+              color: R_DARK,
+              letterSpacing: "0.15em",
+              textTransform: "uppercase",
+              marginBottom: 6,
+            }}
+          >
+            {type}
+          </div>
+          <p style={{ fontSize: 13, color: R_DARK, lineHeight: 1.65, margin: 0 }}>
+            {comment}
+          </p>
+        </div>
+      )}
+
+      <style
+        dangerouslySetInnerHTML={{
+          __html: `@keyframes q-pulse { 0%{transform:scale(0.8);opacity:0.6;} 100%{transform:scale(2.2);opacity:0;} }`,
+        }}
+      />
+    </div>
+  );
+}
+
+// ═════════════════════════════════════════════════════════════
+// 복원: GottmanCard (Four Horsemen · 무료+유료)
+// ═════════════════════════════════════════════════════════════
+
+export function GottmanCard({
+  flags,
+}: {
+  flags: {
+    criticism: number;
+    defensiveness: number;
+    contempt: number;
+    stonewalling: number;
+  };
+}) {
+  const items: { icon: IconType; label: string; value: number }[] = [
+    { icon: "alert", label: "비난", value: flags.criticism ?? 0 },
+    { icon: "lock", label: "방어", value: flags.defensiveness ?? 0 },
+    { icon: "bolt", label: "경멸", value: flags.contempt ?? 0 },
+    { icon: "chat", label: "담쌓기", value: flags.stonewalling ?? 0 },
+  ];
+  const max = Math.max(...items.map((i) => i.value));
+  const summary =
+    max <= 20
+      ? "모든 신호가 안전 구간이야. 건강한 대화 패턴을 보이고 있어."
+      : max <= 40
+        ? "전반적으로 양호해. 사소한 신호가 있지만 크게 걱정할 수준은 아니야."
+        : max <= 60
+          ? "일부 신호에 주의가 필요해. 지금 패턴이 반복되면 관계에 영향을 줄 수 있어."
+          : "경고 수준의 신호가 감지됐어. 대화 패턴을 의식적으로 바꿔볼 필요가 있어.";
+
+  return (
+    <div
+      style={{
+        background: R_CREAM_CARD,
+        border: `1px solid ${R_BORDER}`,
+        padding: 26,
+        fontFamily: "var(--font-sans)",
+        color: R_DARK,
+      }}
+    >
+      <div
+        style={{
+          fontSize: 10,
+          letterSpacing: "0.3em",
+          color: R_MUTED,
+          marginBottom: 10,
+          fontWeight: 500,
+        }}
+      >
+        — FOUR HORSEMEN · 02 —
+      </div>
+      <h3
+        style={{
+          fontFamily: "var(--font-serif)",
+          fontWeight: 500,
+          fontSize: 20,
+          margin: "0 0 6px",
+        }}
+      >
+        관계 위험 신호
+      </h3>
+      <p
+        style={{
+          fontFamily: "var(--font-serif)",
+          fontStyle: "italic",
+          fontWeight: 300,
+          fontSize: 13,
+          color: R_MUTED,
+          margin: "0 0 18px",
+        }}
+      >
+        Gottman&apos;s Four Horsemen of the Apocalypse
+      </p>
+
+      <div
+        style={{
+          padding: "12px 14px",
+          background: R_CREAM_SUB,
+          borderLeft: `2px solid ${R_DARK}`,
+          fontSize: 12,
+          color: R_DARK,
+          lineHeight: 1.65,
+          marginBottom: 22,
+        }}
+      >
+        <div
+          style={{
+            fontFamily: "var(--font-serif)",
+            fontStyle: "italic",
+            fontSize: 10,
+            letterSpacing: "0.15em",
+            textTransform: "uppercase",
+            color: R_MUTED,
+            marginBottom: 4,
+          }}
+        >
+          Why it matters
+        </div>
+        40년 종단연구에서 이혼을 93.6% 정확도로 예측한 4가지 신호다냥. 반복되면 관계 회복이 기하급수적으로 어려워져.
+      </div>
+
+      <div>
+        {items.map((it, i) => (
+          <div
+            key={i}
+            style={{
+              padding: "14px 0",
+              borderTop: i === 0 ? `1px solid ${R_BORDER}` : "none",
+              borderBottom: `1px solid ${R_BORDER}`,
+            }}
+          >
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                marginBottom: 8,
+              }}
+            >
+              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                <LineIcon type={it.icon} size={16} color={R_DARK} />
+                <span
+                  style={{
+                    fontFamily: "var(--font-serif)",
+                    fontWeight: 500,
+                    fontSize: 15,
+                  }}
+                >
+                  {it.label}
+                </span>
+              </div>
+              <span
+                style={{
+                  fontFamily: "var(--font-serif)",
+                  fontSize: 18,
+                  color: R_DARK,
+                  fontWeight: 400,
+                }}
+              >
+                {it.value}
+                <span style={{ color: R_MUTED, fontSize: 12 }}>/100</span>
+              </span>
+            </div>
+            <div style={{ height: 2, background: R_BORDER }}>
+              <div
+                style={{
+                  height: "100%",
+                  width: `${Math.min(100, Math.max(0, it.value))}%`,
+                  background: R_DARK,
+                }}
+              />
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div
+        style={{
+          marginTop: 20,
+          padding: "14px 16px",
+          background: R_CREAM_SUB,
+          borderLeft: `2px solid #D94F4F`,
+          fontSize: 13,
+          color: R_DARK,
+          lineHeight: 1.6,
+        }}
+      >
+        <span
+          style={{
+            fontFamily: "var(--font-serif)",
+            fontStyle: "italic",
+            color: "#D94F4F",
+            fontSize: 11,
+            letterSpacing: "0.15em",
+            textTransform: "uppercase",
+            display: "block",
+            marginBottom: 4,
+          }}
+        >
+          Warning
+        </span>
+        {summary}
+      </div>
+    </div>
+  );
+}
+
+// ═════════════════════════════════════════════════════════════
 // 유지: MethodologyCard (랜딩에서 사용)
 // ═════════════════════════════════════════════════════════════
 export function MethodologyCard() {

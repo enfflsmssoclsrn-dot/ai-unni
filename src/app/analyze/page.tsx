@@ -16,6 +16,8 @@ import {
   AffectionRadar,
   NyangFooter,
   PremiumCTA,
+  AttachmentQuadrant,
+  GottmanCard,
 } from "./ResultCards";
 
 // ─── Free Usage Limit (1/day, localStorage) ───
@@ -801,35 +803,52 @@ function ResultCard({ result, isPaid, onReset, onResetPaid, onUnlock, unlocking,
 
   return (
     <div id="result-card" className="w-full animate-fadeUp flex flex-col gap-5">
-      {/* ① 냥이가 해주고 싶은 말 */}
+      {/* 냥이가 해주고 싶은 말 (무료+유료) */}
       <NyangMessage message={nyangMessage} />
 
-      {/* ② 걔 속마음 — 유료만 */}
-      {isPaid && result.psychology && <HisMindCard psychology={result.psychology} />}
+      {/* 애착 유형 4분면 (무료+유료) */}
+      {result.attachment &&
+        typeof result.attachment.avoidance === "number" &&
+        typeof result.attachment.anxiety === "number" && (
+          <AttachmentQuadrant
+            avoidance={result.attachment.avoidance}
+            anxiety={result.attachment.anxiety}
+            type={result.attachment.type || ""}
+            comment={result.attachment.comment || ""}
+          />
+        )}
 
-      {/* ③ 냥이 처방 — 유료만 */}
-      {prescriptionItems && prescriptionItems.length > 0 && (
-        <NyangPrescription items={prescriptionItems} />
+      {/* 관계 위험 신호 (Gottman Four Horsemen · 무료+유료) */}
+      {result.red_flags && typeof result.red_flags === "object" && (
+        <GottmanCard flags={result.red_flags} />
       )}
 
-      {/* ④ 왜 이 점수냐면 — 유료만 */}
+      {/* 호감도 레이더 (유료만) */}
+      {isPaid && result.axes && <AffectionRadar axes={result.axes} />}
+
+      {/* AI 냥이 총평 (무료+유료) */}
+      <NyangVerdict diagnosis={result.diagnosis} />
+
+      {/* 왜 이 점수냐면 (유료만 · reasons) */}
       {isPaid && Array.isArray(result.reasons) && result.reasons.length > 0 && (
         <ScoreReason items={result.reasons} />
       )}
 
-      {/* ⑤ 냥이가 걱정되는 거 — 유료만 (warnings 있을 때) */}
+      {/* 냥이가 걱정되는 거 (유료만 · warnings) */}
       {isPaid &&
         Array.isArray(result.warnings) &&
         result.warnings.length > 0 &&
         result.warnings[0] && <WarningCard items={result.warnings} />}
 
-      {/* ⑥ AI 냥이 총평 */}
-      <NyangVerdict diagnosis={result.diagnosis} />
+      {/* 걔 속마음 (유료만 · psychology) */}
+      {isPaid && result.psychology && <HisMindCard psychology={result.psychology} />}
 
-      {/* ⑦ 호감도 레이더 — 유료만 */}
-      {isPaid && result.axes && <AffectionRadar axes={result.axes} />}
+      {/* 냥이 처방 (유료만 · actions[0..2]) */}
+      {prescriptionItems && prescriptionItems.length > 0 && (
+        <NyangPrescription items={prescriptionItems} />
+      )}
 
-      {/* 무료 유저: 프리미엄 업셀 CTA */}
+      {/* 무료 유저: 프리미엄 업셀 */}
       {!isPaid && (
         <PremiumCTA
           onUnlock={onUnlock}
@@ -838,7 +857,7 @@ function ResultCard({ result, isPaid, onReset, onResetPaid, onUnlock, unlocking,
         />
       )}
 
-      {/* ⑧ 페이지 푸터 — 다시 분석 + 리포트 저장 (유료만 저장 활성) */}
+      {/* 페이지 푸터 — 다시 분석 + 리포트 저장 (유료만 저장 활성) */}
       <div data-footer-btn>
         <NyangFooter
           onReset={resetHandler}

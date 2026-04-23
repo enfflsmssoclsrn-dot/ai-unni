@@ -1,51 +1,15 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { NyangFace } from "./ResultCards";
 
-// Palette (result-reveal.jsx 원본 그대로)
+// Palette (nyang-result-cards 통일 · v2026-04-24)
 const RR_CREAM = "#F4EFE6";
 const RR_CREAM_CARD = "#FAF6EC";
 const RR_DARK = "#2B2420";
 const RR_MUTED = "#8A7F75";
 const RR_RED = "#D94F4F";
-const RR_MUSTARD = "#C9A961";
 const RR_BORDER = "#E5DCC9";
-
-type Phase = "loading" | "alert" | "still";
-
-function ResultRevealNyang({ phase }: { phase: Phase }) {
-  let eyeRY = 7,
-    eyeRX = 5;
-  if (phase === "alert") {
-    eyeRY = 9;
-    eyeRX = 6;
-  }
-  return (
-    <svg
-      width="90"
-      height="90"
-      viewBox="0 0 80 80"
-      style={{
-        transition: "transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)",
-        transform: phase === "alert" ? "scale(1.08) rotate(-4deg)" : "scale(1)",
-      }}
-    >
-      <path
-        d="M14 74 C 6 50, 6 36, 14 26 C 10 14, 18 6, 26 14 C 32 10, 48 10, 54 14 C 62 6, 70 14, 66 26 C 74 36, 74 50, 66 74 Z"
-        fill={RR_DARK}
-      />
-      <g style={{ transition: "all 0.3s" }}>
-        <ellipse cx="30" cy="40" rx={eyeRX} ry={eyeRY} fill={RR_MUSTARD} />
-        <ellipse cx="50" cy="40" rx={eyeRX} ry={eyeRY} fill={RR_MUSTARD} />
-        <ellipse cx="30" cy="40" rx="2" ry="3" fill={RR_DARK} />
-        <ellipse cx="50" cy="40" rx="2" ry="3" fill={RR_DARK} />
-      </g>
-      <path d="M37 52 L 43 52 L 40 56 Z" fill={RR_RED} />
-      <circle cx="22" cy="50" r="2.5" fill={RR_RED} opacity="0.25" />
-      <circle cx="58" cy="50" r="2.5" fill={RR_RED} opacity="0.25" />
-    </svg>
-  );
-}
 
 interface ResultRevealProps {
   score: number;
@@ -96,8 +60,6 @@ export function ResultReveal({
     return () => cancelAnimationFrame(raf);
   }, [stage, TARGET_SCORE]);
 
-  const nyangPhase: Phase = stage >= 0 ? "alert" : "loading";
-
   return (
     <div
       style={{
@@ -115,25 +77,15 @@ export function ResultReveal({
         overflow: "hidden",
       }}
     >
-      <div style={{ marginBottom: 20, position: "relative" }}>
-        <ResultRevealNyang phase={nyangPhase} />
-        {stage >= 0 && stage < 2 && (
-          <div
-            style={{
-              position: "absolute",
-              top: -8,
-              right: -14,
-              fontFamily: "var(--font-serif)",
-              fontSize: 32,
-              fontWeight: 400,
-              color: RR_RED,
-              animation:
-                "rr-pop-bang 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards",
-            }}
-          >
-            !
-          </div>
-        )}
+      <div
+        style={{
+          marginBottom: 22,
+          position: "relative",
+          transition: "transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)",
+          transform: stage >= 0 ? "scale(1.05)" : "scale(1)",
+        }}
+      >
+        <NyangFace size={92} emotion="love" />
       </div>
 
       <div
