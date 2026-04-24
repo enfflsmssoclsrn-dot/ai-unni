@@ -1044,18 +1044,19 @@ export function AffectionRadar({
                 display: "flex",
                 alignItems: "flex-start",
                 gap: 6,
-                fontSize: 12,
+                fontFamily: "var(--font-script)",
+                fontSize: 15,
                 color: R_DARK,
-                lineHeight: 1.55,
+                lineHeight: 1.45,
                 fontStyle: "italic",
               }}
             >
               <span
                 style={{
-                  fontFamily: "var(--font-serif)",
                   color: R_MUSTARD,
-                  fontSize: 11,
+                  fontSize: 12,
                   flexShrink: 0,
+                  fontFamily: "var(--font-sans)",
                 }}
               >
                 🐾

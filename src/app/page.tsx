@@ -184,7 +184,7 @@ function SampleReportSection() {
           </span>
         </div>
 
-        <div className="mt-3 font-serif text-[17px] italic leading-[1.35] text-ink">
+        <div className="mt-3 font-script text-[22px] italic leading-[1.35] text-ink">
           &ldquo;걔 발만 살짝 걸쳐놨다냥.&rdquo;
         </div>
 
@@ -337,11 +337,11 @@ function SampleReportSection() {
             <div className="mb-1.5 font-mono text-[10px] font-bold tracking-[1.5px] text-bg/70">
               💭 걔 속마음 번역
             </div>
-            <div className="space-y-1 text-[12px] leading-[1.55]">
-              <div className="font-serif italic text-bg">
+            <div className="space-y-1 text-[15px] leading-[1.55]">
+              <div className="font-script italic text-bg">
                 &ldquo;읽씹 늘면 관심 빠지는 중이야.&rdquo;
               </div>
-              <div className="select-none font-serif italic text-bg/80 blur-[3px]">
+              <div className="select-none font-script italic text-bg/80 blur-[3px]">
                 &ldquo;약속 미루기는 회피 신호다냥…&rdquo;
               </div>
             </div>

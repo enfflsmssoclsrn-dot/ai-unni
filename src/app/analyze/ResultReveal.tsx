@@ -205,13 +205,13 @@ export function ResultReveal({
           </div>
           <div
             style={{
-              fontFamily: "var(--font-serif)",
+              fontFamily: "var(--font-script)",
               fontStyle: "italic",
-              fontWeight: 400,
-              fontSize: 20,
+              fontWeight: 500,
+              fontSize: 26,
               color: RR_DARK,
               textAlign: "center",
-              lineHeight: 1.4,
+              lineHeight: 1.35,
               maxWidth: 280,
               marginBottom: 28,
               opacity: stage >= 5 ? 1 : 0,
