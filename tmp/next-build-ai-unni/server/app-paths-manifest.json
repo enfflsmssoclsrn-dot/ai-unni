@@ -1,0 +1,14 @@
+{
+  "/_global-error/page": "app/_global-error/page.js",
+  "/_not-found/page": "app/_not-found/page.js",
+  "/api/analyze/route": "app/api/analyze/route.js",
+  "/api/payment/confirm/route": "app/api/payment/confirm/route.js",
+  "/api/payment/request/route": "app/api/payment/request/route.js",
+  "/api/simulation/confirm/route": "app/api/simulation/confirm/route.js",
+  "/api/simulation/request/route": "app/api/simulation/request/route.js",
+  "/checkout/page": "app/checkout/page.js",
+  "/favicon.ico/route": "app/favicon.ico/route.js",
+  "/page": "app/page.js",
+  "/payment/fail/page": "app/payment/fail/page.js",
+  "/payment/success/page": "app/payment/success/page.js"
+}

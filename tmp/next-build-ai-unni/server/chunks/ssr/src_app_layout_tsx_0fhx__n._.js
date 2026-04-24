@@ -1,0 +1,3 @@
+module.exports=[27572,a=>{"use strict";var b=a.i(7997);a.s(["default",0,function({children:a}){return(0,b.jsx)("html",{lang:"ko",children:(0,b.jsx)("body",{children:a})})},"metadata",0,{title:"AI언니 - 걔한테 너는 지금 몇 점일까",description:"썸·연애·재회·부부관계까지 대신 봐주는 연애 AI 💌 카톡·DM 캡처만 올리면 가트만 관계심리학 기반으로 호감도를 분석해줘",openGraph:{title:"AI언니 - 걔한테 너는 지금 몇 점일까",description:"썸·연애·재회·부부관계까지 대신 봐주는 연애 AI 💌 가트만 관계심리학 · 애착이론 기반",type:"website"}}])},50645,a=>{a.n(a.i(27572))}];
+
+//# sourceMappingURL=src_app_layout_tsx_0fhx__n._.js.map

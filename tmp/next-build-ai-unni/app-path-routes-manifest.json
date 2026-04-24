@@ -1,0 +1,14 @@
+{
+  "/_global-error/page": "/_global-error",
+  "/_not-found/page": "/_not-found",
+  "/api/analyze/route": "/api/analyze",
+  "/api/payment/confirm/route": "/api/payment/confirm",
+  "/api/payment/request/route": "/api/payment/request",
+  "/api/simulation/confirm/route": "/api/simulation/confirm",
+  "/api/simulation/request/route": "/api/simulation/request",
+  "/checkout/page": "/checkout",
+  "/favicon.ico/route": "/favicon.ico",
+  "/page": "/",
+  "/payment/fail/page": "/payment/fail",
+  "/payment/success/page": "/payment/success"
+}
