@@ -30,7 +30,9 @@
     BlinkMacSystemFont, system-ui, "Apple SD Gothic Neo", "Malgun Gothic",
     sans-serif;
   --font-mono: var(--font-jetbrains), ui-monospace, Menlo, monospace;
-  --font-script: var(--font-caveat), cursive;
+  /* 속마음체: 영문은 Caveat, 한글은 Noto Serif KR italic으로 폴백 */
+  --font-script: var(--font-caveat), var(--font-noto-serif-kr),
+    "Noto Serif KR", cursive;
 
   /* Radii */
   --radius-sm: 8px;
@@ -52,6 +54,45 @@
   /* Layout */
   --container-max: 1200px;
   --content-max: 720px;
+}
+
+/* ─── 냥이체 시스템 전역 기본 (UPDATE-typography.md) ─── */
+
+/* 기본: 모든 엘리먼트는 본문체 (Pretendard) */
+html,
+body {
+  font-family: var(--font-sans);
+  font-feature-settings: "ss01", "ss02"; /* Pretendard 스타일 세트 */
+  -webkit-font-smoothing: antialiased;
+  color: var(--color-ink);
+}
+
+/* 제목은 세리프체 (Fraunces + Noto Serif KR) */
+h1,
+h2,
+h3,
+.heading-serif {
+  font-family: var(--font-serif);
+  font-weight: 500;
+  letter-spacing: -0.02em;
+}
+
+/* 인용 · 속마음 (Caveat + Noto Serif KR italic) */
+.whisper,
+blockquote,
+.pet-line {
+  font-family: var(--font-script);
+  font-style: italic;
+}
+
+/* 라벨 · 등급 · 섹션 번호 (JetBrains Mono) */
+.tier-label,
+.section-num,
+.tag-mono {
+  font-family: var(--font-mono);
+  letter-spacing: 0.2em;
+  font-weight: 500;
+  text-transform: uppercase;
 }
 
 @keyframes fadeUp {
