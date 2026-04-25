@@ -491,6 +491,162 @@ export function NyangPrescription({
 }
 
 // ═════════════════════════════════════════════════════════════
+// SECTION · LiftAdvice (호감도 올리는 길 · 단계별 가이드)
+// ═════════════════════════════════════════════════════════════
+
+export function NyangLiftPath({
+  items,
+  current,
+}: {
+  items?: string[];
+  current?: number;
+}) {
+  if (!items || items.length === 0) return null;
+
+  // 각 항목 첫 부분에서 "+N점" 패턴 추출
+  const parsed = items.map((s) => {
+    const m = s.match(/^\s*\+?(\d+)점\s*[·:|\-—]?\s*(.*)$/);
+    if (m) {
+      return { lift: m[1], rest: m[2].trim() };
+    }
+    return { lift: "", rest: s };
+  });
+
+  return (
+    <div style={{ fontFamily: "var(--font-sans)", color: R_DARK }}>
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: 10,
+          marginBottom: 14,
+        }}
+      >
+        <NyangFace size={40} emotion="doctor" />
+        <div>
+          <div
+            style={{
+              fontFamily: "var(--font-serif)",
+              fontWeight: 500,
+              fontSize: 16,
+            }}
+          >
+            호감도 올리는 길
+          </div>
+          <div
+            style={{
+              fontFamily: "var(--font-serif)",
+              fontStyle: "italic",
+              fontSize: 11,
+              color: R_MUTED,
+              letterSpacing: "0.1em",
+            }}
+          >
+            How to lift {current ? `${current} →` : ""} step by step
+          </div>
+        </div>
+      </div>
+
+      <div
+        style={{
+          background: R_CREAM_CARD,
+          border: `1px solid ${R_BORDER}`,
+          padding: "8px 22px",
+        }}
+      >
+        {parsed.map((it, i) => (
+          <div
+            key={i}
+            style={{
+              display: "flex",
+              gap: 14,
+              padding: "16px 0",
+              borderTop: i === 0 ? "none" : `1px dashed ${R_BORDER}`,
+            }}
+          >
+            <div
+              style={{
+                flexShrink: 0,
+                width: 56,
+                paddingTop: 2,
+              }}
+            >
+              {it.lift && (
+                <div
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "baseline",
+                    gap: 1,
+                  }}
+                >
+                  <span
+                    style={{
+                      fontFamily: "var(--font-serif)",
+                      fontSize: 11,
+                      color: R_MUSTARD,
+                      fontWeight: 600,
+                    }}
+                  >
+                    +
+                  </span>
+                  <span
+                    style={{
+                      fontFamily: "var(--font-serif)",
+                      fontSize: 26,
+                      color: R_DARK,
+                      fontWeight: 500,
+                      lineHeight: 1,
+                      letterSpacing: "-0.02em",
+                    }}
+                  >
+                    {it.lift}
+                  </span>
+                  <span
+                    style={{
+                      fontFamily: "var(--font-serif)",
+                      fontSize: 11,
+                      color: R_MUTED,
+                      marginLeft: 1,
+                    }}
+                  >
+                    점
+                  </span>
+                </div>
+              )}
+            </div>
+            <div style={{ flex: 1 }}>
+              <p
+                style={{
+                  fontSize: 13.5,
+                  lineHeight: 1.7,
+                  margin: 0,
+                  color: R_DARK,
+                }}
+              >
+                {it.rest}
+              </p>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div
+        style={{
+          marginTop: 10,
+          fontFamily: "var(--font-serif)",
+          fontStyle: "italic",
+          fontSize: 11,
+          color: R_MUTED,
+          textAlign: "center",
+        }}
+      >
+        · 상대 마음을 바꾸려고 하지 말고, 너가 통제 가능한 행동에 집중해 ·
+      </div>
+    </div>
+  );
+}
+
+// ═════════════════════════════════════════════════════════════
 // SECTION 4 — ScoreReason (점수 근거 · 크림)
 // ═════════════════════════════════════════════════════════════
 export function ScoreReason({ items }: { items?: string[] }) {

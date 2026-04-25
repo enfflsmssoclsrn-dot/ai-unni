@@ -18,6 +18,7 @@ import {
   PremiumCTA,
   AttachmentQuadrant,
   GottmanCard,
+  NyangLiftPath,
 } from "./ResultCards";
 
 // ─── Free Usage Limit (1/day, localStorage) ───
@@ -900,6 +901,16 @@ function ResultCard({ result, isPaid, onReset, onResetPaid, onUnlock, unlocking,
       {prescriptionItems && prescriptionItems.length > 0 && (
         <NyangPrescription items={prescriptionItems} />
       )}
+
+      {/* 호감도 올리는 길 (유료만 · lift_advice 신규 필드) */}
+      {isPaid &&
+        Array.isArray(result.lift_advice) &&
+        result.lift_advice.length > 0 && (
+          <NyangLiftPath
+            items={result.lift_advice}
+            current={result.score}
+          />
+        )}
 
       {/* 무료 유저: 프리미엄 업셀 */}
       {!isPaid && (
