@@ -390,11 +390,11 @@ function CheckoutInner() {
             border: "none",
             background: !ready || paying ? P_MUTED : P_DARK,
             color: P_CREAM,
-            fontFamily: "var(--font-serif)",
-            fontWeight: 500,
+            fontFamily: "var(--font-sans)",
+            fontWeight: 600,
             fontSize: 16,
             cursor: !ready || paying ? "not-allowed" : "pointer",
-            letterSpacing: "0.02em",
+            letterSpacing: "-0.01em",
             opacity: !ready || paying ? 0.8 : 1,
           }}
         >

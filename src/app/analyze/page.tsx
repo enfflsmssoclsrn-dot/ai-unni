@@ -1355,11 +1355,11 @@ function ChatSimulator({ parentOrderId }: { parentOrderId: string }) {
             background: "#2B2420",
             color: "#F4EFE6",
             border: "none",
-            fontFamily: "var(--font-serif)",
-            fontWeight: 500,
+            fontFamily: "var(--font-sans)",
+            fontWeight: 600,
             fontSize: 15,
             cursor: "pointer",
-            letterSpacing: "0.02em",
+            letterSpacing: "-0.01em",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
@@ -1871,10 +1871,7 @@ function UploadZone({ images, onAdd, onRemove }: any) {
             </svg>
           </div>
           <div className="flex-1">
-            <div
-              className="text-[14px] font-medium tracking-[-0.3px] text-ink"
-              style={{ fontFamily: "var(--font-serif)" }}
-            >
+            <div className="text-[14px] font-semibold tracking-[-0.01em] text-ink">
               여기 눌러서 캡처 추가
             </div>
             <div className="mt-0.5 text-[11px] leading-[1.4] text-sub">
@@ -2610,11 +2607,11 @@ export default function Home() {
                   border: "none",
                   background: canAnalyze ? "var(--color-ink)" : "#EDE6D8",
                   color: canAnalyze ? "var(--color-bg)" : "var(--color-sub)",
-                  fontFamily: "var(--font-serif)",
-                  fontWeight: 500,
+                  fontFamily: "var(--font-sans)",
+                  fontWeight: 600,
                   fontSize: 16,
                   cursor: canAnalyze ? "pointer" : "default",
-                  letterSpacing: "0.02em",
+                  letterSpacing: "-0.01em",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
@@ -2646,11 +2643,11 @@ export default function Home() {
                   border: "none",
                   background: canAnalyze ? "var(--color-ink)" : "#EDE6D8",
                   color: canAnalyze ? "var(--color-bg)" : "var(--color-sub)",
-                  fontFamily: "var(--font-serif)",
-                  fontWeight: 500,
+                  fontFamily: "var(--font-sans)",
+                  fontWeight: 600,
                   fontSize: 16,
                   cursor: canAnalyze ? "pointer" : "default",
-                  letterSpacing: "0.02em",
+                  letterSpacing: "-0.01em",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
