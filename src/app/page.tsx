@@ -107,10 +107,26 @@ function HeroSection() {
 
 function HowItWorksSection() {
   const steps = [
-    { n: "01", t: "캡처 업로드", d: "카톡·DM·문자 — 형식 상관없어" },
-    { n: "02", t: "말투와 텀 분석", d: "답장 속도, 단답·장문, 이모지, 회피 표현" },
-    { n: "03", t: "호감도 + 애착 유형", d: "Gottman 4대 위험 신호 · 애착 이론 기반" },
-    { n: "04", t: "이런 멘트 보내봐", d: "상황 맞춤 답장 멘트까지 골라줘" },
+    {
+      n: "01",
+      t: "캡처 업로드",
+      d: "카톡·DM·문자 어디서든. 형식 상관없다냥.",
+    },
+    {
+      n: "02",
+      t: "말투와 텀 분석",
+      d: "답장 속도, 단답·장문, 이모지, 회피 표현까지 다 잡아.",
+    },
+    {
+      n: "03",
+      t: "호감도 + 애착 유형",
+      d: "Gottman 4대 위험 신호 · 애착이론으로 패턴 정리한다냥.",
+    },
+    {
+      n: "04",
+      t: "이런 멘트 보내봐",
+      d: "상황 맞춤 답장 멘트까지 골라준다냥.",
+    },
   ];
   return (
     <section className="relative">
@@ -218,7 +234,7 @@ function SampleReportSection() {
         <ul className="space-y-1.5 text-[12.5px] text-sub">
           <li className="flex items-center gap-2">
             <span className="text-ink">·</span>
-            <span>6축 호감도 레이더 (관심·반응·적극·일관·친밀·미래)</span>
+            <span>6축 호감도 레이더 — 어디가 약한지 보인다냥</span>
           </li>
           <li className="flex items-center gap-2">
             <span className="text-ink">·</span>
@@ -226,7 +242,7 @@ function SampleReportSection() {
           </li>
           <li className="flex items-center gap-2">
             <span className="text-ink">·</span>
-            <span>바로 보낼 답장 멘트 3톤</span>
+            <span>바로 보낼 답장 멘트 3톤 골라준다냥</span>
           </li>
         </ul>
 
@@ -267,8 +283,8 @@ function TestimonialsSection() {
 function FaqSection() {
   const items = [
     { q: "내 대화가 저장돼?", a: "무료 분석은 DB에 저장 안 해. 유료는 결제·분석 기록만 30일 보관하고 자동 파기된다냥." },
-    { q: "결과 정확해?", a: "애착이론 + Gottman + AI. 단, 참고용이야." },
-    { q: "꼭 카톡이어야 해?", a: "DM · 문자 · 노션 메모 다 된다냥." },
+    { q: "결과 정확해?", a: "애착이론 + Gottman + AI 셋 다 본다냥. 단, 참고용으로 쓰면 돼." },
+    { q: "꼭 카톡이어야 해?", a: "카톡·DM·문자·노션 메모 다 된다냥." },
   ];
   return (
     <section className="mt-2 border-t border-line px-[22px] pt-6 pb-3">
