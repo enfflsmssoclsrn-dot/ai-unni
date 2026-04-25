@@ -2,7 +2,7 @@ import Link from "next/link";
 import { Masthead } from "@/components/layout/Masthead";
 import { BtnPrimary } from "@/components/ui/BtnPrimary";
 import { NyangHead, NyangEyes } from "@/components/nyang-icons";
-import { MethodologyCard } from "@/app/analyze/ResultCards";
+import { MethodologyCard, NyangFace } from "@/app/analyze/ResultCards";
 
 export default function Home() {
   return (
@@ -143,236 +143,96 @@ function HowItWorksSection() {
 }
 
 function SampleReportSection() {
-  const horsemen = [
-    { k: "비난", v: 10, s: "안전" },
-    { k: "방어", v: 15, s: "안전" },
-    { k: "경멸", v: 5, s: "안전" },
-    { k: "담쌓기", v: 30, s: "양호" },
-  ];
-  const attach = ["회피형", "혼합형", "안정형", "불안형"];
-  const radar = [85, 60, 40, 55, 75, 30];
   return (
     <section className="relative px-[22px] pt-6 pb-4">
       <div className="mb-3">
         <SectionHeader num="02" label="샘플 리포트" title="이렇게 나온다냥" />
       </div>
-      <div className="relative overflow-hidden rounded-[14px] border border-line bg-bg-alt p-5 shadow-[0_4px_24px_rgba(26,23,20,0.06)]">
-        {/* Score hero */}
-        <div className="flex items-baseline justify-between">
-          <div className="font-mono text-[10px] tracking-[2px] text-sub">
-            호감도 점수
+
+      {/* Editorial sample card · 매거진 1면 톤 */}
+      <div className="relative overflow-hidden border border-line bg-[#FAF6EC] p-6">
+        {/* 헤더 row — NyangFace + ISSUE */}
+        <div className="mb-4 flex items-center justify-between">
+          <div className="flex items-center gap-2.5">
+            <NyangFace size={32} emotion="love" />
+            <div className="leading-tight">
+              <div className="font-mono text-[9px] font-bold tracking-[0.25em] text-sub">
+                AI 냥이 · ISSUE 028
+              </div>
+              <div
+                className="text-[12px] font-medium text-ink"
+                style={{ fontFamily: "var(--font-serif)" }}
+              >
+                연애 분석 리포트
+              </div>
+            </div>
           </div>
           <div className="rounded-full bg-primary/15 px-2 py-0.5 font-mono text-[10px] font-bold tracking-[1.5px] text-primary-deep">
             SAMPLE
           </div>
         </div>
-        <div className="mt-0.5 flex items-baseline gap-1.5">
-          <div className="font-serif text-[80px] font-light leading-none tracking-[-3px] text-ink">
+
+        {/* 점수 — 매거진 톤 */}
+        <div className="flex items-baseline gap-2">
+          <div
+            className="text-[68px] font-light leading-none tracking-[-3px] text-ink"
+            style={{ fontFamily: "var(--font-serif)" }}
+          >
             58
           </div>
           <div className="font-mono text-[11px] tracking-[1.5px] text-sub">
             / 100
           </div>
+          <div className="ml-auto flex flex-wrap justify-end gap-1.5">
+            <span className="rounded-full bg-ink px-2.5 py-0.5 text-[10px] font-semibold text-bg">
+              호감
+            </span>
+            <span className="rounded-full border border-ink px-2.5 py-0.5 text-[10px] font-semibold text-ink">
+              미지근
+            </span>
+          </div>
         </div>
 
-        <div className="mt-3 flex flex-wrap gap-1.5">
-          <span className="rounded-full bg-ink px-3 py-1 text-[11px] font-bold text-bg">
-            ✨ 호감
-          </span>
-          <span className="rounded-full border border-ink px-3 py-1 text-[11px] font-bold text-ink">
-            🌤 미지근
-          </span>
-        </div>
-
-        <div className="mt-3 font-script text-[22px] italic leading-[1.35] text-ink">
+        {/* Whisper pullquote */}
+        <div className="mt-3 font-script text-[24px] italic leading-[1.3] text-ink">
           &ldquo;걔 발만 살짝 걸쳐놨다냥.&rdquo;
         </div>
 
         <div className="my-5 h-px bg-ink/15" />
 
+        {/* 한 줄 인사이트 — AI 냥이 한마디 미리보기 */}
         <div className="mb-2 font-mono text-[10px] font-bold tracking-[2px] text-sub">
-          관계 위험 신호 · Gottman 4
+          AI 냥이 한마디
         </div>
-        <div className="grid grid-cols-2 gap-1.5">
-          {horsemen.map((h) => (
-            <div
-              key={h.k}
-              className="rounded-md border border-line bg-bg px-3 py-2.5"
-            >
-              <div className="text-[10px] font-semibold tracking-[0.5px] text-sub">
-                {h.s}
-              </div>
-              <div className="mt-0.5 flex items-baseline gap-1.5">
-                <span className="font-serif text-[22px] font-medium tracking-[-0.5px] text-ink">
-                  {h.v}
-                </span>
-                <span className="text-[12px] font-semibold text-ink">
-                  {h.k}
-                </span>
-              </div>
-            </div>
-          ))}
-        </div>
+        <p className="text-[13px] leading-[1.7] text-ink">
+          답장은 꾸준한데 자기 얘기는 안 꺼낸다냥. 관계를 이어갈 마음은 있는데
+          책임지고 진전시킬 준비는 덜 된 상태야.
+        </p>
 
         <div className="my-5 h-px bg-ink/15" />
 
+        {/* 잠긴 섹션 — 단정한 lock list */}
         <div className="mb-2 font-mono text-[10px] font-bold tracking-[2px] text-sub">
-          상대방 애착 유형
+          🔒 프리미엄에서 풀려
         </div>
-        <div className="mb-2.5 flex flex-wrap gap-1.5">
-          {attach.map((n, i) => (
-            <span
-              key={n}
-              className={
-                i === 3
-                  ? "rounded-full bg-ink px-3 py-0.5 text-[11px] font-semibold text-bg"
-                  : "rounded-full border border-line px-3 py-0.5 text-[11px] font-semibold text-sub"
-              }
-            >
-              {n}
-            </span>
-          ))}
-        </div>
-        <div className="font-serif text-[24px] font-medium leading-tight tracking-[-0.5px] text-ink">
-          불안형{" "}
-          <span className="font-mono text-[11px] font-bold tracking-[1px] text-primary-deep">
-            회피 ↑
-          </span>
-        </div>
+        <ul className="space-y-1.5 text-[12.5px] text-sub">
+          <li className="flex items-center gap-2">
+            <span className="text-ink">·</span>
+            <span>6축 호감도 레이더 (관심·반응·적극·일관·친밀·미래)</span>
+          </li>
+          <li className="flex items-center gap-2">
+            <span className="text-ink">·</span>
+            <span>걔 속마음 번역 풀버전</span>
+          </li>
+          <li className="flex items-center gap-2">
+            <span className="text-ink">·</span>
+            <span>바로 보낼 답장 멘트 3톤</span>
+          </li>
+        </ul>
 
-        {/* Premium teaser — 실제 결과 프리뷰 */}
-        <div className="relative mt-5 overflow-hidden rounded-[12px] bg-ink p-5 text-bg">
-          <div className="mb-4 flex items-center justify-between">
-            <div className="font-mono text-[9px] font-bold tracking-[2px] text-bg/70">
-              🔒 프리미엄에서 풀려
-            </div>
-            <div className="font-mono text-[9px] font-bold tracking-[1.5px] text-primary">
-              PREMIUM
-            </div>
-          </div>
-
-          <div className="mb-4 flex items-center gap-4">
-            <svg width="128" height="128" viewBox="0 0 128 128" className="shrink-0">
-              <g transform="translate(64 64)">
-                {[0.25, 0.5, 0.75, 1].map((r) => {
-                  const pts = Array.from({ length: 6 })
-                    .map((_, i) => {
-                      const a = (Math.PI * 2 * i) / 6 - Math.PI / 2;
-                      return `${Math.cos(a) * 44 * r},${Math.sin(a) * 44 * r}`;
-                    })
-                    .join(" ");
-                  return (
-                    <polygon
-                      key={r}
-                      points={pts}
-                      fill="none"
-                      stroke="currentColor"
-                      strokeOpacity="0.18"
-                      strokeWidth="0.75"
-                    />
-                  );
-                })}
-                {Array.from({ length: 6 }).map((_, i) => {
-                  const a = (Math.PI * 2 * i) / 6 - Math.PI / 2;
-                  return (
-                    <line
-                      key={i}
-                      x1="0"
-                      y1="0"
-                      x2={Math.cos(a) * 44}
-                      y2={Math.sin(a) * 44}
-                      stroke="currentColor"
-                      strokeOpacity="0.15"
-                      strokeWidth="0.5"
-                    />
-                  );
-                })}
-                <polygon
-                  points={radar
-                    .map((v, i) => {
-                      const a = (Math.PI * 2 * i) / 6 - Math.PI / 2;
-                      const r = (v / 100) * 44;
-                      return `${Math.cos(a) * r},${Math.sin(a) * r}`;
-                    })
-                    .join(" ")}
-                  fill="var(--color-primary)"
-                  fillOpacity="0.35"
-                  stroke="var(--color-primary)"
-                  strokeWidth="1.5"
-                  strokeLinejoin="round"
-                />
-                {radar.map((v, i) => {
-                  const a = (Math.PI * 2 * i) / 6 - Math.PI / 2;
-                  const r = (v / 100) * 44;
-                  return (
-                    <circle
-                      key={i}
-                      cx={Math.cos(a) * r}
-                      cy={Math.sin(a) * r}
-                      r="2"
-                      fill="var(--color-primary)"
-                    />
-                  );
-                })}
-              </g>
-            </svg>
-            <div className="flex-1 text-[11px] leading-[1.55]">
-              <div className="mb-1 font-mono text-[10px] font-bold tracking-[1.5px] text-bg">
-                6축 호감도 레이더
-              </div>
-              <div className="grid grid-cols-2 gap-x-2 text-bg/80">
-                <span>관심 85</span>
-                <span>반응 60</span>
-                <span>적극 40</span>
-                <span>일관 55</span>
-                <span>친밀 75</span>
-                <span>미래 30</span>
-              </div>
-            </div>
-          </div>
-
-          <div className="my-3 h-px bg-bg/15" />
-
-          <div className="mb-3">
-            <div className="mb-1.5 font-mono text-[10px] font-bold tracking-[1.5px] text-bg/70">
-              💭 걔 속마음 번역
-            </div>
-            <div className="space-y-1 text-[15px] leading-[1.55]">
-              <div className="font-script italic text-bg">
-                &ldquo;읽씹 늘면 관심 빠지는 중이야.&rdquo;
-              </div>
-              <div className="select-none font-script italic text-bg/80 blur-[3px]">
-                &ldquo;약속 미루기는 회피 신호다냥…&rdquo;
-              </div>
-            </div>
-          </div>
-
-          <div className="my-3 h-px bg-bg/15" />
-
-          <div>
-            <div className="mb-2 font-mono text-[10px] font-bold tracking-[1.5px] text-bg/70">
-              💬 이런 멘트 보내봐
-            </div>
-            <div className="flex flex-wrap gap-1.5">
-              <span className="rounded-full border border-bg/40 px-2.5 py-0.5 text-[11px] font-medium text-bg">
-                ㅋㅋ 담주 편해?
-              </span>
-              <span className="select-none rounded-full border border-bg/40 px-2.5 py-0.5 text-[11px] font-medium text-bg/80 blur-[3px]">
-                편할 때 알려줘
-              </span>
-              <span className="select-none rounded-full border border-bg/40 px-2.5 py-0.5 text-[11px] font-medium text-bg/80 blur-[3px]">
-                그래, 무리 말고
-              </span>
-            </div>
-          </div>
-
-          <div className="pointer-events-none absolute -right-2 -top-2 rotate-[18deg] opacity-90">
-            <NyangHead size={40} eyeColor="var(--color-primary)" />
-          </div>
-        </div>
-
+        {/* corner cat */}
         <div className="pointer-events-none absolute -bottom-3 -right-3 rotate-[14deg]">
-          <NyangHead size={48} />
+          <NyangHead size={44} />
         </div>
       </div>
     </section>
