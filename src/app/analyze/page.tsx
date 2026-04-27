@@ -3005,6 +3005,18 @@ export default function Home() {
       setSimSessionId(loadSimSessionId());
       // 이미 본 결과 복원 시엔 reveal 바로 스킵
       setRevealDone(true);
+      // sim-unlock 결제 직후 복귀 → 채팅 섹션으로 스크롤
+      try {
+        if (localStorage.getItem(SIM_UNLOCK_PENDING_KEY)) {
+          requestAnimationFrame(() => {
+            setTimeout(() => {
+              document
+                .getElementById("chat-sim-section")
+                ?.scrollIntoView({ behavior: "smooth", block: "start" });
+            }, 200);
+          });
+        }
+      } catch {}
     }
   }, []);
 
@@ -3187,10 +3199,12 @@ export default function Home() {
           <>
             <ResultCard result={result} isPaid={isPaid} onReset={reset} onResetPaid={() => reset({ forcePaidMode: true })} onUnlock={handleUnlock} unlocking={unlocking} redirecting={redirecting} freeUsed={freeUsed} />
             {isPaid && paidOrderId && (
-              <ChatSimulator
-                key={simSessionId ?? paidOrderId}
-                parentOrderId={paidOrderId}
-              />
+              <div id="chat-sim-section">
+                <ChatSimulator
+                  key={simSessionId ?? paidOrderId}
+                  parentOrderId={paidOrderId}
+                />
+              </div>
             )}
           </>
         ) : (
