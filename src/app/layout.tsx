@@ -1,31 +1,44 @@
 import type { Metadata } from "next";
 import Script from "next/script";
-import { Fraunces, Caveat, JetBrains_Mono } from "next/font/google";
+import { Fraunces, Caveat, JetBrains_Mono, Noto_Serif_KR } from "next/font/google";
 import "./globals.css";
 import { ScrollToTop } from "./scroll-to-top";
 
 const GA_ID = "G-9FMVRBCF2R";
 
+// ─── 냥이체 4종 (UPDATE-typography.md 가이드) ───
+// 세리프체 · 본문체 · 속마음체 · 라벨체
 const fraunces = Fraunces({
   subsets: ["latin"],
   variable: "--font-fraunces",
+  weight: ["300", "400", "500", "600"],
+  style: ["normal", "italic"],
+  display: "swap",
+});
+
+const notoSerifKR = Noto_Serif_KR({
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "600"],
+  variable: "--font-noto-serif-kr",
   display: "swap",
 });
 
 const caveat = Caveat({
   subsets: ["latin"],
+  weight: ["400", "500", "600"],
   variable: "--font-caveat",
   display: "swap",
 });
 
 const jetbrainsMono = JetBrains_Mono({
   subsets: ["latin"],
+  weight: ["400", "500", "700"],
   variable: "--font-jetbrains",
   display: "swap",
 });
 
 export const metadata: Metadata = {
-  title: "AI 연애 상담 · 카톡 호감도 분석 | AI언니",
+  title: "AI 연애 상담 · 카톡 호감도 분석 | AI 냥이",
   description:
     "카톡 캡처만 올리면 AI가 호감도를 분석해줘. 썸남 호감 신호, 읽씹 심리, 애착 유형까지 가트만 관계심리학 기반 무료 연애 상담. 썸·연애·재회·부부관계 AI 분석.",
   keywords: [
@@ -38,22 +51,22 @@ export const metadata: Metadata = {
     "호감도 테스트",
     "카톡 분석",
     "연애 초기 매력",
-    "AI언니",
+    "AI 냥이",
   ],
   metadataBase: new URL("https://ai-unni.vercel.app"),
   alternates: { canonical: "/" },
   openGraph: {
-    title: "AI 연애 상담 · 카톡 호감도 분석 | AI언니",
+    title: "AI 연애 상담 · 카톡 호감도 분석 | AI 냥이",
     description:
       "카톡 캡처만 올리면 AI가 호감도를 분석해줘. 가트만 관계심리학 · 애착이론 기반 무료 연애 상담.",
     type: "website",
     url: "https://ai-unni.vercel.app",
-    siteName: "AI언니",
+    siteName: "AI 냥이",
     locale: "ko_KR",
   },
   twitter: {
     card: "summary_large_image",
-    title: "AI 연애 상담 · 카톡 호감도 분석 | AI언니",
+    title: "AI 연애 상담 · 카톡 호감도 분석 | AI 냥이",
     description:
       "카톡 캡처만 올리면 AI가 호감도를 분석해줘. 무료 연애 상담 AI.",
   },
@@ -75,12 +88,12 @@ export default function RootLayout({
   return (
     <html
       lang="ko"
-      className={`${fraunces.variable} ${caveat.variable} ${jetbrainsMono.variable}`}
+      className={`${fraunces.variable} ${caveat.variable} ${jetbrainsMono.variable} ${notoSerifKR.variable}`}
     >
       <head>
         <link
           rel="stylesheet"
-          href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"
+          href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css"
         />
         <Script src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`} strategy="afterInteractive" />
         <Script id="ga-init" strategy="afterInteractive">{`

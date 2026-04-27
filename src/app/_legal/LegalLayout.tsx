@@ -13,42 +13,74 @@ export default function LegalLayout({
   children: ReactNode;
 }) {
   return (
-    <main
-      className="min-h-screen px-4 pt-5 pb-16"
-      style={{ background: "linear-gradient(180deg, #FFF0F3 0%, #FFF5F7 30%, #FFFFFF 100%)" }}>
-      <div className="max-w-[720px] mx-auto">
+    <main className="min-h-screen bg-bg px-4 pb-16 pt-5">
+      <div className="mx-auto max-w-[720px]">
         {/* 상단 네비 */}
-        <div className="mb-4">
+        <div className="mb-5">
           <Link
             href="/"
-            className="text-[13px] text-[#FF6B8A] font-semibold hover:underline">
-            ← AI언니 홈으로
+            className="inline-flex items-center gap-1 text-[13px] font-medium text-ink hover:underline"
+          >
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth={1.5}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden
+            >
+              <path d="M15 6l-6 6 6 6" />
+            </svg>
+            AI 냥이 홈으로
           </Link>
         </div>
 
+        {/* Eyebrow */}
+        <div className="mb-2 font-mono text-[10px] font-semibold tracking-[0.3em] text-sub">
+          — LEGAL · NO.LG —
+        </div>
+
         {/* 제목 */}
-        <h1 className="text-[26px] md:text-[30px] font-extrabold text-[#2D2B3D] tracking-tight mb-1">
+        <h1
+          className="mb-1 text-[28px] font-medium tracking-[-0.02em] text-ink md:text-[32px]"
+          style={{ fontFamily: "var(--font-serif)" }}
+        >
           {title}
         </h1>
-        <p className="text-[12px] text-[#8E8A9D] mb-6">시행일: {updatedAt}</p>
+        <p
+          className="mb-7 text-[12px] italic text-sub"
+          style={{ fontFamily: "var(--font-serif)" }}
+        >
+          시행일: {updatedAt}
+        </p>
 
         {/* 본문 카드 */}
         <article
-          className="rounded-[18px] bg-white p-5 md:p-7 text-[14px] leading-[1.8] text-[#2D2B3D]"
+          className="p-5 text-[14px] leading-[1.8] text-ink md:p-7"
           style={{
-            border: "1px solid #FFD6E0",
-            boxShadow: "0 2px 14px rgba(255,107,138,0.06)",
-          }}>
+            background: "#FAF6EC",
+            border: "1px solid var(--color-line)",
+          }}
+        >
           {children}
         </article>
 
         {/* 하단 링크 모음 */}
-        <div className="mt-6 flex flex-wrap gap-x-4 gap-y-2 text-[12px] text-[#6E6A80] justify-center">
-          <Link href="/terms" className="hover:underline">이용약관</Link>
-          <span className="text-[#D8D4E0]">·</span>
-          <Link href="/privacy" className="hover:underline">개인정보처리방침</Link>
-          <span className="text-[#D8D4E0]">·</span>
-          <Link href="/refund" className="hover:underline">환불정책</Link>
+        <div className="mt-6 flex flex-wrap justify-center gap-x-4 gap-y-2 text-[12px] text-sub">
+          <Link href="/terms" className="font-medium text-ink hover:underline">
+            이용약관
+          </Link>
+          <span className="text-sub/40">·</span>
+          <Link href="/privacy" className="font-medium text-ink hover:underline">
+            개인정보처리방침
+          </Link>
+          <span className="text-sub/40">·</span>
+          <Link href="/refund" className="font-medium text-ink hover:underline">
+            환불정책
+          </Link>
         </div>
       </div>
     </main>

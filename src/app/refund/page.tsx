@@ -1,8 +1,8 @@
 import LegalLayout from "../_legal/LegalLayout";
 
 export const metadata = {
-  title: "환불정책 | AI언니",
-  description: "AI언니 결제 및 환불 정책",
+  title: "환불정책 | AI 냥이",
+  description: "AI 냥이 결제 및 환불 정책",
 };
 
 // ※ 아래 [대괄호] 플레이스홀더는 사업자등록 완료 후 실제 값으로 교체할 것.
@@ -11,7 +11,7 @@ export default function RefundPage() {
     <LegalLayout title="환불정책" updatedAt="2026-04-16">
       <section className="mb-6">
         <p>
-          본 환불정책은 AI언니 서비스(이하 “서비스”)의 유료 상품에 대한 결제
+          본 환불정책은 AI 냥이 서비스(이하 “서비스”)의 유료 상품에 대한 결제
           및 환불 기준을 정합니다. 본 정책은 「전자상거래 등에서의 소비자보호에
           관한 법률」(이하 “전상법”) 및 관련 법령에 따라 작성되었습니다.
         </p>
@@ -22,22 +22,22 @@ export default function RefundPage() {
         <div className="overflow-x-auto">
           <table className="w-full text-[13px] border-collapse">
             <thead>
-              <tr className="bg-[#FFF0F3]">
-                <th className="border border-[#FFD6E0] px-2 py-1.5 text-left">상품</th>
-                <th className="border border-[#FFD6E0] px-2 py-1.5 text-left">금액</th>
-                <th className="border border-[#FFD6E0] px-2 py-1.5 text-left">내용</th>
+              <tr className="bg-[#FAF6EC]">
+                <th className="border border-[var(--color-line)] px-2 py-1.5 text-left">상품</th>
+                <th className="border border-[var(--color-line)] px-2 py-1.5 text-left">금액</th>
+                <th className="border border-[var(--color-line)] px-2 py-1.5 text-left">내용</th>
               </tr>
             </thead>
             <tbody>
               <tr>
-                <td className="border border-[#FFD6E0] px-2 py-1.5">심층 분석 리포트</td>
-                <td className="border border-[#FFD6E0] px-2 py-1.5">₩2,900 / 1회</td>
-                <td className="border border-[#FFD6E0] px-2 py-1.5">AI가 생성한 호감 근거, 주의 포인트, 상대방 심리 해석, 행동 전략 등 확장 분석 결과 제공</td>
+                <td className="border border-[var(--color-line)] px-2 py-1.5">심층 분석 리포트</td>
+                <td className="border border-[var(--color-line)] px-2 py-1.5">₩2,900 / 1회</td>
+                <td className="border border-[var(--color-line)] px-2 py-1.5">AI가 생성한 호감 근거, 주의 포인트, 상대방 심리 해석, 행동 전략 등 확장 분석 결과 제공</td>
               </tr>
               <tr>
-                <td className="border border-[#FFD6E0] px-2 py-1.5">대화 시뮬레이션 턴 추가</td>
-                <td className="border border-[#FFD6E0] px-2 py-1.5">₩990 / 15턴</td>
-                <td className="border border-[#FFD6E0] px-2 py-1.5">AI가 상대방 말투를 학습하여 진행하는 대화 시뮬레이션의 추가 이용권</td>
+                <td className="border border-[var(--color-line)] px-2 py-1.5">대화 시뮬레이션 턴 추가</td>
+                <td className="border border-[var(--color-line)] px-2 py-1.5">₩990 / 15턴</td>
+                <td className="border border-[var(--color-line)] px-2 py-1.5">AI가 상대방 말투를 학습하여 진행하는 대화 시뮬레이션의 추가 이용권</td>
               </tr>
             </tbody>
           </table>
@@ -96,7 +96,7 @@ export default function RefundPage() {
 
       <section className="mb-6">
         <h2 className="text-[16px] font-bold mb-2">4. 고객센터</h2>
-        <div className="rounded-[12px] bg-[#FFF8FA] border border-[#FFE8EC] p-4">
+        <div className="rounded-[12px] bg-[var(--color-bg)] border border-[#FAF6EC] p-4">
           <ul className="space-y-1">
             <li>이메일: junilabstudio@gmail.com</li>
             <li>운영 시간: 평일 10:00 ~ 18:00 (주말·공휴일 제외)</li>

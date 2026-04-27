@@ -39,3 +39,11 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# local work files (실수 커밋 방지)
+/tmp/
+/supabase_migrations/
+/deploy.sh
+/*.xlsx
+/*.docx
+.~lock.*#

@@ -3,7 +3,7 @@ import Link from "next/link";
 import { POSTS } from "./posts";
 
 export const metadata: Metadata = {
-  title: "연애 상담 블로그 | AI언니",
+  title: "연애 상담 블로그 | AI 냥이",
   description:
     "카톡 호감 신호, 읽씹 심리, 연애 초기 전략까지 — 관계심리학 기반 연애 꿀팁 블로그.",
   alternates: { canonical: "/blog" },
@@ -19,7 +19,7 @@ export default function BlogIndex() {
           className="inline-block mb-6 text-[13px] font-bold"
           style={{ color: "#FF6B8A" }}
         >
-          ← AI언니 홈으로
+          ← AI 냥이 홈으로
         </Link>
         <h1
           className="text-[22px] font-extrabold mb-2"

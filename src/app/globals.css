@@ -1,20 +1,21 @@
 @import "tailwindcss";
+@config "../../tailwind.config.ts";
 
 @theme {
-  /* Butter mood — main palette */
-  --color-bg: #f6ebc7;
-  --color-bg-alt: #ecdead;
+  /* Cream mood — main palette (per handoff 2 design-tokens.md) */
+  --color-bg: #f4efe6;
+  --color-bg-alt: #e9e3d5;
   --color-ink: #1a1714;
-  --color-sub: #7a6b48;
+  --color-sub: #6e665c;
   --color-line: rgba(26, 23, 20, 0.14);
 
-  --color-primary: #e94b6a;
-  --color-primary-deep: #b82a4a;
+  --color-primary: #d97557;
+  --color-primary-deep: #b55a3e;
 
   --color-accent-a: #1a1714;
-  --color-accent-b: #e94b6a;
-  --color-accent-c: #ff9b5a;
-  --color-accent-d: #f6ebc7;
+  --color-accent-b: #d97557;
+  --color-accent-c: #e88b5e;
+  --color-accent-d: #f4efe6;
 
   /* Pastel gradient ingredients (PastelBG) */
   --color-pastel-1: #fde8a8;
@@ -24,12 +25,15 @@
 
   /* Typography — next/font exposes --font-fraunces / --font-caveat / --font-jetbrains
      via <html> className; Pretendard comes from a CDN link in <head>. */
-  --font-serif: var(--font-fraunces), "Noto Serif KR", serif;
+  --font-serif: var(--font-fraunces), var(--font-noto-serif-kr),
+    "Noto Serif KR", serif;
   --font-sans: "Pretendard Variable", "Pretendard", -apple-system,
     BlinkMacSystemFont, system-ui, "Apple SD Gothic Neo", "Malgun Gothic",
     sans-serif;
   --font-mono: var(--font-jetbrains), ui-monospace, Menlo, monospace;
-  --font-script: var(--font-caveat), cursive;
+  /* 속마음체: 영문은 Caveat, 한글은 Noto Serif KR italic으로 폴백 */
+  --font-script: var(--font-caveat), var(--font-noto-serif-kr),
+    "Noto Serif KR", cursive;
 
   /* Radii */
   --radius-sm: 8px;
@@ -53,6 +57,45 @@
   --content-max: 720px;
 }
 
+/* ─── 냥이체 시스템 전역 기본 (UPDATE-typography.md) ─── */
+
+/* 기본: 모든 엘리먼트는 본문체 (Pretendard) */
+html,
+body {
+  font-family: var(--font-sans);
+  font-feature-settings: "ss01", "ss02"; /* Pretendard 스타일 세트 */
+  -webkit-font-smoothing: antialiased;
+  color: var(--color-ink);
+}
+
+/* 제목은 세리프체 (Fraunces + Noto Serif KR) */
+h1,
+h2,
+h3,
+.heading-serif {
+  font-family: var(--font-serif);
+  font-weight: 500;
+  letter-spacing: -0.02em;
+}
+
+/* 인용 · 속마음 (Caveat + Noto Serif KR italic) */
+.whisper,
+blockquote,
+.pet-line {
+  font-family: var(--font-script);
+  font-style: italic;
+}
+
+/* 라벨 · 등급 · 섹션 번호 (JetBrains Mono) */
+.tier-label,
+.section-num,
+.tag-mono {
+  font-family: var(--font-mono);
+  letter-spacing: 0.2em;
+  font-weight: 500;
+  text-transform: uppercase;
+}
+
 @keyframes fadeUp {
   from {
     opacity: 0;
@@ -71,6 +114,19 @@
   }
   50% {
     transform: translateY(-6px);
+  }
+}
+
+@keyframes nyangCsDot {
+  0%,
+  60%,
+  100% {
+    opacity: 0.25;
+    transform: translateY(0);
+  }
+  30% {
+    opacity: 1;
+    transform: translateY(-2px);
   }
 }
 
