@@ -1036,6 +1036,68 @@ function ChatBubble({ role, content }: { role: ChatRole; content: string }) {
   );
 }
 
+// PATCH-coaching · 상대 답장 길이/형태로 코치 메시지 추출 (heuristic)
+type CoachTip = {
+  body: string;
+  highlight: string;
+  example: string;
+  chips: { label: string; starter: string; recommend?: boolean }[];
+};
+function buildCoachTip(partnerReply: string): CoachTip {
+  const reply = (partnerReply || "").trim();
+  const compact = reply.replace(/\s+/g, "");
+  const isShortLaugh = /^[ㅇㄴㅎㅋ]{1,4}$/.test(compact) || compact.length <= 6;
+  const hasQ = /[?？]/.test(reply);
+  const hasNeg = /(별로|싫|짜증|피곤|귀찮|모르)/.test(reply);
+
+  if (isShortLaugh) {
+    return {
+      body: "반응이 미적지근하다냥. ⟨네 감정⟩을 한 줄 더하면 대화가 살아난다냥.",
+      highlight: "네 감정",
+      example: "예: \"나는 OO 부분이 좋았는데~\"",
+      chips: [
+        { label: "공감", starter: "맞아 " },
+        { label: "되묻기", starter: "근데 너는 " },
+        { label: "솔직하게", starter: "사실 나는 ", recommend: true },
+      ],
+    };
+  }
+  if (hasNeg) {
+    return {
+      body: "감정이 살짝 가라앉았다냥. ⟨가볍게 받아주기⟩ 한 줄로 분위기 풀어주라냥.",
+      highlight: "가볍게 받아주기",
+      example: "예: \"아 그랬어ㅠ 오늘 좀 그래?\"",
+      chips: [
+        { label: "공감", starter: "아 그랬어ㅠ ", recommend: true },
+        { label: "되묻기", starter: "오늘 좀 그래? " },
+        { label: "전환", starter: "그래도 " },
+      ],
+    };
+  }
+  if (hasQ) {
+    return {
+      body: "되묻고 있다냥. ⟨솔직하게⟩ 답하면서 너도 한 번 더 흘려보라냥.",
+      highlight: "솔직하게",
+      example: "예: \"오늘 좀 피곤했어. 너는?\"",
+      chips: [
+        { label: "공감", starter: "맞아 " },
+        { label: "솔직하게", starter: "사실 ", recommend: true },
+        { label: "되묻기", starter: "너는? " },
+      ],
+    };
+  }
+  return {
+    body: "분위기 부드럽다냥. ⟨공감⟩ 한 줄 얹고 자연스럽게 이어가라냥.",
+    highlight: "공감",
+    example: "예: \"맞아 나도 그 부분 좋더라.\"",
+    chips: [
+      { label: "공감", starter: "맞아 ", recommend: true },
+      { label: "되묻기", starter: "근데 너는 " },
+      { label: "솔직하게", starter: "사실 " },
+    ],
+  };
+}
+
 function ChatSimulator({ parentOrderId }: { parentOrderId: string }) {
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [persona, setPersona] = useState<SimPersona | null>(null);
@@ -1418,8 +1480,19 @@ function ChatSimulator({ parentOrderId }: { parentOrderId: string }) {
   const CS_BORDER = "#E5DCC9";
   const CS_BORDER_D = "#D4C8AE";
   const CS_RED = "#C44539";
+  // PATCH-coaching · 카톡 톤 회색 버블 + 코치 칩 코코아
+  const CS_BUBBLE_IN = "#E8EAEE";
+  const CS_BUBBLE_IN_BORDER = "#D8DCE2";
+  const CS_COCOA = "#5A4A3F";
 
   const sendActive = !!draft.trim() && !sending && !needUnlock;
+  const lastMessage = messages[messages.length - 1];
+  const showCoach =
+    !sending && !needUnlock && messages.length > 0 && lastMessage?.role === "partner";
+  const coach = showCoach ? buildCoachTip(lastMessage!.content) : null;
+  const handleChip = (starter: string) => {
+    setDraft((cur) => (cur && cur.trim() ? cur : starter));
+  };
 
   return (
     <div className="animate-fadeUp mt-6" style={{ fontFamily: "var(--font-sans)", color: CS_DARK }}>
@@ -1774,9 +1847,172 @@ function ChatSimulator({ parentOrderId }: { parentOrderId: string }) {
               </div>
             </>
           ) : (
-            messages.map((m, i) => (
-              <ChatBubble key={i} role={m.role} content={m.content} />
-            ))
+            <>
+              {messages.map((m, i) => {
+                const isUser = m.role === "user";
+                return (
+                  <div
+                    key={i}
+                    style={{
+                      display: "flex",
+                      justifyContent: isUser ? "flex-end" : "flex-start",
+                      marginBottom: 10,
+                    }}
+                  >
+                    <div
+                      style={{
+                        maxWidth: isUser ? "72%" : "76%",
+                        background: isUser ? CS_DARK : CS_BUBBLE_IN,
+                        color: isUser ? CS_CREAM : CS_DARK,
+                        border: isUser
+                          ? "none"
+                          : `1px solid ${CS_BUBBLE_IN_BORDER}`,
+                        padding: isUser ? "10px 14px" : "11px 15px",
+                        borderRadius: 14,
+                        borderTopRightRadius: isUser ? 4 : 14,
+                        borderTopLeftRadius: isUser ? 14 : 4,
+                        fontSize: 13.5,
+                        lineHeight: 1.5,
+                        fontFamily: "var(--font-sans)",
+                        whiteSpace: "pre-wrap",
+                      }}
+                    >
+                      {m.content}
+                    </div>
+                  </div>
+                );
+              })}
+
+              {/* ─── 까만냥 코칭 (PATCH-coaching) — 상대 답장 직후 등장 ─── */}
+              {coach && (
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "flex-start",
+                    gap: 8,
+                    marginTop: 4,
+                    marginBottom: 14,
+                    paddingTop: 14,
+                    borderTop: `1px dashed ${CS_BORDER_D}`,
+                  }}
+                >
+                  <NyangChatMini size={28} />
+                  <div style={{ flex: 1 }}>
+                    <div
+                      style={{
+                        fontSize: 9,
+                        letterSpacing: "0.25em",
+                        color: CS_MUSTARD,
+                        fontWeight: 700,
+                        marginBottom: 4,
+                      }}
+                    >
+                      COACH · 다음 답장 팁
+                    </div>
+                    <div
+                      style={{
+                        background: CS_DARK,
+                        color: CS_CREAM,
+                        padding: "11px 14px",
+                        fontSize: 13,
+                        lineHeight: 1.55,
+                        fontFamily: "var(--font-sans)",
+                        borderRadius: 14,
+                        borderTopLeftRadius: 3,
+                      }}
+                    >
+                      {coach.body.split(/⟨|⟩/).map((seg, idx) =>
+                        idx === 1 ? (
+                          <strong
+                            key={idx}
+                            style={{ color: CS_MUSTARD, fontWeight: 600 }}
+                          >
+                            {seg}
+                          </strong>
+                        ) : (
+                          <span key={idx}>{seg}</span>
+                        )
+                      )}
+                      <div
+                        style={{
+                          fontFamily: "var(--font-serif)",
+                          fontStyle: "italic",
+                          fontSize: 11.5,
+                          opacity: 0.75,
+                          marginTop: 4,
+                          lineHeight: 1.45,
+                        }}
+                      >
+                        {coach.example}
+                      </div>
+                    </div>
+
+                    <div
+                      style={{
+                        display: "flex",
+                        gap: 6,
+                        marginTop: 8,
+                        flexWrap: "wrap",
+                      }}
+                    >
+                      {coach.chips.map((chip, i) => (
+                        <button
+                          key={i}
+                          type="button"
+                          onClick={() => handleChip(chip.starter)}
+                          style={{
+                            background: chip.recommend
+                              ? CS_MUSTARD
+                              : "transparent",
+                            color: chip.recommend ? CS_DARK : CS_COCOA,
+                            border: chip.recommend
+                              ? "none"
+                              : `1px solid ${CS_BORDER_D}`,
+                            padding: "5px 11px",
+                            fontSize: 11,
+                            fontWeight: chip.recommend ? 700 : 500,
+                            fontFamily: "var(--font-sans)",
+                            letterSpacing: "0.02em",
+                            cursor: "pointer",
+                            borderRadius: 999,
+                          }}
+                        >
+                          {chip.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* YOUR TURN 인디케이터 — 코치가 떠 있을 때만 */}
+              {coach && (
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 6,
+                    fontSize: 9.5,
+                    color: CS_RED,
+                    letterSpacing: "0.22em",
+                    paddingLeft: 4,
+                    marginTop: "auto",
+                    fontWeight: 600,
+                  }}
+                >
+                  <span
+                    style={{
+                      width: 5,
+                      height: 5,
+                      borderRadius: "50%",
+                      background: CS_RED,
+                      display: "inline-block",
+                    }}
+                  />
+                  YOUR TURN
+                </div>
+              )}
+            </>
           )}
           {sending && (
             <div style={{ display: "flex", justifyContent: "flex-start", marginTop: 4 }}>
