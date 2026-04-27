@@ -2750,7 +2750,7 @@ function SiteFooter() {
         </div>
         <div className="text-[10.5px] leading-[1.75] text-sub/80">
           <div>상호: 주니랩스튜디오 | 대표자: 김경은</div>
-          <div>사업자등록번호: 875-56-01088 | 통신판매업신고번호: [제0000-지역-0000호]</div>
+          <div>사업자등록번호: 875-56-01088 | 통신판매업신고번호: 제2026-서울서초-1459호</div>
           <div>주소: 서울특별시 서초구 바우뫼로7길 29</div>
           <div>고객센터: junilabstudio@gmail.com (평일 10:00~18:00)</div>
           <div className="mt-1.5 text-sub/60">
