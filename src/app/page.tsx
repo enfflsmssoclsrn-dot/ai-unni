@@ -2,7 +2,13 @@ import Link from "next/link";
 import { Masthead } from "@/components/layout/Masthead";
 import { BtnPrimary } from "@/components/ui/BtnPrimary";
 import { NyangHead, NyangEyes } from "@/components/nyang-icons";
-import { MethodologyCard, NyangFace } from "@/app/analyze/ResultCards";
+import {
+  MethodologyCard,
+  NyangFace,
+  AffectionRadar,
+  AttachmentQuadrant,
+  GottmanCard,
+} from "@/app/analyze/ResultCards";
 
 export default function Home() {
   return (
@@ -235,7 +241,92 @@ function SampleReportSection() {
           <NyangHead size={44} />
         </div>
       </div>
+
+      {/* ─── Premium Preview Gallery ─── */}
+      <PremiumPreviewGallery />
     </section>
+  );
+}
+
+function PremiumPreviewGallery() {
+  // 샘플 데이터 — 실제 분석 결과와 같은 구조
+  const sampleAxes = {
+    관심도: 72,
+    적극성: 48,
+    일관성: 65,
+    친밀감: 55,
+    미래언급: 32,
+    공감반응: 68,
+  };
+
+  return (
+    <div className="mt-7">
+      {/* 섹션 헤더 */}
+      <div className="mb-3 flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <span className="font-mono text-[10px] font-bold tracking-[2px] text-primary-deep">
+            ◆ PREMIUM PREVIEW
+          </span>
+        </div>
+        <span className="rounded-full bg-primary/15 px-2.5 py-0.5 font-mono text-[9.5px] font-bold tracking-[1.5px] text-primary-deep">
+          🔒 LOCKED
+        </span>
+      </div>
+      <p
+        className="mb-4 text-[13px] leading-[1.55] text-sub"
+        style={{ fontFamily: "var(--font-serif)", fontStyle: "italic" }}
+      >
+        프리미엄에선 이렇게도 본다냥 — 6축 레이더, 애착 사분면, 가트만 위험신호.
+      </p>
+
+      <div className="space-y-4">
+        {/* 1. 호감도 레이더 */}
+        <div className="overflow-hidden">
+          <AffectionRadar axes={sampleAxes} />
+        </div>
+
+        {/* 2. 애착 사분면 */}
+        <div className="overflow-hidden">
+          <AttachmentQuadrant
+            avoidance={42}
+            anxiety={68}
+            type="불안형"
+            comment="확인받고 싶은 마음이 큰 패턴이야. 답장 텀 길어지면 머릿속이 시끄러워질 거다냥."
+          />
+        </div>
+
+        {/* 3. 가트만 위험신호 */}
+        <div className="overflow-hidden">
+          <GottmanCard
+            flags={{
+              criticism: 22,
+              defensiveness: 38,
+              contempt: 12,
+              stonewalling: 28,
+            }}
+          />
+        </div>
+      </div>
+
+      {/* CTA below the preview */}
+      <div className="mt-5 border border-line bg-bg-alt p-5 text-center">
+        <div className="mb-1 font-mono text-[10px] font-bold tracking-[2px] text-sub">
+          UNLOCK FULL REPORT
+        </div>
+        <div
+          className="mb-3 text-[18px] font-medium leading-[1.3] text-ink"
+          style={{ fontFamily: "var(--font-serif)" }}
+        >
+          이 그래프 전부, 네 대화로 받아보라냥
+        </div>
+        <Link
+          href="/analyze"
+          className="inline-flex items-center gap-2 rounded-full bg-ink px-5 py-2.5 text-[13px] font-semibold text-bg transition-transform hover:scale-[1.02] active:scale-[0.98]"
+        >
+          내 분석 시작하기 →
+        </Link>
+      </div>
+    </div>
   );
 }
 
