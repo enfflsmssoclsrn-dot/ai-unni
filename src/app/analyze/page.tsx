@@ -2886,15 +2886,11 @@ export default function Home() {
     return forcePaid ? <LoadingFinal /> : <LoadingFree />;
   }
 
-  // 결과 도착 직후 reveal 전용 화면 — 버튼 클릭 시 상세로 전환
+  // 결과 도착 직후 가챠 리빌 — 점수 → tier 매핑, 터치하면 상세 결과로
   if (result && !revealDone) {
     return (
       <ResultReveal
         score={result.score || 0}
-        tags={[result.stage, result.temperature].filter(
-          (t): t is string => Boolean(t)
-        )}
-        quote={result.summary || ""}
         onDone={() => setRevealDone(true)}
       />
     );
