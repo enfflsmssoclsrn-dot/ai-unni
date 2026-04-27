@@ -1408,192 +1408,616 @@ function ChatSimulator({ parentOrderId }: { parentOrderId: string }) {
     );
   }
 
+  // ─── v2 Live Chat Simulation (nyang-chat-sim 스펙) ───
+  const CS_DARK = "#2B2420";
+  const CS_CREAM = "#F4EFE6";
+  const CS_CREAM_SUB = "#EDE6D8";
+  const CS_CREAM_CARD = "#FAF6EC";
+  const CS_MUTED = "#8A7F75";
+  const CS_MUSTARD = "#C9A961";
+  const CS_BORDER = "#E5DCC9";
+  const CS_BORDER_D = "#D4C8AE";
+  const CS_RED = "#C44539";
+
+  const sendActive = !!draft.trim() && !sending && !needUnlock;
+
   return (
-    <div className="mt-6 mb-2 animate-fadeUp">
-      {/* 섹션 헤더 — editorial */}
-      <div className="mb-4 border-t border-line pt-5">
-        <div className="mb-2 font-mono text-[9px] font-bold tracking-[2.5px] text-sub">
-          LIVE SIMULATION · NEW
-        </div>
-        <div className="flex items-center gap-3">
-          <NyangHead size={34} />
-          <div className="flex-1">
-            <div className="font-serif text-[22px] font-medium leading-tight tracking-[-0.5px] text-ink">
-              걔랑 대화 연습
-            </div>
-            <div className="mt-0.5 text-[11px] leading-[1.4] text-sub">
-              걔 말투 그대로 답장이 와 · 냥이가 옆에서 코칭한다냥
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* 턴 상태 바 */}
-      <div className="flex items-center justify-between mb-2 px-1">
-        <div className="text-[11px] font-bold" style={{ color: "var(--color-primary-deep)" }}>
-          🎫 남은 턴:{" "}
-          <span style={{ color: "var(--color-primary-deep)" }}>{turnsRemaining}</span> / {turnsAllowed}
-          <span className="ml-1 text-[10px] text-[var(--color-sub)] font-semibold">
-            {isFreePhase ? "(무료)" : "(결제됨)"}
-          </span>
-        </div>
-        {messages.length > 0 && (
-          <button
-            onClick={handleReset}
-            disabled={resetting}
-            className="text-[11px] font-bold px-2.5 py-1 rounded-full"
-            style={{
-              background: "var(--color-bg-alt)",
-              border: "1px solid var(--color-line)",
-              color: "var(--color-primary)",
-              cursor: resetting ? "wait" : "pointer",
-            }}>
-            🔄 대화 리셋
-          </button>
-        )}
-      </div>
-
-      {/* 채팅창 */}
+    <div className="animate-fadeUp mt-6" style={{ fontFamily: "var(--font-sans)", color: CS_DARK }}>
+      {/* Eyebrow */}
       <div
-        ref={scrollRef}
-        className="rounded-[18px] bg-white p-3.5 mb-2.5"
         style={{
-          border: "1px solid var(--color-line)",
-          boxShadow: "0 2px 14px rgba(26,23,20,0.08)",
-          minHeight: 260,
-          maxHeight: 420,
-          overflowY: "auto",
-        }}>
-        {messages.length === 0 ? (
-          <div className="py-10 text-center">
-            <div className="text-[28px] mb-2">💭</div>
-            <div className="text-[12px] text-[var(--color-sub)] leading-[1.6]">
-              아래에 먼저 보낼 말 써봐.
-              <br />
-              걔 말투 그대로 답장이 올 거야.
-            </div>
+          display: "flex",
+          alignItems: "center",
+          gap: 10,
+          marginBottom: 12,
+          fontSize: 10,
+          letterSpacing: "0.3em",
+          color: CS_MUSTARD,
+          fontWeight: 600,
+        }}
+      >
+        <div style={{ width: 20, borderTop: `1px solid ${CS_MUSTARD}` }} />
+        <span>LIVE SIMULATION</span>
+        <span
+          style={{
+            background: CS_MUSTARD,
+            color: CS_DARK,
+            padding: "2px 6px",
+            fontSize: 9,
+            letterSpacing: "0.15em",
+            fontWeight: 700,
+          }}
+        >
+          NEW
+        </span>
+      </div>
+
+      {/* Header — title + integrated turn meter */}
+      <div
+        style={{
+          display: "flex",
+          alignItems: "flex-start",
+          justifyContent: "space-between",
+          gap: 14,
+          marginBottom: 6,
+        }}
+      >
+        <div style={{ flex: 1 }}>
+          <h3
+            style={{
+              fontFamily: "var(--font-serif)",
+              fontWeight: 500,
+              fontSize: 26,
+              margin: 0,
+              letterSpacing: "-0.02em",
+              lineHeight: 1.15,
+            }}
+          >
+            걔랑 대화 연습
+          </h3>
+          <p
+            style={{
+              fontSize: 12.5,
+              color: CS_MUTED,
+              margin: "4px 0 0",
+              fontFamily: "var(--font-serif)",
+              fontStyle: "italic",
+              lineHeight: 1.45,
+            }}
+          >
+            걔 말투 그대로 답장이 와
+            <br />
+            <span style={{ opacity: 0.8 }}>· 냥이가 옆에서 코칭한다냥</span>
+          </p>
+        </div>
+
+        {/* Turn meter — vertical card */}
+        <div
+          style={{
+            background: CS_CREAM_SUB,
+            border: `1px solid ${CS_BORDER_D}`,
+            padding: "8px 10px",
+            textAlign: "center",
+            minWidth: 78,
+          }}
+        >
+          <div
+            style={{
+              fontSize: 8.5,
+              letterSpacing: "0.2em",
+              color: CS_MUTED,
+              marginBottom: 2,
+            }}
+          >
+            {isFreePhase ? "FREE" : "PAID"}
           </div>
-        ) : (
-          messages.map((m, i) => (
-            <ChatBubble key={i} role={m.role} content={m.content} />
-          ))
-        )}
-        {sending && (
-          <div className="flex justify-start mb-2">
+          <div
+            style={{
+              display: "flex",
+              alignItems: "baseline",
+              gap: 2,
+              justifyContent: "center",
+            }}
+          >
+            <span
+              style={{
+                fontFamily: "var(--font-serif)",
+                fontSize: 26,
+                lineHeight: 1,
+                fontWeight: 400,
+              }}
+            >
+              {turnsRemaining}
+            </span>
+            <span
+              style={{
+                fontFamily: "var(--font-serif)",
+                fontStyle: "italic",
+                fontSize: 12,
+                color: CS_MUTED,
+              }}
+            >
+              /{turnsAllowed}
+            </span>
+          </div>
+          <div
+            style={{
+              fontSize: 8.5,
+              letterSpacing: "0.15em",
+              color: CS_MUTED,
+              marginTop: 3,
+            }}
+          >
+            TURNS
+          </div>
+        </div>
+      </div>
+
+      <div style={{ height: 16 }} />
+
+      {/* Clean chat card */}
+      <div
+        style={{
+          background: CS_CREAM_CARD,
+          border: `1px solid ${CS_BORDER}`,
+          marginBottom: 14,
+          position: "relative",
+          overflow: "hidden",
+        }}
+      >
+        {/* Minimal header — 걔 + LIVE + reset */}
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            padding: "14px 18px",
+            borderBottom: `1px solid ${CS_BORDER}`,
+          }}
+        >
+          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
             <div
-              className="px-3.5 py-2.5 rounded-[18px] rounded-bl-[6px] text-[13px]"
-              style={{ background: "var(--color-bg-alt)", border: "1px solid var(--color-line)", color: "var(--color-sub)" }}>
-              <span className="inline-flex items-center gap-1">
-                <span
-                  className="w-1.5 h-1.5 rounded-full animate-bounce"
-                  style={{ background: "var(--color-primary)" }}
-                />
-                <span
-                  className="w-1.5 h-1.5 rounded-full animate-bounce"
-                  style={{ background: "var(--color-primary)", animationDelay: "0.15s" }}
-                />
-                <span
-                  className="w-1.5 h-1.5 rounded-full animate-bounce"
-                  style={{ background: "var(--color-primary)", animationDelay: "0.3s" }}
-                />
-              </span>
+              style={{
+                width: 28,
+                height: 28,
+                borderRadius: "50%",
+                background: CS_CREAM_SUB,
+                border: `1px solid ${CS_BORDER_D}`,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontSize: 13,
+                color: CS_MUTED,
+                fontFamily: "var(--font-serif)",
+                fontStyle: "italic",
+              }}
+            >
+              ?
+            </div>
+            <div
+              style={{
+                fontFamily: "var(--font-serif)",
+                fontSize: 15,
+                fontWeight: 500,
+                letterSpacing: "-0.01em",
+              }}
+            >
+              걔
             </div>
           </div>
-        )}
+          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            {messages.length > 0 && (
+              <button
+                onClick={handleReset}
+                disabled={resetting}
+                type="button"
+                title="대화 리셋"
+                aria-label="대화 리셋"
+                style={{
+                  width: 22,
+                  height: 22,
+                  background: "transparent",
+                  border: "none",
+                  padding: 0,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  cursor: resetting ? "wait" : "pointer",
+                  color: CS_MUTED,
+                  opacity: resetting ? 0.5 : 1,
+                }}
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                  <path
+                    d="M3 12a9 9 0 0 1 15.5-6.3L21 8M21 3v5h-5M21 12a9 9 0 0 1-15.5 6.3L3 16M3 21v-5h5"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </button>
+            )}
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 5,
+                fontSize: 9.5,
+                color: CS_RED,
+                letterSpacing: "0.2em",
+                fontWeight: 600,
+              }}
+            >
+              <span
+                style={{
+                  width: 5,
+                  height: 5,
+                  borderRadius: "50%",
+                  background: CS_RED,
+                  display: "inline-block",
+                }}
+              />
+              LIVE
+            </div>
+          </div>
+        </div>
+
+        {/* Message area */}
+        <div
+          ref={scrollRef}
+          style={{
+            padding: "24px 18px 20px",
+            minHeight: 240,
+            maxHeight: 420,
+            overflowY: "auto",
+            display: "flex",
+            flexDirection: "column",
+          }}
+        >
+          {messages.length === 0 ? (
+            <>
+              {/* Coaching bubble (nyang) */}
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "flex-start",
+                  gap: 8,
+                  marginBottom: 18,
+                }}
+              >
+                <NyangChatMini size={28} />
+                <div
+                  style={{
+                    background: CS_DARK,
+                    color: CS_CREAM,
+                    padding: "10px 14px",
+                    fontSize: 13,
+                    lineHeight: 1.55,
+                    fontFamily: "var(--font-sans)",
+                    borderRadius: 14,
+                    borderTopLeftRadius: 3,
+                    maxWidth: "80%",
+                  }}
+                >
+                  먼저 한 줄 써봐라냥.
+                  <br />
+                  <span
+                    style={{
+                      fontFamily: "var(--font-serif)",
+                      fontStyle: "italic",
+                      fontSize: 12,
+                      opacity: 0.75,
+                    }}
+                  >
+                    걔가 어떻게 답할지 보여줄게.
+                  </span>
+                </div>
+              </div>
+
+              {/* Ghosted incoming bubble — 답장 자리 */}
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "flex-start",
+                  marginBottom: 10,
+                }}
+              >
+                <div
+                  style={{
+                    maxWidth: "72%",
+                    background: "transparent",
+                    border: `1.2px dashed ${CS_BORDER_D}`,
+                    padding: "12px 16px",
+                    borderRadius: 14,
+                    borderTopLeftRadius: 4,
+                    fontSize: 13,
+                    color: CS_MUTED,
+                    fontStyle: "italic",
+                    fontFamily: "var(--font-serif)",
+                    lineHeight: 1.4,
+                  }}
+                >
+                  걔의 답장이 여기에…
+                </div>
+              </div>
+
+              {/* WAITING FOR YOU typing dots */}
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 6,
+                  fontSize: 9.5,
+                  color: CS_MUTED,
+                  letterSpacing: "0.18em",
+                  paddingLeft: 4,
+                  marginTop: 4,
+                }}
+              >
+                <div style={{ display: "flex", gap: 3 }}>
+                  {[0, 1, 2].map((i) => (
+                    <span
+                      key={i}
+                      style={{
+                        width: 4,
+                        height: 4,
+                        borderRadius: "50%",
+                        background: CS_MUTED,
+                        opacity: 0.4,
+                        animation: `nyangCsDot 1.4s ${i * 0.2}s infinite`,
+                      }}
+                    />
+                  ))}
+                </div>
+                <span>WAITING FOR YOU</span>
+              </div>
+            </>
+          ) : (
+            messages.map((m, i) => (
+              <ChatBubble key={i} role={m.role} content={m.content} />
+            ))
+          )}
+          {sending && (
+            <div style={{ display: "flex", justifyContent: "flex-start", marginTop: 4 }}>
+              <div
+                style={{
+                  display: "flex",
+                  gap: 3,
+                  padding: "10px 14px",
+                  borderRadius: 14,
+                  borderTopLeftRadius: 3,
+                  background: CS_CREAM_SUB,
+                  border: `1px solid ${CS_BORDER}`,
+                }}
+              >
+                {[0, 1, 2].map((i) => (
+                  <span
+                    key={i}
+                    style={{
+                      width: 5,
+                      height: 5,
+                      borderRadius: "50%",
+                      background: CS_MUTED,
+                      opacity: 0.4,
+                      animation: `nyangCsDot 1.4s ${i * 0.2}s infinite`,
+                    }}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
       </div>
 
       {error && (
-        <div className="bg-white rounded-[14px] p-3 mb-2.5 border border-[var(--color-primary)] text-[12px] text-[#D14343]">
+        <div
+          style={{
+            background: "#fff",
+            borderLeft: `2px solid ${CS_RED}`,
+            padding: "10px 14px",
+            marginBottom: 10,
+            fontSize: 12.5,
+            color: CS_DARK,
+            lineHeight: 1.5,
+          }}
+        >
           {error}
         </div>
       )}
 
-      {/* 입력창 or 언락 CTA */}
+      {/* Unlock CTA when needUnlock */}
       {needUnlock ? (
         <div
-          className="rounded-[18px] p-4 border"
           style={{
-            background: "linear-gradient(135deg, var(--color-bg-alt), var(--color-bg-alt))",
-            borderColor: "var(--color-primary)",
-          }}>
-          <div className="text-[14px] font-extrabold text-[var(--color-ink)] mb-1">
-            🎫 턴 {turnsAllowed}개 전부 썼어
+            background: CS_CREAM_CARD,
+            border: `1px solid ${CS_BORDER}`,
+            padding: "16px 18px",
+            marginBottom: 10,
+          }}
+        >
+          <div
+            style={{
+              fontFamily: "var(--font-serif)",
+              fontSize: 16,
+              fontWeight: 500,
+              color: CS_DARK,
+              marginBottom: 4,
+            }}
+          >
+            턴 {turnsAllowed}개 전부 썼어
           </div>
-          <div className="text-[11.5px] text-[var(--color-sub)] mb-3 leading-[1.5]">
-            +15턴 추가하면 같은 맥락 그대로 더 돌려볼 수 있어.
+          <div
+            style={{
+              fontSize: 12,
+              color: CS_MUTED,
+              marginBottom: 14,
+              lineHeight: 1.55,
+            }}
+          >
+            +15턴 추가하면 같은 맥락 그대로 더 돌려볼 수 있다냥.
           </div>
           <button
             onClick={handleUnlock}
             disabled={unlockRedirecting}
-            className="w-full py-3.5 rounded-[14px] text-white text-[14px] font-bold"
+            type="button"
             style={{
-              background: unlockRedirecting
-                ? "#D0CDE0"
-                : "linear-gradient(135deg, var(--color-primary), var(--color-primary-deep))",
-              boxShadow: unlockRedirecting
-                ? "none"
-                : "0 4px 18px rgba(217,117,87,0.25)",
+              width: "100%",
+              padding: "14px",
+              background: unlockRedirecting ? CS_MUTED : CS_DARK,
+              color: CS_CREAM,
               border: "none",
+              fontFamily: "var(--font-sans)",
+              fontWeight: 600,
+              fontSize: 14,
               cursor: unlockRedirecting ? "not-allowed" : "pointer",
-            }}>
+              letterSpacing: "-0.01em",
+              opacity: unlockRedirecting ? 0.7 : 1,
+            }}
+          >
             {unlockRedirecting
               ? "결제창으로 이동 중..."
-              : `🔓 +15턴 추가 · ₩${UNLOCK_PRICE.toLocaleString()}`}
+              : `+15턴 추가 · ₩${UNLOCK_PRICE.toLocaleString()}`}
           </button>
-          <p className="text-center text-[10.5px] text-[var(--color-sub)] mt-2 leading-[1.5]">
-            같은 맥락 유지 · 리셋해도 남은 턴 수는 그대로
-          </p>
         </div>
       ) : (
+        /* Input panel */
         <div
-          className="rounded-[18px] p-2.5 bg-white flex gap-2 items-end"
           style={{
-            border: "1px solid var(--color-line)",
-            boxShadow: "0 2px 14px rgba(26,23,20,0.08)",
-          }}>
-          <textarea
-            value={draft}
-            onChange={(e) => setDraft(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" && !e.shiftKey) {
-                e.preventDefault();
-                handleSend();
-              }
-            }}
-            maxLength={500}
-            placeholder={`걔한테 보낼 말 써봐...`}
-            rows={2}
-            className="flex-1 resize-none text-[13.5px] leading-[1.55] text-[var(--color-ink)] outline-none rounded-[12px] p-2.5"
+            background: CS_CREAM_CARD,
+            border: `1px solid ${CS_BORDER}`,
+            padding: "12px 12px 10px",
+            marginBottom: 10,
+          }}
+        >
+          <div
             style={{
-              background: "var(--color-bg)",
-              border: "1px solid var(--color-bg-alt)",
-              fontFamily: "inherit",
-              minHeight: 46,
-              maxHeight: 120,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              marginBottom: 8,
+              fontSize: 9.5,
+              letterSpacing: "0.22em",
+              color: CS_MUTED,
             }}
-          />
-          <button
-            onClick={handleSend}
-            disabled={!draft.trim() || sending}
-            className="shrink-0 px-4 rounded-[12px] text-white text-[13px] font-bold"
-            style={{
-              background:
-                draft.trim() && !sending
-                  ? "linear-gradient(135deg, var(--color-primary), var(--color-primary-deep))"
-                  : "#D0CDE0",
-              border: "none",
-              cursor: draft.trim() && !sending ? "pointer" : "not-allowed",
-              height: 46,
-            }}>
-            전송
-          </button>
+          >
+            <span>YOUR MESSAGE</span>
+            <span
+              style={{
+                fontFamily: "var(--font-serif)",
+                fontStyle: "italic",
+                fontSize: 11,
+                letterSpacing: 0,
+                textTransform: "none",
+              }}
+            >
+              {draft.length}자
+            </span>
+          </div>
+          <div style={{ display: "flex", alignItems: "flex-end", gap: 10 }}>
+            <textarea
+              value={draft}
+              onChange={(e) => setDraft(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && !e.shiftKey) {
+                  e.preventDefault();
+                  handleSend();
+                }
+              }}
+              maxLength={500}
+              placeholder="걔한테 보낼 말 써봐..."
+              rows={2}
+              style={{
+                flex: 1,
+                border: "none",
+                resize: "none",
+                background: "transparent",
+                outline: "none",
+                fontFamily: "var(--font-sans)",
+                fontSize: 14,
+                color: CS_DARK,
+                lineHeight: 1.55,
+                padding: 0,
+                minHeight: 44,
+              }}
+            />
+            <button
+              onClick={handleSend}
+              disabled={!sendActive}
+              type="button"
+              aria-label="전송"
+              style={{
+                width: 44,
+                height: 44,
+                borderRadius: "50%",
+                background: sendActive ? CS_DARK : CS_CREAM_SUB,
+                color: sendActive ? CS_CREAM : CS_MUTED,
+                border: "none",
+                cursor: sendActive ? "pointer" : "not-allowed",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                flexShrink: 0,
+                transition: "background 0.15s",
+              }}
+            >
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                <path
+                  d="M2 8 L 14 8 M 8 2 L 14 8 L 8 14"
+                  stroke={sendActive ? CS_CREAM : CS_MUTED}
+                  strokeWidth="1.7"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </button>
+          </div>
         </div>
       )}
 
-      <p className="text-center mt-2 text-[10.5px] text-[var(--color-sub)] leading-[1.5]">
-        실제 답장 예측 · 무료 2턴 이후 +15턴 ₩{UNLOCK_PRICE.toLocaleString()}
-      </p>
+      <div
+        style={{
+          textAlign: "center",
+          fontFamily: "var(--font-serif)",
+          fontStyle: "italic",
+          fontSize: 11,
+          color: CS_MUTED,
+        }}
+      >
+        실제 답장 예측 · 무료 2턴 이후 +15턴{" "}
+        <span
+          style={{ color: CS_DARK, fontWeight: 500, fontStyle: "normal" }}
+        >
+          ₩{UNLOCK_PRICE.toLocaleString()}
+        </span>
+      </div>
     </div>
+  );
+}
+
+// ─── 까만냥 mini avatar (chat sim coaching bubble용) ───
+function NyangChatMini({ size = 32 }: { size?: number }) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 80 80"
+      style={{ display: "block", flexShrink: 0 }}
+      aria-hidden
+    >
+      <path
+        d="M14 74 C 6 50, 6 36, 14 26 C 10 14, 18 6, 26 14 C 32 10, 48 10, 54 14 C 62 6, 70 14, 66 26 C 74 36, 74 50, 66 74 Z"
+        fill="#2B2420"
+      />
+      <ellipse cx="30" cy="40" rx="5" ry="6.5" fill="#C9A961" />
+      <ellipse cx="50" cy="40" rx="5" ry="6.5" fill="#C9A961" />
+      <path
+        d="M30 35 L 30 45 M 50 35 L 50 45"
+        stroke="#2B2420"
+        strokeWidth="1.5"
+      />
+      <path d="M37 52 L 43 52 L 40 56 Z" fill="#D94F4F" />
+    </svg>
   );
 }
 
