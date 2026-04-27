@@ -1377,13 +1377,18 @@ export function ResultReveal({ score, onDone }: ResultRevealProps) {
     Math.min(1, (time - scoreAnimStart) / (scoreAnimEnd - scoreAnimStart))
   );
   const easedG = 1 - Math.pow(1 - globalT, 3);
+  // 시그모이드 누적 — t=0에서 0, t=1에서 1로 정규화 (안 그러면 ~0.97에서 멈춰 점수 1점 모자람)
   function burstEase(t: number, pivots: number[]) {
-    let v = 0;
-    for (const p of pivots) {
-      const k = 10;
-      v += 1 / (1 + Math.exp(-k * (t - p)));
-    }
-    return v / pivots.length;
+    const k = 10;
+    const raw = (x: number) => {
+      let v = 0;
+      for (const p of pivots) v += 1 / (1 + Math.exp(-k * (x - p)));
+      return v / pivots.length;
+    };
+    const v0 = raw(0);
+    const v1 = raw(1);
+    if (v1 <= v0) return raw(t);
+    return (raw(t) - v0) / (v1 - v0);
   }
   const pivots = !hasStep2 ? [0.55] : [0.35, 0.72];
   const burstT =
