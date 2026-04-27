@@ -2163,7 +2163,14 @@ function ChatSimulator({ parentOrderId }: { parentOrderId: string }) {
               value={draft}
               onChange={(e) => setDraft(e.target.value)}
               onKeyDown={(e) => {
-                if (e.key === "Enter" && !e.shiftKey) {
+                // 한글 IME 조합 중 Enter는 조합 종료용 — 전송 트리거에서 제외
+                // (조합 중에 보내면 마지막 음절이 빈 입력창에 다시 commit 되는 버그)
+                if (
+                  e.key === "Enter" &&
+                  !e.shiftKey &&
+                  !e.nativeEvent.isComposing &&
+                  e.keyCode !== 229
+                ) {
                   e.preventDefault();
                   handleSend();
                 }
