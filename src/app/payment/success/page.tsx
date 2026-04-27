@@ -139,7 +139,8 @@ function SuccessInner() {
           } catch {}
 
           setStatus("done");
-          setTimeout(() => router.replace("/"), 1000);
+          // sim-unlock 결제 완료 → 채팅 세션이 살아있는 /analyze 로 복귀
+          setTimeout(() => router.replace("/analyze"), 1000);
           return;
         }
 
