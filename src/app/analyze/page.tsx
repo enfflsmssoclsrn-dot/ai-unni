@@ -1490,8 +1490,16 @@ function ChatSimulator({ parentOrderId }: { parentOrderId: string }) {
   const showCoach =
     !sending && !needUnlock && messages.length > 0 && lastMessage?.role === "partner";
   const coach = showCoach ? buildCoachTip(lastMessage!.content) : null;
+  // 칩 클릭 동작: 빈 입력이거나 현재 입력이 칩 starter 중 하나와 일치하면 자유롭게 교체.
+  // 사용자가 직접 타이핑한 경우엔 덮어쓰지 않음.
   const handleChip = (starter: string) => {
-    setDraft((cur) => (cur && cur.trim() ? cur : starter));
+    setDraft((cur) => {
+      if (!cur || !cur.trim()) return starter;
+      const cleanCur = cur.trim();
+      const chipStarters = coach?.chips.map((c) => c.starter.trim()) ?? [];
+      if (chipStarters.includes(cleanCur)) return starter;
+      return cur;
+    });
   };
 
   return (
